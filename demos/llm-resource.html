@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My LLM Resource | Knowledge Base</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header & Search */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 20px;
+        }
+
+        h1 { margin: 0; font-size: 2.5rem; }
+        .subtitle { color: var(--text-sub); margin-top: 10px; }
+
+        .search-container {
+            margin-top: 20px;
+            position: relative;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: var(--card-bg);
+            color: white;
+            font-size: 1.1rem;
+            outline: none;
+            box-sizing: border-box; 
+        }
+
+        #searchInput:focus { border-color: var(--accent); }
+
+        /* Grid Layout */
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #334155;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            border-color: var(--accent);
+        }
+
+        .tag {
+            display: inline-block;
+            background: #0f172a;
+            color: var(--accent);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            border: 1px solid #1e40af;
+        }
+
+        .card h3 { margin: 5px 0 10px 0; }
+        .card p { color: var(--text-sub); font-size: 0.95rem; }
+        
+        .snippet {
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            color: #a5b4fc;
+            margin-top: 15px;
+            overflow-x: auto;
+            border: 1px solid #334155;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>My LLM Resource</h1>
+        <div class="subtitle">Curated Knowledge Base & Code Snippets</div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search resources (e.g., 'API', 'Python', 'RAG')...">
+        </div>
+    </header>
+
+    <div class="resource-grid" id="grid">
+        </div>
+</div>
+
+<script>
+    // THE DATABASE (Mock Data)
+    const resources = [
+        {
+            title: "OpenAI API Boilerplate",
+            category: "Python",
+            desc: "Standard starter code for initializing GPT-4 client with error handling.",
+            code: "import openai\nclient = openai.OpenAI(api_key='sk-...')\nresponse = client.chat.completions.create(...)"
+        },
+        {
+            title: "RAG Architecture Flow",
+            category: "Architecture",
+            desc: "Vector database integration logic using Pinecone and LangChain.",
+            code: "index = pinecone.Index('my-index')\nvectors = embeddings.embed_query(query)\nresults = index.query(vectors, top_k=3)"
+        },
+        {
+            title: "React Streaming Response",
+            category: "Frontend",
+            desc: "Handling server-sent events (SSE) for typewriter effects in UI.",
+            code: "const reader = response.body.getReader();\nwhile (true) {\n  const { done, value } = await reader.read();\n}"
+        },
+        {
+            title: "Prompt Engineering: Chain of Thought",
+            category: "Strategy",
+            desc: "Technique to improve reasoning by asking the model to think step-by-step.",
+            code: "System: You are an expert.\nUser: Solve this logic puzzle.\nAppend: 'Let's think step by step.'"
+        },
+        {
+            title: "HuggingFace Transformers",
+            category: "Python",
+            desc: "Loading open-source models locally for offline inference.",
+            code: "from transformers import pipeline\npipe = pipeline('text-generation', model='gpt2')\nprint(pipe('Hello world'))"
+        },
+        {
+            title: "JSON Mode Enforcement",
+            category: "API",
+            desc: "Forcing the LLM to output valid JSON for programmatic parsing.",
+            code: "response_format={ 'type': 'json_object' }\n// Ensure prompt asks for JSON specifically"
+        },
+        {
+            title: "Token Counting Utility",
+            category: "Utility",
+            desc: "Estimating cost and context window usage before sending requests.",
+            code: "import tiktoken\nenc = tiktoken.encoding_for_model('gpt-4')\nlen(enc.encode('Hello world'))"
+        },
+        {
+            title: "Temperature Settings Guide",
+            category: "Concept",
+            desc: "0.0 for code/logic (deterministic), 0.7+ for creative writing.",
+            code: "// Creative: temperature=0.8\n// Precise: temperature=0.1"
+        }
+    ];
+
+    const grid = document.getElementById('grid');
+    const searchInput = document.getElementById('searchInput');
+
+    // Render Function
+    function renderResources(data) {
+        grid.innerHTML = '';
+        if(data.length === 0) {
+            grid.innerHTML = '<p style="text-align:center; grid-column: 1/-1; color: #64748b;">No resources found.</p>';
+            return;
+        }
+
+        data.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <span class="tag">${item.category}</span>
+                <h3>${item.title}</h3>
+                <p>${item.desc}</p>
+                <div class="snippet">${item.code}</div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // Initial Render
+    renderResources(resources);
+
+    // Search Logic
+    searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        const filtered = resources.filter(item => 
+            item.title.toLowerCase().includes(term) || 
+            item.category.toLowerCase().includes(term) ||
+            item.desc.toLowerCase().includes(term)
+        );
+        renderResources(filtered);
+    });
+
+</script>
+
+</body>
+</html>
