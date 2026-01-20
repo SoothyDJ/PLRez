@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workday Test Plan Generator | Proof of Work</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .gradient-text { background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; color: transparent; }
+        .step-card { border-left: 3px solid #6366f1; transition: all 0.3s ease; }
+        .step-card:hover { transform: translateX(5px); background: rgba(99, 102, 241, 0.1); }
+        
+        /* Loading Animation */
+        .typing::after { content: '...'; animation: blink 1.5s infinite; }
+        @keyframes blink { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-10 px-4">
+
+    <header class="max-w-4xl w-full text-center mb-8">
+        <div class="inline-block px-3 py-1 mb-4 text-xs font-semibold tracking-wider text-indigo-300 uppercase bg-indigo-900/50 rounded-full border border-indigo-500/30">
+            Internal Tooling Demo
+        </div>
+        <h1 class="text-4xl md:text-5xl font-bold mb-3"><span class="gradient-text">Workday QA Automator</span></h1>
+        <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+            Reducing manual documentation time by 80% using automated logic templates.
+        </p>
+    </header>
+
+    <section class="max-w-6xl w-full mb-12">
+        <div class="glass-panel p-8 rounded-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full filter blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+
+            <h2 class="text-2xl font-bold text-white mb-6 border-b border-slate-700 pb-4">
+                <i class="fa-solid fa-plane-departure text-indigo-400 mr-2"></i> The Concept: The "Pilot's Checklist"
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <div class="space-y-4">
+                    <h3 class="text-indigo-300 font-bold text-lg">The Problem: "Flying from Memory"</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Imagine a pilot trying to fly a plane by writing their own checklist on a napkin before every flight. That is how most companies test Workday updates today. 
+                    </p>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Analysts manually type out 50+ rows of Excel steps ("Log in", "Click Here", "Check Math") from memory. It is slow, boring, and if they forget a step, the process breaks.
+                    </p>
+                </div>
+
+                <div class="space-y-4 relative">
+                    <div class="absolute left-[-1rem] top-0 bottom-0 w-px bg-slate-700 md:block hidden"></div>
+                    
+                    <h3 class="text-green-400 font-bold text-lg">The Solution: "Automated Flight Plan"</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        I built this tool to act as the automated flight computer. 
+                    </p>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        It knows the "Standard Operating Procedures" for every Workday module. You simply select the destination (e.g., "New Hire"), and it instantly generates the perfect, error-free checklist. <strong>Try it below.</strong>
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <main class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <section class="lg:col-span-1 space-y-6">
+            <div class="glass-panel p-6 rounded-2xl shadow-xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-white"><i class="fa-solid fa-sliders mr-2 text-indigo-400"></i>Flight Controls</h2>
+                </div>
+
+                <div class="mb-6">
+                    <p class="text-xs font-bold text-slate-500 uppercase mb-3">Select a Mission:</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="loadScenario('hcm')" class="p-3 text-xs bg-slate-800 hover:bg-indigo-600 border border-slate-700 rounded transition-colors text-left group">
+                            <span class="block font-bold text-white group-hover:text-white">New Hire</span>
+                            <span class="text-slate-500 group-hover:text-indigo-200">Test onboarding flow</span>
+                        </button>
+                        <button onclick="loadScenario('comp')" class="p-3 text-xs bg-slate-800 hover:bg-indigo-600 border border-slate-700 rounded transition-colors text-left group">
+                            <span class="block font-bold text-white group-hover:text-white">Bonus Plan</span>
+                            <span class="text-slate-500 group-hover:text-indigo-200">Test math logic</span>
+                        </button>
+                        <button onclick="loadScenario('security')" class="p-3 text-xs bg-slate-800 hover:bg-indigo-600 border border-slate-700 rounded transition-colors text-left group">
+                            <span class="block font-bold text-white group-hover:text-white">Role Changes</span>
+                            <span class="text-slate-500 group-hover:text-indigo-200">Test data privacy</span>
+                        </button>
+                        <button onclick="loadScenario('payroll')" class="p-3 text-xs bg-slate-800 hover:bg-indigo-600 border border-slate-700 rounded transition-colors text-left group">
+                            <span class="block font-bold text-white group-hover:text-white">Payroll Run</span>
+                            <span class="text-slate-500 group-hover:text-indigo-200">Test tax updates</span>
+                        </button>
+                    </div>
+                </div>
+
+                <form id="testForm" onsubmit="generatePlan(event)" class="space-y-4 border-t border-slate-700 pt-4">
+                    <p class="text-xs text-slate-500 text-center uppercase mb-2">Or Manual Configuration</p>
+                    <div>
+                        <select id="module" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                            <option value="HCM">Core HCM</option>
+                            <option value="Compensation">Compensation & Benefits</option>
+                            <option value="Payroll">Payroll</option>
+                            <option value="Recruiting">Recruiting</option>
+                            <option value="Security">Security & Roles</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <input type="text" id="feature" placeholder="Feature Name" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                    </div>
+
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg shadow-lg shadow-indigo-500/30 transition-all transform active:scale-95 flex justify-center items-center">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Generate Plan
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <section class="lg:col-span-2">
+            
+            <div id="loading" class="hidden h-full min-h-[400px] glass-panel rounded-2xl flex flex-col justify-center items-center p-8">
+                <div class="w-16 h-16 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mb-6"></div>
+                <div class="space-y-2 text-center">
+                    <p id="loading-text" class="text-indigo-300 font-mono text-sm typing">Retrieving Standard Procedure</p>
+                    <div class="h-1 w-48 bg-slate-700 rounded-full mx-auto overflow-hidden">
+                        <div class="h-full bg-indigo-500 animate-pulse w-2/3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="results" class="hidden space-y-6">
+                <div class="glass-panel p-6 rounded-2xl border-l-4 border-l-green-400">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl font-bold text-white mb-1" id="result-title">Test Plan Ready</h3>
+                            <p class="text-slate-400 text-sm">Generated ID: <span class="font-mono text-indigo-300">REQ-2024-892</span></p>
+                        </div>
+                        <button class="text-sm bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded transition-colors">
+                            <i class="fa-solid fa-download mr-1"></i> Export to Excel
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl overflow-hidden">
+                    <div class="px-6 py-4 bg-slate-800/50 border-b border-slate-700 flex justify-between items-center">
+                        <h4 class="font-semibold text-white">Execution Steps</h4>
+                        <span class="text-xs bg-indigo-900 text-indigo-200 px-2 py-1 rounded">Generated from Template</span>
+                    </div>
+                    
+                    <div class="p-6 space-y-4" id="steps-container">
+                        </div>
+                </div>
+            </div>
+
+            <div id="placeholder" class="h-full min-h-[400px] glass-panel rounded-2xl flex flex-col justify-center items-center text-center p-8 border-dashed border-2 border-slate-700">
+                <div class="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-4 text-slate-600">
+                    <i class="fa-solid fa-plane-up text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-medium text-white mb-2">Ready for Takeoff</h3>
+                <p class="text-slate-400 max-w-sm text-sm">
+                    Select a "Mission" on the left to instantly generate the correct testing procedures.
+                </p>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        const scenarios = {
+            'hcm': {
+                module: 'HCM',
+                feature: 'New Hire Business Process',
+                risk: 'High',
+                steps: [
+                    { role: 'Manager', action: 'Initiate Hire Process in Workday', expected: 'Hire BP triggers; Executive comp fields are visible.' },
+                    { role: 'HR Partner', action: 'Review Compensation Grade Profile', expected: 'Grade must match "Exec-Level-1".' },
+                    { role: 'Security Admin', action: 'Verify constrained proxy access', expected: 'Admin cannot view sensitive PII without "Break Glass" approval.' },
+                    { role: 'Candidate', action: 'Complete Onboarding Tasks', expected: 'Tasks appear in inbox immediately after account provision.' }
+                ]
+            },
+            'comp': {
+                module: 'Compensation',
+                feature: 'Q4 Annual Bonus Calculation',
+                risk: 'High',
+                steps: [
+                    { role: 'Comp Admin', action: 'Launch Bonus Process for "US-North" Org', expected: 'Process launches for 150 eligible employees.' },
+                    { role: 'Manager', action: 'Input individual performance multiplier', expected: 'Bonus amount recalculates in real-time.' },
+                    { role: 'System', action: 'Check Proration Rule', expected: 'Employees hired after Oct 1 receive prorated amount.' },
+                    { role: 'Payroll Admin', action: 'Verify One-Time Payment Integration', expected: 'Approved amounts flow to Payroll Input.' }
+                ]
+            },
+            'security': {
+                module: 'Security',
+                feature: 'Update HR Partner Domain Policies',
+                risk: 'High',
+                steps: [
+                    { role: 'Security Admin', action: 'Edit Domain Security Policy: Worker Data', expected: 'Changes are staged; Alert triggers for "Unsecured Item".' },
+                    { role: 'Security Admin', action: 'Activate Pending Security Policy Changes', expected: 'Timestamp recorded in Audit Trail.' },
+                    { role: 'HR Partner', action: 'Attempt to view "Social Security Number"', expected: 'Field is masked (*****).' },
+                    { role: 'Compliance Officer', action: 'Run "Security Audit" Report', expected: 'Change appears in daily diff report.' }
+                ]
+            },
+            'payroll': {
+                module: 'Payroll',
+                feature: 'Year-End Tax Update (Federal)',
+                risk: 'High',
+                steps: [
+                    { role: 'Payroll Admin', action: 'Load Tax Update XML', expected: 'System accepts file version 2026.01.' },
+                    { role: 'System', action: 'Recalculate Retroactive Pay', expected: 'No retro differences found for Jan 1-15.' },
+                    { role: 'Employee', action: 'View Payslip Simulation', expected: 'Fed Tax line item reflects new 2026 brackets.' },
+                    { role: 'Finance', action: 'Check General Ledger Posting', expected: 'Liability account credits match total tax withheld.' }
+                ]
+            }
+        };
+
+        function loadScenario(key) {
+            const data = scenarios[key];
+            document.getElementById('module').value = data.module;
+            document.getElementById('feature').value = data.feature;
+            
+            const event = new Event('submit');
+            generatePlan(event, data.steps);
+        }
+
+        function generatePlan(e, preloadedSteps = null) {
+            e.preventDefault();
+            
+            document.getElementById('placeholder').classList.add('hidden');
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('loading').classList.remove('hidden');
+
+            const loadingText = document.getElementById('loading-text');
+            const messages = [
+                "Locating Business Process...",
+                "Retrieving Standard Procedures...",
+                "Identifying Security Roles...",
+                "Formatting Output...",
+                "Finalizing Checklist..."
+            ];
+
+            let i = 0;
+            const interval = setInterval(() => {
+                loadingText.innerText = messages[i];
+                i++;
+                if (i >= messages.length) clearInterval(interval);
+            }, 600);
+
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('results').classList.remove('hidden');
+                
+                const feature = document.getElementById('feature').value;
+                document.getElementById('result-title').innerText = `Test Plan: ${feature}`;
+                
+                renderSteps(preloadedSteps);
+            }, 3000);
+        }
+
+        function renderSteps(steps) {
+            const container = document.getElementById('steps-container');
+            container.innerHTML = '';
+
+            if (!steps) {
+                const module = document.getElementById('module').value;
+                steps = [
+                    { role: 'System Admin', action: `Configure ${module} Settings`, expected: 'Settings saved without validation errors.' },
+                    { role: 'End User', action: `Maps to ${module} Dashboard`, expected: 'Widgets load within 2 seconds.' },
+                    { role: 'Manager', action: 'Approve Transaction', expected: 'Workflow moves to "Complete" status.' },
+                    { role: 'Auditor', action: 'Verify History Log', expected: 'Action is stamped with user ID and time.' }
+                ];
+            }
+
+            steps.forEach((step, index) => {
+                const html = `
+                <div class="step-card bg-slate-800 p-4 rounded-lg flex gap-4 items-start">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-900 flex items-center justify-center text-indigo-300 font-bold text-sm border border-indigo-700">
+                        ${index + 1}
+                    </div>
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Persona:</span>
+                            <span class="text-xs bg-slate-700 text-white px-2 py-0.5 rounded border border-slate-600">${step.role}</span>
+                        </div>
+                        <p class="text-white font-medium mb-1">${step.action}</p>
+                        <p class="text-sm text-green-400"><i class="fa-solid fa-check-circle mr-1"></i>Expected: ${step.expected}</p>
+                    </div>
+                </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+    </script>
+</body>
+</html>
