@@ -10,6 +10,73 @@
   </head>
   <body>
     <div id="root"></div>
-    
+
+    <!-- PLRez AI - collapsible demo menu. Edit DEMOS below to add more items. -->
+    <script>
+      (function () {
+        // === Add or edit demos here ===========================
+        var DEMOS = [
+          { href: '/demos/llm-resource.html',          icon: '\u{1F916}', label: 'LLM Resource' },
+          { href: '/demos/support-ops-dashboard.html', icon: '\u{1F4CA}', label: 'Support Ops Dashboard' },
+          { href: '/demos/workday-test-plan.html',     icon: '\u{1F680}', label: 'Workday Test Plan' }
+        ];
+        var TRIGGER_ICON  = '\u{1F4C1}';
+        var TRIGGER_LABEL = 'Demos';
+        var CLOSE_DELAY_MS = 5000; // wait 5s after mouseleave before collapsing
+        // ======================================================
+
+        function buildMenu() {
+          if (document.getElementById('plrez-demos-menu')) return;
+          var root = document.createElement('div');
+          root.id = 'plrez-demos-menu';
+          root.tabIndex = 0;
+
+          var trigger = document.createElement('div');
+          trigger.className = 'plrez-demos-trigger';
+          trigger.innerHTML =
+            '<span class="plrez-demos-icon">' + TRIGGER_ICON + '</span>' +
+            '<span class="plrez-demos-label">' + TRIGGER_LABEL + '</span>' +
+            '<span class="plrez-demos-chevron">\u203A</span>';
+          root.appendChild(trigger);
+
+          var list = document.createElement('div');
+          list.className = 'plrez-demos-list';
+          DEMOS.forEach(function (d) {
+            var a = document.createElement('a');
+            a.className = 'plrez-demos-item';
+            a.href = d.href;
+            a.innerHTML = '<span>' + d.icon + '</span><span>' + d.label + '</span>';
+            list.appendChild(a);
+          });
+          root.appendChild(list);
+
+          // Open/close with delayed-close behavior
+          var closeTimer = null;
+          function cancelClose() { if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; } }
+          function scheduleClose() {
+            cancelClose();
+            closeTimer = setTimeout(function () {
+              root.classList.remove('open');
+              closeTimer = null;
+            }, CLOSE_DELAY_MS);
+          }
+          root.addEventListener('mouseenter', function () { cancelClose(); root.classList.add('open'); });
+          root.addEventListener('mouseleave', scheduleClose);
+          // Also reset the timer any time the cursor moves inside the menu
+          root.addEventListener('mousemove', function () { if (root.classList.contains('open')) cancelClose(); });
+          // Keyboard accessibility: open on focus, close on blur (with same delay)
+          root.addEventListener('focusin',  function () { cancelClose(); root.classList.add('open'); });
+          root.addEventListener('focusout', scheduleClose);
+
+          document.body.appendChild(root);
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', buildMenu);
+        } else {
+          buildMenu();
+        }
+      })();
+    </script>
   </body>
 </html>
