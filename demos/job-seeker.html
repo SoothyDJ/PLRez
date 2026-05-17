@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Seeker AI — Resume & Cover Letter Builder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <script src="https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:     #050816;
+      --card:   #151030;
+      --card2:  #1d1836;
+      --accent: #915eff;
+      --accent2: #b083ff;
+      --text:   #fff;
+      --muted:  #aaa6c3;
+      --green:  #4ade80;
+      --red:    #f87171;
+      --yellow: #facc15;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      padding: 80px 20px 80px;
+    }
+
+    /* ── Back button ── */
+    #plrez-back-btn {
+      position: fixed;
+      top: 1.25rem;
+      left: 1.25rem;
+      background: var(--accent);
+      color: #fff;
+      padding: 0.5rem 1.25rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 14px;
+      text-decoration: none;
+      box-shadow: 0 4px 18px rgba(145,94,255,.4);
+      z-index: 100;
+      transition: background .2s, color .2s;
+    }
+    #plrez-back-btn:hover { background: #fff; color: var(--accent); }
+
+    /* ── Layout ── */
+    .app { max-width: 1140px; margin: 0 auto; }
+
+    /* ── Header ── */
+    .app-header { text-align: center; margin-bottom: 2rem; }
+    .app-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--accent), #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.4rem;
+    }
+    .app-header p { color: var(--muted); font-size: 13px; line-height: 1.6; max-width: 580px; margin: 0 auto; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(145,94,255,.2);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.6rem 1.5rem;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, opacity .2s, color .2s;
+      white-space: nowrap;
+    }
+    .btn:hover:not(:disabled) { background: var(--accent2); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-pill { border-radius: 9999px; padding: 0.7rem 2rem; font-size: 15px; }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+    }
+    .btn-outline:hover:not(:disabled) { background: var(--accent); color: #fff; }
+    .btn-sm { padding: 0.3rem 0.9rem; font-size: 12px; }
+
+    /* ── API key row ── */
+    .api-row { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+    .api-row label { font-size: 13px; font-weight: 600; color: var(--accent2); white-space: nowrap; }
+    .api-row input {
+      flex: 1;
+      min-width: 260px;
+      background: var(--card2);
+      border: 1px solid rgba(145,94,255,.3);
+      border-radius: 0.5rem;
+      padding: 0.6rem 1rem;
+      color: var(--text);
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .api-row input:focus { border-color: var(--accent); }
+
+    .api-note { color: var(--muted); font-size: 11px; margin-top: 0.5rem; }
+
+    .model-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(74,222,128,.08);
+      border: 1px solid rgba(74,222,128,.3);
+      color: var(--green);
+      border-radius: 9999px;
+      padding: 0.25rem 0.85rem;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 0.75rem;
+    }
+    .model-badge.hidden { display: none; }
+    .model-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+    .error-box {
+      background: rgba(248,113,113,.08);
+      border: 1px solid rgba(248,113,113,.3);
+      border-radius: 0.5rem;
+      padding: 0.65rem 1rem;
+      color: var(--red);
+      font-size: 12px;
+      margin-top: 0.75rem;
+    }
+
+    /* ── Inputs grid ── */
+    .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    @media (max-width: 700px) { .input-grid { grid-template-columns: 1fr; } }
+
+    .input-col label { display: block; font-size: 12px; font-weight: 600; color: var(--accent2); margin-bottom: 0.5rem; }
+    .input-col textarea {
+      width: 100%;
+      height: 280px;
+      background: var(--card2);
+      border: 1px solid rgba(145,94,255,.2);
+      border-radius: 0.75rem;
+      padding: 0.9rem 1rem;
+      color: var(--text);
+      font-family: 'Poppins', sans-serif;
+      font-size: 12.5px;
+      resize: vertical;
+      outline: none;
+      line-height: 1.7;
+      transition: border-color .2s;
+    }
+    .input-col textarea:focus { border-color: var(--accent); }
+    .input-col textarea::placeholder { color: var(--muted); }
+
+    .run-row { display: flex; justify-content: center; margin-top: 1.25rem; }
+
+    /* ── Pipeline ── */
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 0.85rem;
+    }
+
+    .step-card {
+      background: var(--card);
+      border: 1px solid rgba(145,94,255,.12);
+      border-radius: 1rem;
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.85rem;
+      transition: border-color .3s;
+    }
+    .step-card.active { border-color: var(--accent); }
+    .step-card.done   { border-color: rgba(74,222,128,.35); }
+
+    .step-header { display: flex; align-items: center; gap: 0.65rem; }
+
+    .step-num {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+      background: var(--card2);
+      border: 1px solid rgba(145,94,255,.25);
+      color: var(--muted);
+      flex-shrink: 0;
+      transition: background .3s, border-color .3s, color .3s;
+    }
+    .step-card.active .step-num { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .step-card.done   .step-num { background: rgba(74,222,128,.12); border-color: var(--green); color: var(--green); }
+
+    .step-title { font-size: 13px; font-weight: 600; flex: 1; }
+
+    .step-status {
+      font-size: 11px;
+      padding: 0.18rem 0.7rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .status-pending { background: rgba(170,166,195,.08); color: var(--muted); }
+    .status-running { background: rgba(145,94,255,.15); color: var(--accent); }
+    .status-done    { background: rgba(74,222,128,.1);  color: var(--green); }
+
+    .step-output {
+      margin-top: 0.85rem;
+      background: var(--card2);
+      border-radius: 0.65rem;
+      padding: 0.85rem 1rem;
+      font-size: 12.5px;
+      line-height: 1.8;
+      color: #dfd9ff;
+      white-space: pre-wrap;
+      max-height: 380px;
+      overflow-y: auto;
+      display: none;
+    }
+    .step-card.active .step-output,
+    .step-card.done   .step-output { display: block; }
+
+    /* ── Final outputs ── */
+    .output-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    @media (max-width: 700px) { .output-grid { grid-template-columns: 1fr; } }
+
+    .output-card {
+      background: var(--card);
+      border: 1px solid rgba(145,94,255,.2);
+      border-radius: 1rem;
+      padding: 1.25rem;
+    }
+    .output-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+    .output-header h3 { font-size: 13px; font-weight: 600; color: var(--accent2); }
+
+    .output-text {
+      background: var(--card2);
+      border-radius: 0.65rem;
+      padding: 0.9rem 1rem;
+      font-size: 12px;
+      line-height: 1.85;
+      color: #dfd9ff;
+      white-space: pre-wrap;
+      max-height: 520px;
+      overflow-y: auto;
+      min-height: 80px;
+    }
+
+    /* ── Spinner ── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block;
+      width: 12px; height: 12px;
+      border: 2px solid rgba(145,94,255,.25);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .65s linear infinite;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(145,94,255,.3); border-radius: 3px; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 2rem; right: 2rem;
+      background: var(--green); color: #000;
+      padding: 0.45rem 1.2rem; border-radius: 9999px;
+      font-size: 13px; font-weight: 600;
+      opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 999;
+    }
+    .toast.show { opacity: 1; }
+
+    /* ── Workflow info box ── */
+    .workflow-info {
+      background: rgba(145,94,255,.07);
+      border: 1px solid rgba(145,94,255,.2);
+      border-radius: 0.75rem;
+      padding: 1rem 1.25rem;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+    .workflow-info strong { color: var(--accent2); }
+    .workflow-steps { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.6rem; }
+    .wf-tag {
+      background: rgba(145,94,255,.12);
+      border: 1px solid rgba(145,94,255,.2);
+      border-radius: 9999px;
+      padding: 0.18rem 0.75rem;
+      font-size: 11px;
+      color: var(--accent2);
+      font-weight: 600;
+    }
+
+    /* ── Resume upload zone ── */
+    .upload-zone {
+      width: 100%;
+      min-height: 280px;
+      background: var(--card2);
+      border: 2px dashed rgba(145,94,255,.3);
+      border-radius: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      text-align: center;
+    }
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(145,94,255,.06);
+    }
+    .upload-zone .uz-icon { font-size: 2.2rem; }
+    .upload-zone .uz-title { font-size: 13px; font-weight: 600; color: var(--text); }
+    .upload-zone .uz-or { font-size: 11px; color: var(--muted); }
+    .upload-zone .uz-formats { font-size: 11px; color: var(--muted); margin-top: 0.2rem; }
+    .upload-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .path-input {
+      background: var(--card);
+      border: 1px solid rgba(145,94,255,.25);
+      border-radius: 0.4rem;
+      padding: 0.32rem 0.75rem;
+      color: var(--text);
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px;
+      width: 175px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .path-input:focus { border-color: var(--accent); }
+    .path-input::placeholder { color: var(--muted); }
+
+    /* ── Resume loaded card ── */
+    .resume-loaded-box {
+      width: 100%;
+      min-height: 280px;
+      background: var(--card2);
+      border: 1px solid rgba(74,222,128,.3);
+      border-radius: 0.75rem;
+      padding: 0.9rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .resume-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .resume-filename {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--green);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .resume-chars { font-size: 11px; color: var(--muted); }
+    .resume-preview {
+      flex: 1;
+      background: var(--card);
+      border-radius: 0.5rem;
+      padding: 0.7rem 0.85rem;
+      font-size: 11.5px;
+      line-height: 1.75;
+      color: #dfd9ff;
+      white-space: pre-wrap;
+      overflow-y: auto;
+      max-height: 155px;
+    }
+    .resume-action-row { display: flex; gap: 0.5rem; }
+    .btn-danger {
+      background: rgba(248,113,113,.1);
+      color: var(--red);
+      border: 1px solid rgba(248,113,113,.3);
+    }
+    .btn-danger:hover:not(:disabled) { background: rgba(248,113,113,.2); }
+    .parse-error {
+      font-size: 11.5px;
+      color: var(--red);
+      background: rgba(248,113,113,.07);
+      border: 1px solid rgba(248,113,113,.25);
+      border-radius: 0.4rem;
+      padding: 0.4rem 0.75rem;
+      display: none;
+    }
+
+    /* ── Prompts card ── */
+    .prompts-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .prompts-title { font-size: 14px; font-weight: 700; color: var(--accent2); }
+    .prompts-sub { font-size: 11px; color: var(--muted); margin-left: 0.4rem; }
+
+    .prompt-item { margin-bottom: 0.9rem; }
+    .prompt-item:last-child { margin-bottom: 0; }
+    .prompt-hdr {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-bottom: 0.3rem;
+      flex-wrap: wrap;
+    }
+    .badge-step {
+      background: rgba(145,94,255,.15);
+      color: var(--accent2);
+      border-radius: 9999px;
+      padding: 0.1rem 0.6rem;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      white-space: nowrap;
+    }
+    .badge-sys {
+      background: rgba(170,166,195,.1);
+      color: var(--muted);
+      border: 1px solid rgba(170,166,195,.2);
+      border-radius: 9999px;
+      padding: 0.1rem 0.6rem;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      white-space: nowrap;
+    }
+    .badge-gen {
+      background: rgba(74,222,128,.1);
+      color: var(--green);
+      border-radius: 9999px;
+      padding: 0.1rem 0.6rem;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      white-space: nowrap;
+    }
+    .prompt-lbl { font-size: 12.5px; font-weight: 600; flex: 1; color: var(--text); }
+    .prompt-btns { display: flex; gap: 0.3rem; margin-left: auto; }
+    .prompt-note { font-size: 11px; color: var(--muted); font-style: italic; margin-bottom: 0.3rem; }
+    .prompt-ta {
+      width: 100%;
+      background: var(--card2);
+      border: 1px solid rgba(145,94,255,.15);
+      border-radius: 0.5rem;
+      padding: 0.65rem 0.85rem;
+      color: var(--muted);
+      font-family: 'Poppins', sans-serif;
+      font-size: 11.5px;
+      line-height: 1.75;
+      resize: vertical;
+      min-height: 72px;
+      outline: none;
+      transition: border-color .2s, color .2s;
+    }
+    .prompt-ta:not([readonly]) { border-color: var(--accent); color: var(--text); }
+    .prompt-ta.sys-ta { border-color: rgba(170,166,195,.12); font-size: 11px; min-height: 110px; }
+    .prompt-ta.sys-ta:not([readonly]) { border-color: var(--muted); }
+    .btn-reset {
+      background: rgba(250,204,21,.08);
+      color: var(--yellow);
+      border: 1px solid rgba(250,204,21,.25);
+    }
+    .btn-reset:hover:not(:disabled) { background: rgba(250,204,21,.15); }
+    .divider { border: none; border-top: 1px solid rgba(145,94,255,.1); margin: 0.85rem 0; }
+
+    /* ── Doc controls bar ── */
+    .doc-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.75rem; }
+    .template-row { display: flex; align-items: center; gap: 0.6rem; }
+    .tpl-label { font-size: 12px; color: var(--muted); white-space: nowrap; }
+    .tpl-select {
+      background: var(--card2);
+      border: 1px solid rgba(145,94,255,.3);
+      border-radius: 0.5rem;
+      padding: 0.35rem 0.85rem;
+      color: var(--text);
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px;
+      outline: none;
+      cursor: pointer;
+    }
+    .tpl-select:focus { border-color: var(--accent); }
+    .output-actions { display: flex; gap: 0.4rem; align-items: center; }
+    .btn-dl {
+      background: rgba(145,94,255,.12);
+      color: var(--accent2);
+      border: 1px solid rgba(145,94,255,.25);
+    }
+    .btn-dl:hover:not(:disabled) { background: rgba(145,94,255,.25); }
+
+    /* ── Nuclear reset ── */
+    .nuclear-row { display: flex; justify-content: center; margin-bottom: 1.5rem; }
+    .btn-nuclear {
+      background: rgba(248,113,113,.07);
+      color: var(--red);
+      border: 1px solid rgba(248,113,113,.2);
+      font-size: 11px;
+      padding: 0.28rem 1.1rem;
+      border-radius: 9999px;
+      opacity: 0.65;
+    }
+    .btn-nuclear:hover:not(:disabled) { background: rgba(248,113,113,.16); border-color: rgba(248,113,113,.45); opacity: 1; }
+  </style>
+</head>
+<body>
+
+<a id="plrez-back-btn" href="/">← Back to Portfolio</a>
+<div class="toast" id="toast">Copied!</div>
+
+<div class="app">
+
+  <!-- Header -->
+  <div class="app-header">
+    <h1>🎯 Job Seeker AI</h1>
+    <p>Paste your resume and a job description. The 4-prompt interview chain rewrites, scores, and tailors your resume — then generates a cover letter.</p>
+  </div>
+
+  <!-- Workflow info -->
+  <div class="workflow-info">
+    <strong>How it works:</strong> Four sequential prompts, each building on the last — your API key is session-only and never stored.
+    <div class="workflow-steps">
+      <span class="wf-tag">1 · Language Analysis</span>
+      <span class="wf-tag">2 · Clarify &amp; Rewrite</span>
+      <span class="wf-tag">3 · Score &amp; Gap Analysis</span>
+      <span class="wf-tag">4 · Hiring Manager View</span>
+      <span class="wf-tag">→ Optimized Resume</span>
+      <span class="wf-tag">→ Cover Letter</span>
+    </div>
+  </div>
+
+  <!-- API Key -->
+  <div class="card">
+    <div class="api-row">
+      <label>🔑 Claude API Key</label>
+      <input type="password" id="api-key" placeholder="sk-ant-api03-…" autocomplete="off" spellcheck="false" />
+      <button class="btn" id="connect-btn">Connect</button>
+    </div>
+    <div class="api-note">Key is stored in sessionStorage only — cleared when you close this tab.</div>
+    <div class="model-badge hidden" id="model-badge">
+      <div class="dot"></div>
+      <span id="model-name">—</span>
+    </div>
+    <div class="error-box" id="connect-error" style="display:none;"></div>
+  </div>
+
+  <!-- Inputs -->
+  <div class="card">
+    <div class="input-grid">
+      <div class="input-col">
+        <label>📄 Your Current Resume</label>
+
+        <!-- Upload zone — shown when no resume is loaded -->
+        <div class="upload-zone" id="resume-upload-zone">
+          <div class="uz-icon">📄</div>
+          <div class="uz-title">Drag &amp; drop your resume here</div>
+          <div class="uz-or">or</div>
+          <div class="upload-controls">
+            <button class="btn btn-sm" id="browse-btn" type="button">Browse File</button>
+            <input class="path-input" id="path-input" type="text" placeholder="paste file path…" spellcheck="false" />
+          </div>
+          <div class="uz-formats">PDF · DOCX · TXT · RTF · MD</div>
+          <input type="file" id="file-picker" accept=".pdf,.docx,.doc,.txt,.rtf,.md" style="display:none" />
+        </div>
+        <div class="parse-error" id="parse-error"></div>
+
+        <!-- Loaded state — shown after a file is successfully parsed -->
+        <div class="resume-loaded-box" id="resume-loaded-box" style="display:none">
+          <div class="resume-meta-row">
+            <span class="resume-filename" id="resume-filename">📄 —</span>
+            <span class="resume-chars" id="resume-chars"></span>
+          </div>
+          <div class="resume-preview" id="resume-preview"></div>
+          <div class="resume-action-row">
+            <button class="btn btn-sm btn-outline" id="change-resume-btn">Change Resume</button>
+            <button class="btn btn-sm btn-danger" id="clear-resume-btn">Clear</button>
+          </div>
+        </div>
+      </div>
+      <div class="input-col">
+        <label>💼 Job Description</label>
+        <textarea id="jd-input" placeholder="Paste the complete job description here — requirements, responsibilities, nice-to-haves…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prompts card — full width, all 6 prompts editable + hidden system directive -->
+  <div class="card" id="prompts-card">
+    <div class="prompts-header">
+      <div>
+        <span class="prompts-title">🧠 Prompt Chain</span>
+        <span class="prompts-sub">— click Edit on any prompt to customise before running</span>
+      </div>
+      <button class="btn btn-sm btn-outline" id="prompts-toggle" onclick="togglePrompts()">Hide ▲</button>
+    </div>
+
+    <div id="prompts-body">
+
+      <!-- System directive (hidden from visible chat, shown here for transparency) -->
+      <div class="prompt-item">
+        <div class="prompt-hdr">
+          <span class="badge-sys">🔒 System Directive</span>
+          <span class="prompt-lbl">Sent silently with every API call — not visible in the conversation</span>
+          <div class="prompt-btns">
+            <button class="btn btn-sm btn-outline" onclick="copyPromptById('prompt-sys')">Copy</button>
+            <button class="btn btn-sm btn-outline" id="edit-btn-sys" onclick="toggleEdit('sys')">Edit</button>
+            <button class="btn btn-sm btn-reset" id="reset-btn-sys" onclick="resetPrompt('sys')" style="display:none">Reset</button>
+          </div>
+        </div>
+        <textarea id="prompt-sys" class="prompt-ta sys-ta" readonly></textarea>
+      </div>
+
+      <hr class="divider" />
+
+      <div class="prompt-item">
+        <div class="prompt-hdr">
+          <span class="badge-step">Step 1</span>
+          <span class="prompt-lbl">Language Analysis</span>
+          <div class="prompt-btns">
+            <button class="btn btn-sm btn-outline" onclick="copyPromptById('prompt-p1')">Copy</button>
+            <button class="btn btn-sm btn-outline" id="edit-btn-p1" onclick="toggleEdit('p1')">Edit</button>
+            <button class="btn btn-sm btn-reset" id="reset-btn-p1" onclick="resetPrompt('p1')" style="display:none">Reset</button>
+          </div>
+        </div>
+        <div class="prompt-note">💡 Your resume and job description are automatically prepended to this prompt</div>
+        <textarea id="prompt-p1" class="prompt-ta" readonly></textarea>
+      </div>
+
+      <div class="prompt-item">
+        <div class="prompt-hdr">
+          <span class="badge-step">Step 2</span>
+          <span class="prompt-lbl">Clarify &amp; Rewrite</span>
+          <div class="prompt-btns">
+            <button class="btn btn-sm btn-outline" onclick="copyPromptById('prompt-p2')">Copy</button>
+            <button class="btn btn-sm btn-outline" id="edit-btn-p2" onclick="toggleEdit('p2')">Edit</button>
+            <button class="btn btn-sm btn-reset" id="reset-btn-p2" onclick="resetPrompt('p2')" style="display:none">Reset</button>
+          </div>
+        </div>
+        <textarea id="prompt-p2" class="prompt-ta" readonly></textarea>
+      </div>
+
+      <div class="prompt-item">
+        <div class="prompt-hdr">
+          <span class="badge-step">Step 3</span>
+          <span class="prompt-lbl">Score &amp; Gap Analysis</span>
+          <div class="prompt-btns">
+            <button class="btn btn-sm btn-outline" onclick="copyPromptById('prompt-p3')">Copy</button>
+            <button class="btn btn-sm btn-outline" id="edit-btn-p3" onclick="toggleEdit('p3')">Edit</button>
+            <button class="btn btn-sm btn-reset" id="reset-btn-p3" onclick="resetPrompt('p3')" style="display:none">Reset</button>
+          </div>
+        </div>
+        <textarea id="prompt-p3" class="prompt-ta" readonly></textarea>
+      </div>
+
+      <div class="prompt-item">
+        <div class="prompt-hdr">
+          <span class="badge-step">Step 4</span>
+          <span class="prompt-lbl">Hiring Manager View</span>
+          <div class="prompt-btns">
+            <button class="btn btn-sm btn-outline" onclick="copyPromptById('prompt-p4')">Copy</button>
+            <button class="btn btn-sm btn-outline" id="edit-btn-p4" onclick="toggleEdit('p4')">Edit</button>
+            <button class="btn btn-sm btn-reset" id="reset-btn-p4" onclick="resetPrompt('p4')" style="display:none">Reset</button>
+          </div>
+        </div>
+        <textarea id="prompt-p4" class="prompt-ta" readonly></textarea>
+      </div>
+
+      <hr class="divider" />
+
+      <div class="prompt-item">
+        <div class="prompt-hdr">
+          <span class="badge-gen">Generate</span>
+          <span class="prompt-lbl">Optimized Resume</span>
+          <div class="prompt-btns">
+            <button class="btn btn-sm btn-outline" onclick="copyPromptById('prompt-p5')">Copy</button>
+            <button class="btn btn-sm btn-outline" id="edit-btn-p5" onclick="toggleEdit('p5')">Edit</button>
+            <button class="btn btn-sm btn-reset" id="reset-btn-p5" onclick="resetPrompt('p5')" style="display:none">Reset</button>
+          </div>
+        </div>
+        <textarea id="prompt-p5" class="prompt-ta" readonly></textarea>
+      </div>
+
+      <div class="prompt-item">
+        <div class="prompt-hdr">
+          <span class="badge-gen">Generate</span>
+          <span class="prompt-lbl">Cover Letter</span>
+          <div class="prompt-btns">
+            <button class="btn btn-sm btn-outline" onclick="copyPromptById('prompt-p6')">Copy</button>
+            <button class="btn btn-sm btn-outline" id="edit-btn-p6" onclick="toggleEdit('p6')">Edit</button>
+            <button class="btn btn-sm btn-reset" id="reset-btn-p6" onclick="resetPrompt('p6')" style="display:none">Reset</button>
+          </div>
+        </div>
+        <textarea id="prompt-p6" class="prompt-ta" readonly></textarea>
+      </div>
+
+    </div><!-- #prompts-body -->
+  </div><!-- #prompts-card -->
+
+  <div class="run-row" style="margin-bottom: 0.65rem;">
+    <button class="btn btn-pill" id="run-btn" disabled>▶ Analyze, Build Resume &amp; Cover Letter</button>
+  </div>
+  <div class="nuclear-row">
+    <button class="btn btn-nuclear" onclick="nuclearReset()">🗑 Nuclear Reset — Clear All Data</button>
+  </div>
+
+  <!-- Analysis pipeline -->
+  <div id="pipeline" style="display:none; margin-bottom: 1.25rem;">
+    <div class="section-label">Analysis Pipeline</div>
+
+    <div class="step-card" id="step-1">
+      <div class="step-header">
+        <div class="step-num">1</div>
+        <div class="step-title">Language Analysis — Extract company's language, rank importance, map gaps</div>
+        <span class="step-status status-pending" id="status-1">Pending</span>
+      </div>
+      <div class="step-output" id="output-1"></div>
+    </div>
+
+    <div class="step-card" id="step-2">
+      <div class="step-header">
+        <div class="step-num">2</div>
+        <div class="step-title">Clarify &amp; Rewrite — Before vs After, metric-driven, under 20 words</div>
+        <span class="step-status status-pending" id="status-2">Pending</span>
+      </div>
+      <div class="step-output" id="output-2"></div>
+    </div>
+
+    <div class="step-card" id="step-3">
+      <div class="step-header">
+        <div class="step-num">3</div>
+        <div class="step-title">Score &amp; Gap Analysis — Keyword match %, missing terms, how to hit 80%</div>
+        <span class="step-status status-pending" id="status-3">Pending</span>
+      </div>
+      <div class="step-output" id="output-3"></div>
+    </div>
+
+    <div class="step-card" id="step-4">
+      <div class="step-header">
+        <div class="step-num">4</div>
+        <div class="step-title">Hiring Manager View — 10-second read, biggest doubt, exact fix</div>
+        <span class="step-status status-pending" id="status-4">Pending</span>
+      </div>
+      <div class="step-output" id="output-4"></div>
+    </div>
+  </div>
+
+  <!-- Final documents -->
+  <div id="final-outputs" style="display:none;">
+    <div class="doc-controls">
+      <span class="section-label" style="margin:0;">Final Documents</span>
+      <div class="template-row">
+        <label class="tpl-label">PDF Template</label>
+        <select id="template-select" class="tpl-select">
+          <option value="classic">Classic Clean</option>
+          <option value="modern">Modern Professional</option>
+          <option value="executive">Executive Bold</option>
+          <option value="tech">Tech Minimal</option>
+          <option value="creative">Creative Accent</option>
+        </select>
+      </div>
+    </div>
+    <div class="output-grid">
+      <div class="output-card">
+        <div class="output-header">
+          <h3>✅ Optimized Resume</h3>
+          <div class="output-actions">
+            <button class="btn btn-outline btn-sm" onclick="copyOut('resume-out')">Copy</button>
+            <button class="btn btn-sm btn-dl" id="dl-resume-btn" onclick="downloadPDF('resume')">↓ PDF</button>
+          </div>
+        </div>
+        <div class="output-text" id="resume-out"></div>
+      </div>
+      <div class="output-card">
+        <div class="output-header">
+          <h3>✉️ Cover Letter</h3>
+          <div class="output-actions">
+            <button class="btn btn-outline btn-sm" onclick="copyOut('cover-out')">Copy</button>
+            <button class="btn btn-sm btn-dl" id="dl-cover-btn" onclick="downloadPDF('cover')">↓ PDF</button>
+          </div>
+        </div>
+        <div class="output-text" id="cover-out"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- .app -->
+
+<script>
+(function () {
+  'use strict';
+
+  const API = 'https://api.anthropic.com';
+  const VER = '2023-06-01';
+
+  // ── Prompt defaults (populate textareas; user can edit before each run) ──
+  const PROMPT_DEFAULTS = {
+    sys:
+`You are an expert resume writer and career strategist with deep knowledge of ATS systems, recruiter psychology, and hiring processes. Your goal is to help candidates land interviews by aligning their experience with each specific job. Be direct, specific, and actionable. Use clear formatting with headers and bullet points.
+
+REWRITING RULE: When rewriting resume bullets and work experience descriptions, you are authorized to enhance how the candidate's tasks and activities are described. You may imply hands-on involvement with tools, technologies, and workflows required by the job description — framing experience to position the candidate as an ideal match. Elevate generic task descriptions to reflect stronger ownership, initiative, and measurable impact aligned with the target role. NEVER fabricate: employers, job titles, employment dates, educational institutions, degrees, or certifications. Only enhance and reframe descriptions of tasks and responsibilities within the candidate's real, existing work history.
+
+FINAL DOCUMENT RULE — ABSOLUTE: When generating a complete resume or cover letter, output ONLY the clean, print-ready document. NEVER add sections titled "KEY IMPROVEMENTS MADE", "STRATEGIC ELEMENTS EMBEDDED", "Changes Made", "What Was Updated", or any other meta-commentary, analysis notes, or explanatory text before, during, or after the document. The output must be the document and nothing else.`,
+
+    p1:
+`Extract the company's exact language for skills, outcomes, and traits from the job description. Rank each by importance (High / Medium / Low). Then map each one to my closest resume bullet. Clearly highlight any gaps where I have no matching experience.`,
+
+    p2:
+`Ask up to three clarifying questions if anything is unclear, then proceed to rewrite my resume bullets using the company's language from Step 1 — without fabricating my employers, titles, or dates. Each rewritten bullet must be under 20 words, metric-driven, and high-impact. Show a clear BEFORE → AFTER table for every bullet you changed.`,
+
+    p3:
+`Score my resume against the job description across four dimensions: (1) Keyword Match, (2) Skills Alignment, (3) Outcomes Match, (4) Role Fit. Give me an overall percentage score. List every missing high-priority term. Flag each weak bullet and explain why. Tell me the exact changes required to reach a score of at least 80%.`,
+
+    p4:
+`Act as a hiring manager who has exactly 10 seconds to review my resume for this role. Would you move me to an interview? Why or why not? Name your single biggest doubt about me as a candidate and tell me precisely how to fix it. Be direct and blunt — no sugarcoating.`,
+
+    p5:
+`Based on all the analysis above, generate a complete, polished, ATS-optimised resume that incorporates every rewrite, missing keyword, and improvement identified. Format it with clear sections: Professional Summary, Work Experience, Skills, Education. Use the company's language throughout.
+
+HEADER FORMAT (EXACT — do not deviate):
+Line 1: # [Candidate Full Name]
+Line 2: [Phone] | [Email] | [City, State]
+Line 3: (blank)
+Then start with ## PROFESSIONAL SUMMARY
+
+FORMATTING RULES: Do NOT bold entire bullet points or sentences. Plain text only inside bullets. Bold (**) is allowed only for section headers and job titles, nowhere else.
+
+OUTPUT RULES — MANDATORY: Output ONLY the clean resume document. No preamble, no analysis commentary, no "KEY IMPROVEMENTS MADE" section, no "STRATEGIC ELEMENTS EMBEDDED" notes, no meta-text of any kind before, during, or after the resume. Start with the # name line. End with the last resume line. Nothing else.`,
+
+    p6:
+`Now generate a tailored cover letter for this specific role based on my optimised resume and the job description. Write 3–4 focused paragraphs: an opening that names the role and hooks the reader, two paragraphs that highlight my top relevant achievements using metrics, and a confident closing with a call to action. Keep it under 400 words and avoid generic filler phrases.
+
+HEADER FORMAT — copy this structure exactly, replacing bracketed values:
+
+# Peter Lee
+650-504-0727 | pdzl650@gmail.com | [Date]
+
+Hiring Manager, [Company Name], [City, State]
+
+Dear Hiring Manager,
+
+DO NOT split the recipient line. DO NOT add extra lines. DO NOT use --- dividers in the header.
+
+FORMATTING RULES: Plain text only. Do not bold any words or phrases inside the letter body.
+
+OUTPUT RULES — MANDATORY: Output ONLY the clean cover letter. No preamble, no commentary, no meta-text. Start with the # name line. End with the sign-off. Nothing else.`
+  };
+
+  // PDF.js worker (loaded from CDN above)
+  if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+
+  let apiKey = sessionStorage.getItem('jsa_key') || '';
+  let model  = sessionStorage.getItem('jsa_model') || '';
+  let running = false;
+  const convo = []; // rolling conversation history
+
+  // Resume persisted in localStorage — survives page reloads, cleared on demand
+  let resumeText = localStorage.getItem('jsa_resume_text') || '';
+  let resumeName = localStorage.getItem('jsa_resume_name') || '';
+
+  const $ = id => document.getElementById(id);
+
+  if (apiKey) $('api-key').value = apiKey;
+
+  // Restore all persisted data on load
+  if (resumeText) showResumeLoaded();
+
+  const _savedJD  = localStorage.getItem('jsa_jd') || '';
+  const _savedRes = localStorage.getItem('jsa_resume_out') || '';
+  const _savedCov = localStorage.getItem('jsa_cover_out') || '';
+  if (_savedJD) $('jd-input').value = _savedJD;
+  if (_savedRes || _savedCov) {
+    $('final-outputs').style.display = 'block';
+    if (_savedRes) $('resume-out').textContent = stripMeta(_savedRes);
+    if (_savedCov) $('cover-out').textContent  = stripMeta(_savedCov);
+  }
+
+  // Auto-reconnect if we have a saved key + model (no API call needed — run will fail if key expired)
+  if (apiKey && model) {
+    $('api-key').value = apiKey;
+    $('model-name').textContent = model;
+    $('model-badge').classList.remove('hidden');
+    $('run-btn').disabled = false;
+    const _cb = $('connect-btn');
+    _cb.textContent = '✓ Connected';
+    _cb.style.cssText = 'background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.3);';
+  }
+
+  // Populate prompt textareas from defaults and auto-size them
+  Object.keys(PROMPT_DEFAULTS).forEach(key => {
+    const ta = $('prompt-' + key);
+    if (!ta) return;
+    ta.value = PROMPT_DEFAULTS[key];
+    ta.dataset.def = PROMPT_DEFAULTS[key];
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight + 4, 200) + 'px';
+  });
+
+  function getPrompt(key) {
+    const el = $('prompt-' + key);
+    return el ? el.value.trim() : (PROMPT_DEFAULTS[key] || '');
+  }
+
+  function getSystemPrompt() { return getPrompt('sys'); }
+
+  // ── Prompts card helpers ───────────────────────────────────────────────
+  window.togglePrompts = function () {
+    const body = $('prompts-body');
+    const btn  = $('prompts-toggle');
+    const hide = body.style.display !== 'none';
+    body.style.display = hide ? 'none' : '';
+    btn.textContent = hide ? 'Show ▼' : 'Hide ▲';
+  };
+
+  function showToast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => { t.classList.remove('show'); t.textContent = 'Copied!'; }, 2200);
+  }
+
+  window.copyPromptById = function (id) {
+    const el = $(id);
+    if (!el) return;
+    navigator.clipboard.writeText(el.value).then(() => showToast('Copied!'));
+  };
+
+  window.toggleEdit = function (key) {
+    const ta      = $('prompt-' + key);
+    const editBtn = $('edit-btn-' + key);
+    const rstBtn  = $('reset-btn-' + key);
+    if (!ta) return;
+    if (ta.hasAttribute('readonly')) {
+      ta.removeAttribute('readonly');
+      ta.style.height = 'auto';
+      ta.style.height = Math.min(ta.scrollHeight + 4, 300) + 'px';
+      ta.focus();
+      editBtn.textContent = 'Lock';
+      rstBtn.style.display = '';
+    } else {
+      ta.setAttribute('readonly', '');
+      editBtn.textContent = 'Edit';
+      if (ta.value.trim() === (ta.dataset.def || '').trim()) rstBtn.style.display = 'none';
+    }
+  };
+
+  window.resetPrompt = function (key) {
+    const ta     = $('prompt-' + key);
+    const rstBtn = $('reset-btn-' + key);
+    if (!ta) return;
+    ta.value = ta.dataset.def || PROMPT_DEFAULTS[key] || '';
+    ta.setAttribute('readonly', '');
+    $('edit-btn-' + key).textContent = 'Edit';
+    if (rstBtn) rstBtn.style.display = 'none';
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight + 4, 200) + 'px';
+  };
+
+  function hdrs() {
+    return {
+      'x-api-key': apiKey,
+      'anthropic-version': VER,
+      'content-type': 'application/json',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    };
+  }
+
+  // ── Connect ──────────────────────────────────────────────────────────────
+  $('connect-btn').addEventListener('click', async () => {
+    const key = $('api-key').value.trim();
+    if (!key) return;
+
+    const btn = $('connect-btn');
+    btn.disabled = true;
+    btn.textContent = 'Connecting…';
+    $('connect-error').style.display = 'none';
+    $('model-badge').classList.add('hidden');
+
+    apiKey = key;
+    sessionStorage.setItem('jsa_key', key);
+
+    try {
+      const res = await fetch(`${API}/v1/models`, {
+        headers: {
+          'x-api-key': key,
+          'anthropic-version': VER,
+          'anthropic-dangerous-direct-browser-access': 'true'
+        }
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error?.message || `API error ${res.status}`);
+      }
+
+      const data = await res.json();
+      const haikus = (data.data || [])
+        .filter(m => m.id.toLowerCase().includes('haiku'))
+        .sort((a, b) => (b.created_at || 0) - (a.created_at || 0)); // newest first — best value
+
+      if (!haikus.length) throw new Error('No Haiku models found on this account.');
+
+      model = haikus[0].id;
+      sessionStorage.setItem('jsa_model', model);
+      $('model-name').textContent = model;
+      $('model-badge').classList.remove('hidden');
+      $('run-btn').disabled = false;
+
+      btn.textContent = '✓ Connected';
+      btn.style.cssText = 'background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.3);';
+
+    } catch (e) {
+      $('connect-error').textContent = '⚠ ' + e.message;
+      $('connect-error').style.display = 'block';
+      apiKey = '';
+      sessionStorage.removeItem('jsa_key');
+      btn.disabled = false;
+      btn.textContent = 'Connect';
+      btn.style.cssText = '';
+    }
+  });
+
+  // Allow Enter in API key field to trigger connect
+  $('api-key').addEventListener('keydown', e => {
+    if (e.key === 'Enter') $('connect-btn').click();
+  });
+
+  // ── Resume file handling ──────────────────────────────────────────────────
+
+  // Click anywhere on the zone (except browse btn / path input) opens picker
+  $('resume-upload-zone').addEventListener('click', e => {
+    if (e.target.id !== 'browse-btn' && e.target.id !== 'path-input') {
+      $('file-picker').click();
+    }
+  });
+
+  $('browse-btn').addEventListener('click', e => {
+    e.stopPropagation();
+    $('file-picker').click();
+  });
+
+  // Drag-and-drop
+  $('resume-upload-zone').addEventListener('dragover', e => {
+    e.preventDefault();
+    $('resume-upload-zone').classList.add('dragover');
+  });
+  $('resume-upload-zone').addEventListener('dragleave', () => {
+    $('resume-upload-zone').classList.remove('dragover');
+  });
+  $('resume-upload-zone').addEventListener('drop', e => {
+    e.preventDefault();
+    $('resume-upload-zone').classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  });
+
+  // File picker selection
+  $('file-picker').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) handleFile(file);
+    e.target.value = ''; // reset so same file can be re-selected
+  });
+
+  // Path input: browsers can't read files by path — show picker instead
+  $('path-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const val = $('path-input').value.trim();
+      if (val) {
+        showParseError('Browsers can\'t read files by path directly. Use Browse or drag & drop your file.');
+        $('file-picker').click();
+      }
+    }
+  });
+  $('path-input').addEventListener('focus', () => showParseError(''));
+
+  // Change / Clear buttons
+  $('change-resume-btn').addEventListener('click', () => {
+    $('resume-loaded-box').style.display = 'none';
+    $('resume-upload-zone').style.display = '';
+    showParseError('');
+  });
+
+  // Persist JD — input covers typing, paste fires before value updates so we defer
+  const _saveJD = () => setTimeout(() => localStorage.setItem('jsa_jd', $('jd-input').value), 0);
+  $('jd-input').addEventListener('input', _saveJD);
+  $('jd-input').addEventListener('paste', _saveJD);
+  $('jd-input').addEventListener('change', _saveJD);
+
+  $('clear-resume-btn').addEventListener('click', () => {
+    resumeText = '';
+    resumeName = '';
+    localStorage.removeItem('jsa_resume_text');
+    localStorage.removeItem('jsa_resume_name');
+    $('resume-loaded-box').style.display = 'none';
+    $('resume-upload-zone').style.display = '';
+    $('path-input').value = '';
+    showParseError('');
+  });
+
+  async function handleFile(file) {
+    showParseError('');
+    const name = file.name;
+    const ext  = name.split('.').pop().toLowerCase();
+
+    try {
+      let text = '';
+
+      if (ext === 'pdf') {
+        if (typeof pdfjsLib === 'undefined') throw new Error('PDF.js failed to load. Refresh and try again.');
+        text = await parsePDF(file);
+      } else if (ext === 'docx') {
+        if (typeof mammoth === 'undefined') throw new Error('Mammoth.js failed to load. Refresh and try again.');
+        text = await parseDOCX(file);
+      } else {
+        // txt, md, rtf, doc — read as plain text
+        text = await file.text();
+      }
+
+      text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+      if (!text) throw new Error('No readable text found in this file. Try saving it as PDF or TXT first.');
+
+      resumeText = text;
+      resumeName = name;
+      localStorage.setItem('jsa_resume_text', text);
+      localStorage.setItem('jsa_resume_name', name);
+      $('path-input').value = name;
+      showResumeLoaded();
+
+    } catch (e) {
+      showParseError('⚠ ' + e.message);
+    }
+  }
+
+  function showResumeLoaded() {
+    $('resume-filename').textContent = '📄 ' + resumeName;
+    $('resume-chars').textContent = resumeText.length.toLocaleString() + ' chars extracted';
+    $('resume-preview').textContent = resumeText.slice(0, 700) + (resumeText.length > 700 ? '…' : '');
+    $('resume-upload-zone').style.display = 'none';
+    $('resume-loaded-box').style.display = '';
+  }
+
+  function showParseError(msg) {
+    const el = $('parse-error');
+    el.textContent = msg;
+    el.style.display = msg ? 'block' : 'none';
+  }
+
+  async function parsePDF(file) {
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    let text = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page    = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const line    = content.items.map(item => item.str).join(' ').replace(/\s+/g, ' ');
+      text += line + '\n';
+    }
+    return text;
+  }
+
+  async function parseDOCX(file) {
+    const buf    = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer: buf });
+    return result.value;
+  }
+
+  // ── Run pipeline ─────────────────────────────────────────────────────────
+  $('run-btn').addEventListener('click', async () => {
+    if (running) return;
+
+    const resume = resumeText;
+    const jd     = $('jd-input').value.trim();
+    if (!resume) {
+      alert('Please load your resume first — use Browse or drag & drop a file.');
+      return;
+    }
+    if (!jd) {
+      alert('Please paste the job description before running.');
+      return;
+    }
+
+    running = true;
+    $('run-btn').disabled = true;
+    $('run-btn').textContent = '⏳ Running…';
+    $('pipeline').style.display = 'block';
+    $('final-outputs').style.display = 'none';
+
+    // Reset steps
+    [1,2,3,4].forEach(n => {
+      setStepState(n, 'pending');
+      $(`output-${n}`).textContent = '';
+    });
+    convo.length = 0;
+
+    try {
+      // Step 1 — Language analysis (resume + JD prepended automatically)
+      await runStep(1,
+        `Here is my current resume:\n\n${resume}\n\n---\n\nHere is the job description I am applying for:\n\n${jd}\n\n---\n\n` + getPrompt('p1')
+      );
+
+      // Step 2 — Clarify & rewrite
+      await runStep(2, getPrompt('p2'));
+
+      // Step 3 — Score & gap analysis
+      await runStep(3, getPrompt('p3'));
+
+      // Step 4 — Hiring manager view
+      await runStep(4, getPrompt('p4'));
+
+      // Final document generation
+      $('final-outputs').style.display = 'block';
+      $('resume-out').textContent = '';
+      $('cover-out').textContent  = '';
+
+      await streamFinal('resume-out', getPrompt('p5'));
+      $('resume-out').textContent = stripMeta($('resume-out').textContent);
+      localStorage.setItem('jsa_resume_out', $('resume-out').textContent);
+
+      await streamFinal('cover-out',  getPrompt('p6'));
+      $('cover-out').textContent = stripMeta($('cover-out').textContent);
+      localStorage.setItem('jsa_cover_out', $('cover-out').textContent);
+
+    } catch (e) {
+      console.error(e);
+      alert('Something went wrong: ' + e.message);
+    } finally {
+      running = false;
+      $('run-btn').disabled = false;
+      $('run-btn').textContent = '▶ Analyze & Build My Resume';
+    }
+  });
+
+  // ── Step helpers ─────────────────────────────────────────────────────────
+  async function runStep(num, userMsg) {
+    setStepState(num, 'running');
+    convo.push({ role: 'user', content: userMsg });
+    const text = await streamTo($(`output-${num}`));
+    convo.push({ role: 'assistant', content: text });
+    setStepState(num, 'done');
+  }
+
+  async function streamFinal(outId, userMsg) {
+    convo.push({ role: 'user', content: userMsg });
+    const text = await streamTo($(outId));
+    convo.push({ role: 'assistant', content: text });
+  }
+
+  function setStepState(num, state) {
+    const card   = $(`step-${num}`);
+    const status = $(`status-${num}`);
+    card.className   = `step-card ${state === 'pending' ? '' : state}`.trim();
+    status.className = `step-status status-${state}`;
+    if (state === 'running') {
+      status.innerHTML = '<span class="spinner"></span>Running';
+    } else if (state === 'done') {
+      status.textContent = '✓ Done';
+    } else {
+      status.textContent = 'Pending';
+    }
+  }
+
+  // ── Streaming API call ────────────────────────────────────────────────────
+  async function streamTo(el) {
+    const res = await fetch(`${API}/v1/messages`, {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({
+        model,
+        max_tokens: 4096,
+        stream: true,
+        system: getSystemPrompt(),
+        messages: convo
+      })
+    });
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error?.message || `API error ${res.status}`);
+    }
+
+    const reader  = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '';
+    let full = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buf += decoder.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop(); // keep partial line
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (!data || data === '[DONE]') continue;
+        try {
+          const ev = JSON.parse(data);
+          if (ev.type === 'content_block_delta' && ev.delta?.type === 'text_delta') {
+            full += ev.delta.text;
+            el.textContent = full;
+            el.scrollTop = el.scrollHeight;
+          }
+        } catch (_) {}
+      }
+    }
+
+    return full;
+  }
+
+  // ── Copy helper ───────────────────────────────────────────────────────────
+  window.copyOut = function (id) {
+    const text = $(id).textContent;
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => showToast('Copied!'));
+  };
+
+  // ── Nuclear Reset ─────────────────────────────────────────────────────────
+  window.nuclearReset = function () {
+    if (!confirm('Reset EVERYTHING? This clears your resume, job description, all AI outputs, and your API key. Cannot be undone.')) return;
+    ['jsa_resume_text','jsa_resume_name','jsa_resume_out','jsa_cover_out','jsa_jd'].forEach(k => localStorage.removeItem(k));
+    sessionStorage.removeItem('jsa_key');
+    sessionStorage.removeItem('jsa_model');
+
+    resumeText = ''; resumeName = ''; apiKey = ''; model = ''; running = false; convo.length = 0;
+    $('api-key').value = '';
+    $('jd-input').value = '';
+    $('resume-out').textContent = '';
+    $('cover-out').textContent = '';
+    $('final-outputs').style.display = 'none';
+    $('pipeline').style.display = 'none';
+    $('resume-loaded-box').style.display = 'none';
+    $('resume-upload-zone').style.display = '';
+    $('path-input').value = '';
+    $('model-badge').classList.add('hidden');
+    $('model-name').textContent = '—';
+    $('connect-btn').textContent = 'Connect';
+    $('connect-btn').style.cssText = '';
+    $('connect-btn').disabled = false;
+    $('run-btn').disabled = true;
+    $('run-btn').textContent = '▶ Analyze, Build Resume & Cover Letter';
+    $('connect-error').style.display = 'none';
+    [1,2,3,4].forEach(n => { setStepState(n, 'pending'); $(`output-${n}`).textContent = ''; });
+    showParseError('');
+    showToast('All data cleared.');
+  };
+
+  // ── PDF Templates ─────────────────────────────────────────────────────────
+  const TEMPLATES = {
+    classic: { label: 'Classic Clean', css:
+      `* { box-sizing: border-box; margin: 0; padding: 0; }
+.doc { font-family: Georgia, 'Times New Roman', serif; font-size: 10.5pt; color: #1a1a1a; line-height: 1.5; padding: 0.65in 0.72in; background: #fff; }
+h1.rname { font-size: 24pt; font-weight: bold; text-align: center; color: #1a0a4e; border-bottom: 2px solid #2d1b69; padding-bottom: 6px; margin-bottom: 8px; page-break-after: avoid; }
+h2.rsec { font-size: 8.5pt; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; color: #2d1b69; border-bottom: 1px solid #d0c8e8; padding-bottom: 2px; margin: 14px 0 5px; page-break-after: avoid; }
+h3.rjob { font-size: 10.5pt; font-weight: bold; color: #1a0a4e; margin-top: 10px; margin-bottom: 2px; page-break-after: avoid; }
+p { font-size: 10pt; margin-bottom: 3px; page-break-inside: avoid; }
+ul { padding-left: 1.1em; margin: 3px 0; }
+li { font-size: 10pt; margin-bottom: 2px; page-break-inside: avoid; }
+hr { border: none; border-top: 1px solid #e2deef; margin: 5px 0; }
+strong { font-weight: bold; } em { font-style: italic; }` },
+
+    modern: { label: 'Modern Professional', css:
+      `* { box-sizing: border-box; margin: 0; padding: 0; }
+.doc { font-family: Arial, Helvetica, sans-serif; font-size: 10pt; color: #1e293b; line-height: 1.55; padding: 0.6in 0.72in; background: #fff; }
+h1.rname { font-size: 22pt; font-weight: bold; color: #0f172a; margin-bottom: 4px; page-break-after: avoid; }
+h2.rsec { font-size: 8pt; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #0d9488; border-left: 3px solid #0d9488; padding-left: 7px; margin: 14px 0 5px; page-break-after: avoid; }
+h3.rjob { font-size: 10pt; font-weight: bold; color: #0f172a; margin-top: 8px; margin-bottom: 2px; page-break-after: avoid; }
+p { font-size: 9.8pt; margin-bottom: 3px; page-break-inside: avoid; }
+ul { padding-left: 1em; margin: 3px 0; }
+li { font-size: 9.8pt; margin-bottom: 2px; page-break-inside: avoid; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 5px 0; }
+strong { font-weight: bold; color: #0f172a; } em { font-style: italic; }` },
+
+    executive: { label: 'Executive Bold', css:
+      `* { box-sizing: border-box; margin: 0; padding: 0; }
+.doc { font-family: 'Palatino Linotype', Palatino, Georgia, serif; font-size: 10.5pt; color: #111; line-height: 1.5; padding: 0.65in 0.75in; background: #fff; }
+h1.rname { font-size: 26pt; font-weight: bold; color: #1a2e5a; border-bottom: 3px solid #1a2e5a; padding-bottom: 6px; margin-bottom: 4px; page-break-after: avoid; }
+h2.rsec { font-size: 9pt; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; color: #1a2e5a; border-bottom: 2px solid #1a2e5a; padding-bottom: 3px; margin: 15px 0 6px; page-break-after: avoid; }
+h3.rjob { font-size: 10.5pt; font-weight: bold; color: #1a2e5a; margin-top: 10px; margin-bottom: 2px; page-break-after: avoid; }
+p { font-size: 10pt; margin-bottom: 3px; page-break-inside: avoid; }
+ul { padding-left: 1.1em; margin: 4px 0; }
+li { font-size: 10pt; margin-bottom: 2px; page-break-inside: avoid; }
+hr { border: none; border-top: 1px solid #c9d4e6; margin: 5px 0; }
+strong { font-weight: bold; } em { font-style: italic; }` },
+
+    tech: { label: 'Tech Minimal', css:
+      `* { box-sizing: border-box; margin: 0; padding: 0; }
+.doc { font-family: 'Segoe UI', system-ui, Arial, sans-serif; font-size: 10pt; color: #0f172a; line-height: 1.55; padding: 0.6in 0.72in; background: #fff; }
+h1.rname { font-size: 21pt; font-weight: 600; color: #0f172a; letter-spacing: -0.5px; border-bottom: 3px solid #7c3aed; padding-bottom: 6px; margin-bottom: 8px; page-break-after: avoid; }
+h2.rsec { font-family: 'Courier New', Courier, monospace; font-size: 7.5pt; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #7c3aed; margin: 14px 0 5px; page-break-after: avoid; }
+h3.rjob { font-size: 10pt; font-weight: 600; color: #1e293b; margin-top: 8px; margin-bottom: 2px; page-break-after: avoid; }
+p { font-size: 9.8pt; color: #334155; margin-bottom: 3px; page-break-inside: avoid; }
+ul { padding-left: 1em; margin: 3px 0; }
+li { font-size: 9.8pt; color: #334155; margin-bottom: 2px; page-break-inside: avoid; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 5px 0; }
+strong { font-weight: 600; color: #0f172a; } em { font-style: italic; }` },
+
+    creative: { label: 'Creative Accent', css:
+      `* { box-sizing: border-box; margin: 0; padding: 0; }
+.doc { font-family: Verdana, Geneva, sans-serif; font-size: 9.5pt; color: #1c1c1c; line-height: 1.55; padding: 0.6in 0.72in; background: #fff; }
+h1.rname { font-size: 23pt; font-weight: bold; color: #1c1c1c; padding-bottom: 6px; border-bottom: 4px solid #ea580c; margin-bottom: 8px; page-break-after: avoid; }
+h2.rsec { font-size: 9pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; color: #ea580c; border-bottom: 1.5px solid #fed7aa; padding-bottom: 3px; margin: 14px 0 5px; page-break-after: avoid; }
+h3.rjob { font-size: 9.5pt; font-weight: bold; color: #1c1c1c; margin-top: 8px; margin-bottom: 2px; page-break-after: avoid; }
+p { font-size: 9.5pt; margin-bottom: 3px; page-break-inside: avoid; }
+ul { padding-left: 1em; margin: 3px 0; }
+li { font-size: 9.5pt; margin-bottom: 2px; page-break-inside: avoid; }
+hr { border: none; border-top: 2px solid #fed7aa; margin: 5px 0; }
+strong { font-weight: bold; color: #c2410c; } em { font-style: italic; }` }
+  };
+
+  // ── Markdown → HTML ───────────────────────────────────────────────────────
+  function stripMeta(text) {
+    const MARKERS = [
+      'key improvements', 'strategic elements', 'changes made',
+      'what was updated', 'what was improved', 'what i improved',
+      'improvements made', 'improvement summary', 'improvements summary',
+      'strategic notes', 'hiring notes', 'recruiter notes',
+      'notes for recruiter', 'notes for hiring'
+    ];
+    const lines = text.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const clean = lines[i].toLowerCase().replace(/[#*_\-=~`>]/g, ' ').replace(/\s+/g, ' ').trim();
+      if (MARKERS.some(m => clean.includes(m))) {
+        return lines.slice(0, i).join('\n').trim();
+      }
+    }
+    return text;
+  }
+
+  function mdEsc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function mdFmt(s) { return s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>'); }
+
+  function mdToHtml(text) {
+    const lines = text.split('\n');
+    let html = '', inList = false;
+    for (const line of lines) {
+      const t = line.trim();
+      if (!t) { if (inList) { html += '</ul>'; inList = false; } continue; }
+      if (t === '---' || t === '***' || t === '___') {
+        if (inList) { html += '</ul>'; inList = false; }
+        html += '<hr>';
+      } else if (t.startsWith('# ')) {
+        if (inList) { html += '</ul>'; inList = false; }
+        html += `<h1 class="rname">${mdFmt(mdEsc(t.slice(2)))}</h1>`;
+      } else if (t.startsWith('## ')) {
+        if (inList) { html += '</ul>'; inList = false; }
+        html += `<h2 class="rsec">${mdFmt(mdEsc(t.slice(3)))}</h2>`;
+      } else if (t.startsWith('### ')) {
+        if (inList) { html += '</ul>'; inList = false; }
+        html += `<h3 class="rjob">${mdFmt(mdEsc(t.slice(4)))}</h3>`;
+      } else if (t.startsWith('- ') || t.startsWith('* ') || t.startsWith('• ') || t.startsWith('· ')) {
+        if (!inList) { html += '<ul>'; inList = true; }
+        html += `<li>${mdFmt(mdEsc(t.slice(2)))}</li>`;
+      } else {
+        if (inList) { html += '</ul>'; inList = false; }
+        html += `<p>${mdFmt(mdEsc(t))}</p>`;
+      }
+    }
+    if (inList) html += '</ul>';
+    return html;
+  }
+
+  // ── Download PDF ──────────────────────────────────────────────────────────
+  window.downloadPDF = async function (type) {
+    const outId  = type === 'resume' ? 'resume-out' : 'cover-out';
+    const btnId  = type === 'resume' ? 'dl-resume-btn' : 'dl-cover-btn';
+    const todayFmt = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const rawText = stripMeta($(outId).textContent.trim()).replace(/\[Date\]/gi, todayFmt);
+    if (!rawText) { showToast('Nothing to download yet.'); return; }
+
+    const sel = ($('template-select') || {}).value || 'classic';
+    const tpl = TEMPLATES[sel] || TEMPLATES.classic;
+
+    const btn = $(btnId);
+    const orig = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '⏳…';
+
+    // Scroll to absolute top so html2canvas element offset = 0 (no blank pages)
+    const savedX = window.scrollX, savedY = window.scrollY;
+    window.scrollTo(0, 0);
+
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'position:absolute;left:-9999px;top:0;width:8.5in;background:#fff;';
+    const docLines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
+    const footerName = docLines[0] ? docLines[0].replace(/^#+\s*/, '') : '';
+    const footerContact = docLines[1] ? docLines[1].replace(/^#+\s*/, '') : '';
+    const footerHtml = (footerName || footerContact)
+      ? `<div class="doc-footer">${[footerName, footerContact].filter(Boolean).join(' | ')}</div>` : '';
+    wrapper.innerHTML = `<style>${tpl.css}.doc-footer{font-size:8pt;color:#888;text-align:center;border-top:1px solid #ddd;padding-top:5px;margin-top:18px;page-break-inside:avoid;}</style><div class="doc">${mdToHtml(rawText)}${footerHtml}</div>`;
+    document.body.appendChild(wrapper);
+
+    try {
+      await html2pdf()
+        .set({
+          margin: [0.45, 0, 0.45, 0],
+          filename: type === 'resume' ? 'resume.pdf' : 'cover-letter.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#ffffff',
+            scrollX: 0,
+            scrollY: 0
+          },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+          pagebreak: { mode: 'css', avoid: 'h1, h2, h3, p, li, ul' }
+        })
+        .from(wrapper.querySelector('.doc'))
+        .save();
+    } finally {
+      document.body.removeChild(wrapper);
+      window.scrollTo(savedX, savedY);
+      btn.disabled = false;
+      btn.textContent = orig;
+    }
+  };
+
+})();
+</script>
+</body>
+</html>

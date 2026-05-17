@@ -247,6 +247,9 @@
             text-transform: uppercase;
             border: 1px solid rgba(139, 92, 246, 0.2);
         }
+        .tag.memory   { background: rgba(6,182,212,0.12);  color: #22d3ee; border-color: rgba(6,182,212,0.25); }
+        .tag.workflow  { background: rgba(251,191,36,0.12); color: #fbbf24; border-color: rgba(251,191,36,0.25); }
+        .tag.advanced  { background: rgba(59,130,246,0.12); color: #60a5fa; border-color: rgba(59,130,246,0.25); }
 
         .card h3 {
             font-size: 1.25rem;
@@ -295,6 +298,77 @@
             .page-header h1 { font-size: 2rem; }
             .grid-container { grid-template-columns: 1fr; }
         }
+
+        /* --- RESOURCE LINKS LABEL (clickable) --- */
+        .hud-label.clickable {
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.2s;
+        }
+        .hud-label.clickable:hover { color: #a78bfa; }
+        .hud-label.clickable::after {
+            content: ' ↗';
+            font-size: 0.7rem;
+            opacity: 0.6;
+        }
+
+        /* --- RESOURCE MODAL --- */
+        #resource-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(6px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        #resource-modal.open { display: flex; }
+        .modal-box {
+            background: #1e293b;
+            border: 1px solid #475569;
+            border-radius: 20px;
+            padding: 32px;
+            width: 100%;
+            max-width: 860px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            animation: modal-in 0.2s ease;
+        }
+        @keyframes modal-in { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+        .modal-close {
+            position: absolute; top: 16px; right: 20px;
+            background: none; border: none; color: #94a3b8;
+            font-size: 1.4rem; cursor: pointer; line-height: 1;
+        }
+        .modal-close:hover { color: #fff; }
+        .modal-title {
+            font-size: 1.1rem; font-weight: 700; color: #a78bfa;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            margin-bottom: 24px; display: flex; align-items: center; gap: 8px;
+        }
+        .modal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 20px;
+        }
+        .modal-category { display: flex; flex-direction: column; gap: 6px; }
+        .modal-cat-label {
+            font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.1em; color: #60a5fa; margin-bottom: 4px;
+            padding-bottom: 4px; border-bottom: 1px solid #334155;
+        }
+        .modal-link {
+            display: flex; align-items: center; gap: 7px;
+            color: #94a3b8; font-size: 0.88rem; text-decoration: none;
+            padding: 4px 0; border-bottom: 1px dashed transparent;
+            transition: all 0.15s;
+        }
+        .modal-link:hover { color: #fff; padding-left: 4px; border-bottom-color: #8b5cf6; }
+        .modal-link .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
     </style>
 </head>
 <body>
@@ -306,43 +380,75 @@
 
 
 <div class="container">
-    
+
     <header class="page-header">
         <div class="header-title">
-            <h1>Better Prompting with LLM</h1>
-            <div class="subtitle">Quick Reference Hits to Better Prompting</div>
+            <h1>Expert LLM Knowledge Base</h1>
+            <div class="subtitle">Proven Prompting Patterns & Workflow Architecture</div>
         </div>
         <div class="header-meta">
-            <div>v2.0.6 Updated</div>
-            <div>Context: Specialized Workflow</div>
+            <div>v2.0.6</div>
+            <div>Curated Reference</div>
         </div>
     </header>
+
+    <!-- INTRO SECTION -->
+    <section style="margin-bottom: 60px;">
+        <div style="background: rgba(30, 41, 59, 0.5); border: 1px solid var(--border); border-radius: 16px; padding: 40px; backdrop-filter: blur(10px);">
+            <h2 style="font-size: 1.8rem; color: var(--text-main); margin-bottom: 20px;">What This Is</h2>
+
+            <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.8; margin-bottom: 20px;">
+                The core insight: <strong style="color: var(--text-main);">Stop treating LLMs like magic boxes.</strong> Treat them like senior team members — they need clear context, explicit boundaries, and feedback loops before they can do their best work. Most people skip that setup and then blame the model when output is inconsistent.
+            </p>
+
+            <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.8; margin-bottom: 20px;">
+                This page documents the mental models, system prompts, and workflow patterns I've developed working directly inside <strong style="color: var(--text-main);">Claude Code</strong> — Anthropic's agentic CLI environment. That's the primary focus, because it's where I've gotten the most reliable, production-quality results. The core logic transfers to other LLMs (GPT-4, Gemini, etc.) even if the specific commands differ.
+            </p>
+
+            <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.8; margin-bottom: 0;">
+                Everything below is drawn from real projects: the patterns that held up, the shortcuts worth memorizing, and the self-correction loops that reduce how often you need to intervene. Not theory — accumulated experience.
+            </p>
+        </div>
+    </section>
+
+    <!-- TRANSITION -->
+    <section style="margin-bottom: 50px; text-align: center; max-width: 800px; margin-left: auto; margin-right: auto;">
+        <h2 style="font-size: 1.4rem; color: var(--text-main); margin-bottom: 15px;">Quick Navigation</h2>
+        <p style="color: var(--text-muted); font-size: 1rem;">Paste the "Starting Projects" prompt on the left into Claude before every session. Pin the Critical Shortcuts. Then explore the knowledge base cards below.</p>
+    </section>
 
     <div class="hud-grid">
         
         <div class="hud-panel">
-            <div class="hud-label">📡 Live Intelligence</div>
+            <div class="hud-label clickable" onclick="document.getElementById('resource-modal').classList.add('open')" title="Click to expand all resources">🔗 My Resource Links</div>
             <div class="link-list">
                 <a href="https://status.anthropic.com/" target="_blank" class="hud-link">
                     <span style="color:var(--success)">●</span> &nbsp; Anthropic Status
                 </a>
                 <a href="https://docs.anthropic.com/en/docs/claude-code/overview" target="_blank" class="hud-link">
-                    <span>📘</span> &nbsp; Official Documentation
+                    <span>📘</span> &nbsp; Claude Code Docs
                 </a>
                 <a href="https://github.com/trending" target="_blank" class="hud-link">
                     <span>📈</span> &nbsp; GitHub Trending
                 </a>
                 <a href="https://news.ycombinator.com/" target="_blank" class="hud-link">
-                    <span>📰</span> &nbsp; Hacker News (AI)
+                    <span>📰</span> &nbsp; Hacker News
+                </a>
+                <a href="https://huggingface.co/" target="_blank" class="hud-link">
+                    <span>🤗</span> &nbsp; Hugging Face
                 </a>
                 <a href="https://skillsmp.com/" target="_blank" class="hud-link">
-                    <span style="color:#a78bfa">🎓</span> &nbsp; SkillsMP (Full Course)
+                    <span style="color:#a78bfa">🎓</span> &nbsp; SkillsMP
+                </a>
+                <a href="#" onclick="document.getElementById('resource-modal').classList.add('open');return false;" class="hud-link" style="color:#8b5cf6;font-size:0.8rem;margin-top:4px">
+                    + View all resources ↗
                 </a>
             </div>
         </div>
 
         <div class="hud-panel">
-            <div class="hud-label">🚀 Ignition Sequence (System Prompt)</div>
+            <div class="hud-label">🚀 Starting Projects with Claude Code</div>
+            <p style="font-size:0.78rem;color:var(--text-muted);margin:4px 0 10px;line-height:1.4;">Drop this in at the start of every session — it forces Claude to read your CLAUDE.md, use Plan Mode before touching code, and stop rather than guess.</p>
             <div class="code-display-wrapper">
                 <div class="code-display" onclick="copyToClipboard(this)">
 /init context
@@ -359,7 +465,7 @@ RULES:
         </div>
 
         <div class="hud-panel">
-            <div class="hud-label">⚡ Critical Shortcuts</div>
+            <div class="hud-label clickable" onclick="document.getElementById('cmd-modal').classList.add('open')" title="Click to see all commands">⚡ Critical Shortcuts</div>
             <div class="shortcut-row">
                 <span>Enter Plan Mode</span>
                 <span class="key-combo">Shift+Tab x2</span>
@@ -380,9 +486,184 @@ RULES:
                 <span>Multi-line Paste</span>
                 <span class="key-combo">/paste</span>
             </div>
+            <a href="#" onclick="document.getElementById('cmd-modal').classList.add('open');return false;" style="margin-top:12px;font-size:0.8rem;color:#8b5cf6;text-decoration:none;display:block">+ View all commands ↗</a>
         </div>
 
     </div>
+
+    <!-- SETUP SECTION -->
+    <section style="margin: 60px 0 40px;">
+        <h2 style="font-size: 1.4rem; color: var(--text-main); margin-bottom: 10px; text-align: center;">Setting Up Claude Code the Right Way</h2>
+        <div style="margin: 0 0 35px; text-align: left; background: rgba(139,92,246,0.06); border: 1px solid rgba(139,92,246,0.18); border-radius: 14px; padding: 28px 32px;">
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.8; margin: 0 0 16px;">
+                Most people install Claude Code and start typing. It produces results — but each session starts cold. Claude doesn't know your environment, your rules, what you tried last week, or why a particular approach was abandoned. You end up re-explaining the same context, watching it suggest things you already ruled out, and manually catching regressions that a better setup would have prevented.
+            </p>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.8; margin: 0 0 16px;">
+                The six patterns below fix that. They shift Claude from a <strong style="color: var(--text-main);">one-session tool</strong> into a <strong style="color: var(--text-main);">compounding system</strong> — one where every decision you document, every rule you write, and every workflow you define makes the <em>next</em> project faster and more reliable than the last. The context you build in project A carries forward into project B. Global skills you write once are available everywhere. Memory files mean you never explain the same thing twice.
+            </p>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.8; margin: 0 0 16px;">
+                <strong style="color: var(--text-main);">During conversations, the habits that matter most:</strong> write decisions to memory the moment they're made (not at session end — sessions close unexpectedly), use <code style="background:var(--code-bg);color:var(--code-text);padding:1px 5px;border-radius:3px;font-size:0.85em;">/compact</code> before switching sub-tasks to keep Claude oriented, and if Claude suggests something you've already solved — stop, don't correct it manually, update the memory so it never happens again. Corrections that stay in chat die with the session. Corrections that go into memory become permanent rules.
+            </p>
+            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; margin: 0; border-top: 1px solid rgba(139,92,246,0.15); padding-top: 14px;">
+                The goal isn't a perfect first session. It's building infrastructure so every session after that is better than the one before.
+            </p>
+        </div>
+
+        <div class="grid-container">
+
+            <!-- CARD 1: Global CLAUDE.md -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Global CLAUDE.md: Your Persistent Rules Engine</h3>
+                    <span class="tag">SETUP</span>
+                </div>
+                <p>
+                    <code style="background:var(--code-bg);color:var(--code-text);padding:2px 6px;border-radius:4px;font-size:0.85em;">~/.claude/CLAUDE.md</code> (Windows: <code style="background:var(--code-bg);color:var(--code-text);padding:2px 6px;border-radius:4px;font-size:0.85em;">%APPDATA%\Claude\CLAUDE.md</code>) applies to every project, every session. Claude reads it before anything else. Put in it: your OS and shell, universal "never do X" rules, where API keys live, tool preferences. One rule written here follows you across every project forever — no re-explaining.
+                </p>
+                <div class="snippet-box"># ~/.claude/CLAUDE.md
+
+## Environment
+- Platform: Windows 11, PowerShell. Use $env:VAR not $VAR.
+- Python: conda env py311. Always activate before scripts.
+- Node: use npx.cmd (not npx) in subprocess calls on Windows.
+
+## Universal Rules
+- Never push to git without explicit user approval.
+- Always read project CLAUDE.md before touching any file.
+- Check memory/ directory before suggesting anything new.
+- API keys live in D:\Apps\.env — never ask for them in chat.</div>
+            </div>
+
+            <!-- CARD 2: Project CLAUDE.md -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Project CLAUDE.md: Scoped Context That Stacks</h3>
+                    <span class="tag">SETUP</span>
+                </div>
+                <p>
+                    Each project gets its own <code style="background:var(--code-bg);color:var(--code-text);padding:2px 6px;border-radius:4px;font-size:0.85em;">CLAUDE.md</code> in the root. It stacks on top of global — project rules win where they conflict. Document: what the project is (one paragraph), the active workflow (exact commands: how to preview, how to deploy), hard constraints ("never edit X file"), and file locations that aren't obvious from the directory structure. If future-you would have to guess — write it down now.
+                </p>
+                <div class="snippet-box"># myproject/CLAUDE.md
+
+## What This Is
+A static portfolio site. No src/ — only compiled dist/ output.
+Cannot run `npm run dev`. Original source lives elsewhere.
+
+## Workflow
+1. Edit files locally.
+2. Preview: python preview.py → http://localhost:8001 (F5 to refresh)
+3. Push ONLY when user says so: python push.py "commit message"
+
+## Never
+- Run git push directly — use push.py (avoids CRLF phantom diffs)
+- Edit assets/index-*.js — it's a compiled bundle, machine code
+- Push without explicit user confirmation every single time</div>
+            </div>
+
+            <!-- CARD 3: Memory Files -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Memory Files: Notes That Survive Sessions</h3>
+                    <span class="tag memory">MEMORY</span>
+                </div>
+                <p>
+                    Claude has zero memory between sessions by default. Fix this with a <code style="background:var(--code-bg);color:var(--code-text);padding:2px 6px;border-radius:4px;font-size:0.85em;">memory/</code> directory — per-project or global. <code style="background:var(--code-bg);color:var(--code-text);padding:2px 6px;border-radius:4px;font-size:0.85em;">MEMORY.md</code> is the index (always loaded, one line per file). Each file covers one topic. Claude reads them at session start and updates them mid-session. Four types worth having: <strong style="color:var(--text-main);">user</strong> (who you are, how you work), <strong style="color:var(--text-main);">feedback</strong> (corrections + validated wins), <strong style="color:var(--text-main);">project</strong> (current goals, decisions, deadlines), <strong style="color:var(--text-main);">reference</strong> (where things live externally). Write it once, never explain it again.
+                </p>
+                <div class="snippet-box">memory/
+├── MEMORY.md           ← index (always loaded, ~150 char lines)
+├── user_profile.md     ← role, preferences, communication style
+├── feedback_rules.md   ← corrections + confirmed working patterns
+├── project_state.md    ← current phase, decisions, deadlines
+└── reference_links.md  ← Grafana URL, Linear project, Slack channel
+
+# Inside MEMORY.md (the index):
+- [User Profile](user_profile.md) — builder, output-focused, terse
+- [Feedback Rules](feedback_rules.md) — never mock DB, use push.py
+- [Project State](project_state.md) — phase 1 complete, phase 2 TBD</div>
+            </div>
+
+            <!-- CARD 4: Skills & Agents -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Skills &amp; Agents: Utilities That Work Across Every Project</h3>
+                    <span class="tag advanced">ADVANCED</span>
+                </div>
+                <p>
+                    Skills are markdown files in <code style="background:var(--code-bg);color:var(--code-text);padding:2px 6px;border-radius:4px;font-size:0.85em;">~/.claude/skills/</code> that define how Claude handles specific task types. Once written, invoke from <em>any</em> project with <code style="background:var(--code-bg);color:var(--code-text);padding:2px 6px;border-radius:4px;font-size:0.85em;">/skill-name</code>. Think of them as your personal playbooks — video production workflow, UI testing patterns, API design conventions. Agents extend this further: spawn sub-agents for parallel research or isolated tasks, protecting your main context window from getting polluted by large code dumps. The more skills you write, the faster every new project starts.
+                </p>
+                <div class="snippet-box"># Invoke a global skill from any project:
+/webapp-testing       ← Playwright UI test patterns
+/story-director       ← director's brief for video pipelines
+/vercel-react         ← React/Next.js performance patterns
+
+# Spawn a focused sub-agent (Claude Code):
+Agent({ subagent_type: "Explore", prompt: "Find all API endpoints" })
+→ Runs isolated, returns result, main context stays clean
+
+# Build a new skill when you find yourself explaining
+# the same workflow in 3 different projects.</div>
+            </div>
+
+            <!-- CARD 5: Conversation Management -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Conversation Management: Avoiding Drift &amp; Circles</h3>
+                    <span class="tag workflow">WORKFLOW</span>
+                </div>
+                <p>
+                    Long conversations degrade. The context window fills with noise, prior decisions get buried, Claude starts contradicting itself and suggesting things you already solved. The fix is three habits used together: <strong style="color:var(--text-main);">/compact</strong> before starting a new sub-task (compresses history, keeps orientation), <strong style="color:var(--text-main);">/cost</strong> before any large operation (know where you stand), and writing decisions to memory <em>immediately</em> — not at end of session, because sessions end unexpectedly. If Claude suggests something that was already figured out two weeks ago, that's a memory gap, not a model failure.
+                </p>
+                <div class="snippet-box">/compact        ← compress conversation history, keep working
+/cost           ← check token usage before a big task
+/clear          ← full reset (context gone — use carefully)
+
+# Anti-patterns that cause circular sessions:
+✗ Letting conversation grow to 50+ turns before compacting
+✗ Assuming Claude remembers a decision from 30 msgs ago
+✗ Explaining the same project context twice in one session
+✗ Not writing a decision to memory before closing the tab
+
+# After any major decision, say immediately:
+"Save this to memory: [the decision and why]"</div>
+            </div>
+
+            <!-- CARD 6: Anti-Regression -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Anti-Regression: Make Sure You Never Move Backwards</h3>
+                    <span class="tag workflow">WORKFLOW</span>
+                </div>
+                <p>
+                    The most expensive failure mode: Claude solves a hard problem, the session ends, next session it recommends the same broken approach that was already ruled out. Prevention is a system, not a habit. The feedback memory type exists for exactly this — but only works if you capture the <em>why</em>, not just the what. "Don't mock the DB" is useless without "prior incident — mock passed, prod migration failed silently, 3 hours to diagnose." The why is what lets future Claude judge edge cases instead of blindly applying the rule. Also: before implementing anything, Claude should check memory for prior attempts on the same problem — if something similar failed before, surface it.
+                </p>
+                <div class="snippet-box"># memory/feedback_rules.md
+
+## Integration tests must hit a real DB — never use mocks.
+**Why:** Prior incident — mocked tests passed but prod migration
+failed silently. Took 3 hours to diagnose the divergence.
+**Apply:** Any test that touches the database layer.
+
+## Always check memory before suggesting new tooling.
+**Why:** Existing pipeline scripts already handle transcription,
+AI planning, and video editing. Suggesting alternatives wastes time.
+**Apply:** Any task involving video, audio, or AI orchestration.
+
+## Never git push directly — always use push.py.
+**Why:** CRLF line-ending flip causes phantom diffs across entire
+repo at session start. push.py uses Git Data API (file-list only).
+**Apply:** Every single deploy, no exceptions.</div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- KNOWLEDGE BASE SECTION -->
+    <section style="margin-bottom: 30px;">
+        <h2 style="font-size: 1.4rem; color: var(--text-main); margin-bottom: 10px; text-align: center;">Proven Patterns & Reference</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; text-align: center; max-width: 700px; margin: 0 auto 25px;">
+            Explore the patterns below. Use search to find what you need, or browse by category.
+        </p>
+    </section>
 
     <div class="search-wrapper">
         <input type="text" id="searchInput" class="search-input" placeholder="Search dictionary (e.g., 'workflow', 'loop', 'agent')...">
@@ -392,6 +673,148 @@ RULES:
         </div>
 
 </div>
+
+<!-- ── RESOURCE LINKS MODAL ── -->
+<div id="resource-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="document.getElementById('resource-modal').classList.remove('open')">✕</button>
+    <div class="modal-title">🔗 My Resource Links</div>
+    <div class="modal-grid">
+
+      <div class="modal-category">
+        <div class="modal-cat-label">AI Platforms</div>
+        <a class="modal-link" href="https://claude.ai" target="_blank"><span class="dot" style="background:#a78bfa"></span>Claude.ai</a>
+        <a class="modal-link" href="https://console.anthropic.com" target="_blank"><span class="dot" style="background:#a78bfa"></span>Anthropic Console</a>
+        <a class="modal-link" href="https://chat.openai.com" target="_blank"><span class="dot" style="background:#10b981"></span>ChatGPT</a>
+        <a class="modal-link" href="https://platform.openai.com" target="_blank"><span class="dot" style="background:#10b981"></span>OpenAI Platform</a>
+        <a class="modal-link" href="https://perplexity.ai" target="_blank"><span class="dot" style="background:#60a5fa"></span>Perplexity AI</a>
+        <a class="modal-link" href="https://gemini.google.com" target="_blank"><span class="dot" style="background:#fbbf24"></span>Google Gemini</a>
+        <a class="modal-link" href="https://huggingface.co" target="_blank"><span class="dot" style="background:#f97316"></span>Hugging Face</a>
+      </div>
+
+      <div class="modal-category">
+        <div class="modal-cat-label">Documentation</div>
+        <a class="modal-link" href="https://docs.anthropic.com/en/docs/claude-code/overview" target="_blank"><span class="dot" style="background:#a78bfa"></span>Claude Code Docs</a>
+        <a class="modal-link" href="https://developer.mozilla.org" target="_blank"><span class="dot" style="background:#f97316"></span>MDN Web Docs</a>
+        <a class="modal-link" href="https://react.dev" target="_blank"><span class="dot" style="background:#60a5fa"></span>React Docs</a>
+        <a class="modal-link" href="https://nodejs.org/en/docs" target="_blank"><span class="dot" style="background:#10b981"></span>Node.js Docs</a>
+        <a class="modal-link" href="https://docs.python.org/3/" target="_blank"><span class="dot" style="background:#fbbf24"></span>Python Docs</a>
+        <a class="modal-link" href="https://tailwindcss.com/docs" target="_blank"><span class="dot" style="background:#60a5fa"></span>Tailwind CSS</a>
+        <a class="modal-link" href="https://stackoverflow.com" target="_blank"><span class="dot" style="background:#f97316"></span>Stack Overflow</a>
+      </div>
+
+      <div class="modal-category">
+        <div class="modal-cat-label">News &amp; Trends</div>
+        <a class="modal-link" href="https://news.ycombinator.com" target="_blank"><span class="dot" style="background:#f97316"></span>Hacker News</a>
+        <a class="modal-link" href="https://github.com/trending" target="_blank"><span class="dot" style="background:#94a3b8"></span>GitHub Trending</a>
+        <a class="modal-link" href="https://www.reddit.com/r/MachineLearning/" target="_blank"><span class="dot" style="background:#f97316"></span>r/MachineLearning</a>
+        <a class="modal-link" href="https://www.reddit.com/r/LocalLLaMA/" target="_blank"><span class="dot" style="background:#f97316"></span>r/LocalLLaMA</a>
+        <a class="modal-link" href="https://dev.to/t/ai" target="_blank"><span class="dot" style="background:#94a3b8"></span>Dev.to — AI</a>
+        <a class="modal-link" href="https://arxiv.org/list/cs.AI/recent" target="_blank"><span class="dot" style="background:#60a5fa"></span>arXiv CS.AI</a>
+        <a class="modal-link" href="https://paperswithcode.com" target="_blank"><span class="dot" style="background:#10b981"></span>Papers With Code</a>
+      </div>
+
+      <div class="modal-category">
+        <div class="modal-cat-label">Learning</div>
+        <a class="modal-link" href="https://skillsmp.com" target="_blank"><span class="dot" style="background:#a78bfa"></span>SkillsMP</a>
+        <a class="modal-link" href="https://www.freecodecamp.org" target="_blank"><span class="dot" style="background:#10b981"></span>freeCodeCamp</a>
+        <a class="modal-link" href="https://www.udemy.com" target="_blank"><span class="dot" style="background:#a78bfa"></span>Udemy</a>
+        <a class="modal-link" href="https://www.coursera.org" target="_blank"><span class="dot" style="background:#60a5fa"></span>Coursera</a>
+        <a class="modal-link" href="https://www.youtube.com/@TechWithTim" target="_blank"><span class="dot" style="background:#f43f5e"></span>Tech With Tim</a>
+        <a class="modal-link" href="https://www.youtube.com/@Fireship" target="_blank"><span class="dot" style="background:#f43f5e"></span>Fireship</a>
+        <a class="modal-link" href="https://roadmap.sh" target="_blank"><span class="dot" style="background:#fbbf24"></span>Roadmap.sh</a>
+      </div>
+
+      <div class="modal-category">
+        <div class="modal-cat-label">Dev Tools</div>
+        <a class="modal-link" href="https://github.com" target="_blank"><span class="dot" style="background:#94a3b8"></span>GitHub</a>
+        <a class="modal-link" href="https://vercel.com/dashboard" target="_blank"><span class="dot" style="background:#94a3b8"></span>Vercel Dashboard</a>
+        <a class="modal-link" href="https://codesandbox.io" target="_blank"><span class="dot" style="background:#60a5fa"></span>CodeSandbox</a>
+        <a class="modal-link" href="https://replit.com" target="_blank"><span class="dot" style="background:#f97316"></span>Replit</a>
+        <a class="modal-link" href="https://regex101.com" target="_blank"><span class="dot" style="background:#10b981"></span>Regex101</a>
+        <a class="modal-link" href="https://jsonformatter.curiousconcept.com" target="_blank"><span class="dot" style="background:#fbbf24"></span>JSON Formatter</a>
+        <a class="modal-link" href="https://status.anthropic.com" target="_blank"><span class="dot" style="background:#10b981"></span>Anthropic Status</a>
+      </div>
+
+      <div class="modal-category">
+        <div class="modal-cat-label">Career &amp; Jobs</div>
+        <a class="modal-link" href="https://www.linkedin.com/jobs/" target="_blank"><span class="dot" style="background:#60a5fa"></span>LinkedIn Jobs</a>
+        <a class="modal-link" href="https://www.indeed.com" target="_blank"><span class="dot" style="background:#fbbf24"></span>Indeed</a>
+        <a class="modal-link" href="https://www.glassdoor.com" target="_blank"><span class="dot" style="background:#10b981"></span>Glassdoor</a>
+        <a class="modal-link" href="https://wellfound.com/jobs" target="_blank"><span class="dot" style="background:#a78bfa"></span>Wellfound (Startups)</a>
+        <a class="modal-link" href="https://www.dice.com" target="_blank"><span class="dot" style="background:#f97316"></span>Dice — Tech Jobs</a>
+        <a class="modal-link" href="https://remoteok.com" target="_blank"><span class="dot" style="background:#10b981"></span>Remote OK</a>
+        <a class="modal-link" href="https://www.levels.fyi" target="_blank"><span class="dot" style="background:#fbbf24"></span>Levels.fyi — Salaries</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── COMMANDS MODAL ── -->
+<div id="cmd-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-box" style="max-width:980px">
+    <button class="modal-close" onclick="document.getElementById('cmd-modal').classList.remove('open')">✕</button>
+    <div class="modal-title">⚡ All Claude Code Commands</div>
+
+    <!-- Tier 1 -->
+    <div style="margin-bottom:6px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#f43f5e">🔴 Tier 1 — Use Every Session</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:24px">
+      <div class="cmd-row"><span class="key-combo">Shift+Tab x2</span><span class="cmd-desc">Plan Mode — Claude proposes a plan, you approve before it writes a single line</span></div>
+      <div class="cmd-row"><span class="key-combo">Ctrl + C</span><span class="cmd-desc">Force stop — interrupt Claude mid-task immediately</span></div>
+      <div class="cmd-row"><span class="key-combo">/compact</span><span class="cmd-desc">Compress context window — keeps conversation going when token limit is near</span></div>
+      <div class="cmd-row"><span class="key-combo">/cost</span><span class="cmd-desc">Show token usage + estimated $ cost for the current session</span></div>
+      <div class="cmd-row"><span class="key-combo">/paste</span><span class="cmd-desc">Multi-line paste mode — paste big blocks of code or text without triggering early submit</span></div>
+      <div class="cmd-row"><span class="key-combo">/clear</span><span class="cmd-desc">Wipe conversation history and start fresh — full context reset</span></div>
+    </div>
+
+    <!-- Tier 2 -->
+    <div style="margin-bottom:6px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#fbbf24">🟡 Tier 2 — Commonly Used</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:24px">
+      <div class="cmd-row"><span class="key-combo">/init</span><span class="cmd-desc">Generate a CLAUDE.md for the current project — do this first in any new repo</span></div>
+      <div class="cmd-row"><span class="key-combo">/memory</span><span class="cmd-desc">Open and edit the memory file — add rules Claude should always follow</span></div>
+      <div class="cmd-row"><span class="key-combo">/review</span><span class="cmd-desc">Trigger a code review of current changes — Claude flags issues before you commit</span></div>
+      <div class="cmd-row"><span class="key-combo">/help</span><span class="cmd-desc">List all available slash commands with descriptions</span></div>
+      <div class="cmd-row"><span class="key-combo">--print / -p</span><span class="cmd-desc">Non-interactive pipe mode — use with echo "task" | claude --print for scripting</span></div>
+      <div class="cmd-row"><span class="key-combo">--continue</span><span class="cmd-desc">Resume your most recent conversation session automatically</span></div>
+      <div class="cmd-row"><span class="key-combo">--resume</span><span class="cmd-desc">Resume a specific past session by ID — useful after a crash or reboot</span></div>
+      <div class="cmd-row"><span class="key-combo">--dangerously-skip-permissions</span><span class="cmd-desc">Skip all "Allow this edit?" confirmations — commit first, then use this</span></div>
+    </div>
+
+    <!-- Tier 3 -->
+    <div style="margin-bottom:6px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#60a5fa">🔵 Tier 3 — Situational</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:24px">
+      <div class="cmd-row"><span class="key-combo">--model</span><span class="cmd-desc">Override the model — e.g. --model claude-opus-4-7 for hard tasks, haiku for speed</span></div>
+      <div class="cmd-row"><span class="key-combo">--add-dir</span><span class="cmd-desc">Add an extra directory to Claude's context — useful for monorepos</span></div>
+      <div class="cmd-row"><span class="key-combo">--max-turns</span><span class="cmd-desc">Cap agentic loop turns — prevents runaway sessions in automated pipelines</span></div>
+      <div class="cmd-row"><span class="key-combo">--output-format</span><span class="cmd-desc">Set output to text / json / stream-json — use json when piping into scripts</span></div>
+      <div class="cmd-row"><span class="key-combo">/config</span><span class="cmd-desc">Open settings — change model, theme, permissions, and default behavior</span></div>
+      <div class="cmd-row"><span class="key-combo">/doctor</span><span class="cmd-desc">Health check — diagnoses broken installs, missing deps, auth issues</span></div>
+      <div class="cmd-row"><span class="key-combo">/status</span><span class="cmd-desc">Show current account, subscription, and API key status</span></div>
+      <div class="cmd-row"><span class="key-combo">↑ / ↓</span><span class="cmd-desc">Navigate prompt history — cycle through previous inputs in the session</span></div>
+      <div class="cmd-row"><span class="key-combo">Tab</span><span class="cmd-desc">Autocomplete file paths and slash commands</span></div>
+      <div class="cmd-row"><span class="key-combo">/login · /logout</span><span class="cmd-desc">Switch Anthropic accounts — useful if you have personal + work credentials</span></div>
+    </div>
+
+    <!-- Pro tips -->
+    <div style="margin-bottom:6px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#10b981">🟢 Pro Patterns</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px">
+      <div class="cmd-row"><span class="key-combo">echo "task" | claude -p</span><span class="cmd-desc">Pipe a task non-interactively — great for Cowork terminal or shell scripts</span></div>
+      <div class="cmd-row"><span class="key-combo">claude --continue -p "fix it"</span><span class="cmd-desc">Resume last session and immediately run a command — no chat UI needed</span></div>
+      <div class="cmd-row"><span class="key-combo">CLAUDE.md</span><span class="cmd-desc">Drop rules here — Claude reads it at session start every time. Your permanent memory.</span></div>
+      <div class="cmd-row"><span class="key-combo">Shift+Tab x2 → Enter</span><span class="cmd-desc">Plan Mode flow — review Claude's plan, press Enter to approve, Ctrl+C to reject</span></div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  #cmd-modal { display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px; }
+  #cmd-modal.open { display:flex; }
+  .cmd-row { display:flex;flex-direction:column;gap:5px;background:rgba(15,23,42,0.6);border:1px solid #334155;border-radius:10px;padding:12px 14px; }
+  .cmd-row .key-combo { font-size:0.78rem;align-self:flex-start; }
+  .cmd-desc { font-size:0.82rem;color:#94a3b8;line-height:1.5; }
+</style>
 
 <script>
     /* --- DATA SOURCE: TRANSCRIPTION + CORE KNOWLEDGE --- */
