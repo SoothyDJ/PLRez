@@ -1505,7 +1505,9 @@ strong { font-weight: bold; color: #c2410c; } em { font-style: italic; }` }
     const outId  = type === 'resume' ? 'resume-out' : 'cover-out';
     const btnId  = type === 'resume' ? 'dl-resume-btn' : 'dl-cover-btn';
     const todayFmt = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    const rawText = stripMeta($(outId).textContent.trim()).replace(/\[Date\]/gi, todayFmt);
+    const headerDateRe = /\b(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+\d{1,2},?\s+\d{4}\b/gi;
+    let rawText = stripMeta($(outId).textContent.trim()).replace(/\[Date\]/gi, todayFmt);
+    rawText = rawText.split('\n').map((line, i) => i < 6 ? line.replace(headerDateRe, todayFmt) : line).join('\n');
     if (!rawText) { showToast('Nothing to download yet.'); return; }
 
     const sel = ($('template-select') || {}).value || 'classic';
