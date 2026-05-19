@@ -8,267 +8,1809 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        /* Custom scrollbar for code block */
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
         .code-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
         .code-scroll::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
         .code-scroll::-webkit-scrollbar-track { background: #1f2937; }
+        .nav-item { transition: all 0.2s; border-right: 2px solid transparent; }
+        .nav-item:hover { background: rgba(255,255,255,0.06); }
+        .nav-item.active { background: rgba(59,130,246,0.15); border-right-color: #3b82f6; }
+        .kpi-card { transition: transform 0.15s, box-shadow 0.15s; }
+        .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
+        .pulse-dot { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .filter-btn { transition: all 0.15s; }
+        .filter-btn.active { background: #1e40af; color: #fff; }
     </style>
 </head>
 <body class="text-gray-800">
+
 <style>
   #plrez-back-btn{position:fixed;top:1rem;left:1rem;z-index:9999;display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1rem .5rem .9rem;background:#915eff;color:#fff !important;text-decoration:none !important;border-radius:9999px;font-family:Poppins,system-ui,-apple-system,Segoe UI,sans-serif;font-weight:700;font-size:13px;box-shadow:0 8px 24px -4px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.2);transition:transform .15s ease,background .15s ease,color .15s ease;letter-spacing:.02em}
   #plrez-back-btn:hover{background:#fff;color:#915eff !important;transform:translateX(-2px)}
 </style>
 <a href="/" id="plrez-back-btn">← Back to Portfolio</a>
 
-
-    <div class="fixed left-0 top-0 h-full w-20 bg-slate-900 flex flex-col items-center py-8 z-20">
-        <div class="text-blue-400 text-2xl mb-8"><i class="fa-solid fa-chart-line"></i></div>
-        <div class="space-y-6 text-gray-400">
-            <div class="text-white cursor-pointer" title="Dashboard"><i class="fa-solid fa-house"></i></div>
-            <div class="hover:text-white cursor-pointer" title="Settings"><i class="fa-solid fa-gear"></i></div>
+<!-- Sidebar -->
+<div class="fixed left-0 top-0 h-full w-56 bg-slate-900 flex flex-col py-6 z-20">
+    <div class="px-4 mb-8">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-500 p-2 rounded-lg"><i class="fa-solid fa-headset text-white text-sm"></i></div>
+            <div>
+                <p class="text-white font-bold text-sm">SupportOps</p>
+                <p class="text-slate-400 text-xs">Analytics Platform</p>
+            </div>
         </div>
     </div>
-
-    <div class="ml-20 p-8 max-w-7xl mx-auto">
-        
-        <header class="flex justify-between items-start mb-8">
-            <div class="max-w-3xl">
-                <h1 class="text-3xl font-bold text-slate-800">Support Operations Performance</h1>
-                <p class="text-slate-500 text-sm mt-1 font-mono">PROJECT: AI-Driven Triage Implementation (Post-Mortem)</p>
+    <nav class="flex-1 px-2 space-y-0.5">
+        <div class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-l-lg cursor-pointer" data-view="dashboard" onclick="switchView('dashboard')">
+            <i class="fa-solid fa-chart-pie text-blue-400 w-4 text-sm"></i>
+            <span class="text-white text-sm font-medium">Dashboard</span>
+        </div>
+        <div class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-l-lg cursor-pointer" data-view="tickets" onclick="switchView('tickets')">
+            <i class="fa-solid fa-ticket text-slate-400 w-4 text-sm"></i>
+            <span class="text-slate-400 text-sm">Ticket Queue</span>
+            <span class="ml-auto bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full leading-none">12</span>
+        </div>
+        <div class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-l-lg cursor-pointer" data-view="agents" onclick="switchView('agents')">
+            <i class="fa-solid fa-users text-slate-400 w-4 text-sm"></i>
+            <span class="text-slate-400 text-sm">Agent Performance</span>
+        </div>
+        <div class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-l-lg cursor-pointer" data-view="sla" onclick="switchView('sla')">
+            <i class="fa-solid fa-chart-line text-slate-400 w-4 text-sm"></i>
+            <span class="text-slate-400 text-sm">SLA Reports</span>
+        </div>
+        <div class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-l-lg cursor-pointer" data-view="ai" onclick="switchView('ai')">
+            <i class="fa-solid fa-robot text-slate-400 w-4 text-sm"></i>
+            <span class="text-slate-400 text-sm">AI Triage</span>
+            <span class="ml-auto bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full leading-none">NEW</span>
+        </div>
+        <div class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-l-lg cursor-pointer" data-view="alerts" onclick="switchView('alerts')">
+            <i class="fa-solid fa-bell text-slate-400 w-4 text-sm"></i>
+            <span class="text-slate-400 text-sm">Alerts</span>
+            <span class="ml-auto bg-orange-500 text-white text-xs px-1.5 py-0.5 rounded-full leading-none" id="alertsBadge">3</span>
+        </div>
+        <div class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-l-lg cursor-pointer" data-view="settings" onclick="switchView('settings')">
+            <i class="fa-solid fa-gear text-slate-400 w-4 text-sm"></i>
+            <span class="text-slate-400 text-sm">Settings</span>
+        </div>
+    </nav>
+    <div class="px-4 pt-4 border-t border-slate-700">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">PL</div>
+            <div>
+                <p class="text-white text-xs font-medium">P. Rez</p>
+                <p class="text-slate-400 text-xs">Support Ops Lead</p>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main -->
+<div class="ml-56 p-8 min-h-screen">
+<div id="view-dashboard" class="view-section">
+
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Performance Overview</h1>
+            <div class="flex items-center gap-2 mt-1">
+                <div class="w-2 h-2 rounded-full bg-green-500 pulse-dot"></div>
+                <p class="text-slate-500 text-sm">Live data · Last updated just now</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="flex bg-white border border-slate-200 rounded-lg p-1 gap-1">
+                <button class="filter-btn px-3 py-1.5 text-xs font-medium rounded-md text-slate-500" onclick="setFilter(this)">7D</button>
+                <button class="filter-btn active px-3 py-1.5 text-xs font-medium rounded-md" onclick="setFilter(this)">30D</button>
+                <button class="filter-btn px-3 py-1.5 text-xs font-medium rounded-md text-slate-500" onclick="setFilter(this)">90D</button>
+                <button class="filter-btn px-3 py-1.5 text-xs font-medium rounded-md text-slate-500" onclick="setFilter(this)">YTD</button>
+            </div>
+            <select id="teamFilter" onchange="applyTeamFilter(this.value)" class="text-xs border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-600 focus:outline-none">
+                <option value="all">All Teams</option>
+                <option value="tier1">Tier 1 Support</option>
+                <option value="tier2">Tier 2 / Enterprise</option>
+            </select>
+            <button onclick="openModal()" class="flex items-center gap-2 bg-slate-800 text-white px-4 py-2 rounded-lg text-sm hover:bg-slate-700 transition">
+                <i class="fa-solid fa-code text-blue-400"></i> Under the Hood
+            </button>
+            <button onclick="exportCSV()" class="flex items-center gap-2 border border-slate-200 text-slate-600 px-4 py-2 rounded-lg text-sm hover:bg-slate-50 bg-white transition">
+                <i class="fa-solid fa-download text-slate-400"></i> Export
+            </button>
+        </div>
+    </header>
+
+    <!-- Explainer (collapsed by default) -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 mb-6 overflow-hidden">
+        <!-- Always-visible header bar -->
+        <button onclick="toggleExplainer()" id="explainerToggle"
+            class="w-full flex items-center justify-between px-6 py-4 text-left group hover:bg-slate-50 transition-colors">
             <div class="flex items-center gap-3">
-                <button onclick="toggleView('logic')" class="flex items-center gap-2 bg-slate-800 text-white px-4 py-2 rounded shadow hover:bg-slate-700 transition group">
-                    <i class="fa-solid fa-code text-blue-400 group-hover:text-blue-300"></i> 
-                    <span>Under the Hood</span>
-                </button>
-            </div>
-        </header>
-
-        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-8 rounded-r-lg shadow-sm">
-            <div class="flex gap-3">
-                <div class="mt-1"><i class="fa-solid fa-circle-info text-blue-500"></i></div>
+                <div class="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-book-open text-violet-600 text-sm"></i>
+                </div>
                 <div>
-                    <h3 class="font-bold text-blue-900 text-sm uppercase mb-1">Intervention Analysis Context</h3>
-                    <p class="text-blue-800 text-sm leading-relaxed">
-                        This chart visualizes the operational impact of deploying the 'Smart Triage' AI model, introduced at Week 4 (marked by the vertical line). The blue area represents Average Handle Time (AHT), which shows a sharp decline post-intervention as the AI began automating initial ticket routing. Conversely, the green dotted line tracks Customer Satisfaction (CSAT), demonstrating that efficiency gains were achieved without compromising service quality. By comparing the 4-week pre-launch baseline against the post-launch performance, we can quantify a 15% efficiency gain directly attributable to the new triage process. This visual correlation confirms the hypothesis that faster routing leads to shorter resolution times and stable customer sentiment.
+                    <p class="font-semibold text-slate-800 text-sm">What This Says About Me — As a Support Ops Analyst</p>
+                    <p class="text-xs text-slate-400 mt-0.5">My capabilities and how I think about support data · each chart below has its own inline explainer</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0 ml-4">
+                <span class="text-xs text-violet-600 font-semibold group-hover:text-violet-800 hidden sm:block">Read the guide</span>
+                <i id="explainerChevron" class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300"></i>
+            </div>
+        </button>
+
+        <!-- Collapsible body -->
+        <div id="explainerBody" style="max-height:0;overflow:hidden;transition:max-height 0.5s ease">
+            <div class="border-t border-slate-100 px-8 py-8">
+
+                <!-- Intro -->
+                <div class="max-w-3xl mb-10" style="display:none">
+                    <p class="text-slate-700 text-base leading-relaxed mb-3">
+                        If you've never worked inside a support operations team, this dashboard might look like a collection of charts and numbers. Here's what you're actually looking at — explained like I'm walking you through it in person.
+                    </p>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        This is a performance dashboard I built for a customer support team that was going through a major change: they introduced an AI system to automatically sort and route incoming support tickets to the right agent, instead of doing it by hand. The entire purpose of this dashboard is to answer one honest question — <strong class="text-slate-800">did that change actually make things better for customers, or did it just make the team move faster on paper?</strong> Those are not the same thing, and this dashboard is how we tell the difference.
                     </p>
                 </div>
-            </div>
-        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">CSAT Score</p>
-                        <h2 class="text-3xl font-bold mt-2">4.8/5.0</h2>
-                    </div>
-                    <div class="bg-green-50 p-2 rounded-lg text-green-600"><i class="fa-solid fa-smile"></i></div>
-                </div>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">First Contact Resolution</p>
-                        <h2 class="text-3xl font-bold mt-2">82.4%</h2>
-                    </div>
-                    <div class="bg-blue-50 p-2 rounded-lg text-blue-600"><i class="fa-solid fa-check-double"></i></div>
-                </div>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Avg Handle Time</p>
-                        <h2 class="text-3xl font-bold mt-2">4m 12s</h2>
-                    </div>
-                    <div class="bg-orange-50 p-2 rounded-lg text-orange-600"><i class="fa-solid fa-clock"></i></div>
-                </div>
-            </div>
-        </div>
+                <!-- Section-by-section breakdown — content moved inline to each chart -->
+                <h3 style="display:none">Section by Section</h3>
+                <div class="space-y-8 mb-10" style="display:none">
 
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8">
-            <div class="h-[400px]">
-                <canvas id="performanceChart"></canvas>
+                    <!-- KPI Cards -->
+                    <div class="flex gap-5">
+                        <div class="flex-shrink-0 w-1 rounded-full bg-blue-400"></div>
+                        <div>
+                            <p class="font-bold text-slate-800 mb-1">The Six Numbers Across the Top</p>
+                            <p class="text-slate-500 text-xs font-semibold uppercase tracking-wide mb-3">KPI Cards — your team's vital signs</p>
+                            <p class="text-slate-600 text-sm leading-relaxed mb-3">These are the six numbers that between them tell you almost everything you need to know about whether a support team is healthy on any given day. Let me explain each one in plain language:</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                                    <p class="text-xs font-bold text-slate-700 mb-1">CSAT — Customer Satisfaction Score</p>
+                                    <p class="text-xs text-slate-500 leading-relaxed">After a ticket is resolved, the customer gets asked to rate the experience out of 5. Ours is 4.8. That's excellent — most teams consider anything above 4.5 to be world-class.</p>
+                                </div>
+                                <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                                    <p class="text-xs font-bold text-slate-700 mb-1">FCR — First Contact Resolution</p>
+                                    <p class="text-xs text-slate-500 leading-relaxed">The percentage of customers who got their problem fully solved the first time they reached out — without needing to call or email again. Ours is 82.4%. Anything below 70% means you're accidentally creating double the work for yourself.</p>
+                                </div>
+                                <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                                    <p class="text-xs font-bold text-slate-700 mb-1">Avg Handle Time</p>
+                                    <p class="text-xs text-slate-500 leading-relaxed">How long each customer interaction takes from start to finish. Currently 4 minutes 12 seconds — down 18% from last period. Lower is better, but only when satisfaction doesn't drop alongside it. That's the key tension this whole dashboard is built to track.</p>
+                                </div>
+                                <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                                    <p class="text-xs font-bold text-slate-700 mb-1">SLA Compliance</p>
+                                    <p class="text-xs text-slate-500 leading-relaxed">SLA stands for Service Level Agreement — the formal promise you make to customers about how quickly you'll respond. 96.2% of tickets are being handled within that window. The slight dip from last period is what triggered the alert banner at the top.</p>
+                                </div>
+                                <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                                    <p class="text-xs font-bold text-slate-700 mb-1">Open Tickets</p>
+                                    <p class="text-xs text-slate-500 leading-relaxed">47 tickets are currently active and waiting to be resolved. The +12 spike from yesterday is worth watching — that's a 34% jump in a single day. Could be a product issue, a promotion that drove traffic, or just a Monday. Context matters.</p>
+                                </div>
+                                <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                                    <p class="text-xs font-bold text-slate-700 mb-1">Escalation Rate</p>
+                                    <p class="text-xs text-slate-500 leading-relaxed">How often a ticket is too complex for the first agent and has to be handed to someone more senior. At 3.1% and trending down, this means the team is solving more problems on their own — a sign of improving capability over time.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trend chart -->
+                    <div class="flex gap-5">
+                        <div class="flex-shrink-0 w-1 rounded-full bg-indigo-400"></div>
+                        <div>
+                            <p class="font-bold text-slate-800 mb-1">AHT vs. CSAT Trend Chart</p>
+                            <p class="text-slate-500 text-xs font-semibold uppercase tracking-wide mb-3">Top left — the main argument of the whole dashboard</p>
+                            <p class="text-slate-600 text-sm leading-relaxed mb-3">This is the most important chart on the page. The blue shaded area shows Average Handle Time — how long each customer conversation takes. The green dotted line shows CSAT — customer satisfaction. The red vertical line at Week 4 is when the AI triage model went live.</p>
+                            <p class="text-slate-600 text-sm leading-relaxed mb-3">Here's what the story is: after Week 4, handle time drops sharply — the team is processing tickets significantly faster. But look at what CSAT does. It doesn't dip. It actually climbs. That's the whole point. <strong class="text-slate-800">Speed gains that come at the cost of customer experience aren't gains — they're a trade-off that will hurt you later.</strong> When both lines move in your favor at the same time, that's a genuine improvement worth investing in more of.</p>
+                            <p class="text-slate-600 text-sm leading-relaxed">The annotation marker at Week 4 isn't just decorative — it's a discipline. Without it, someone could look at this chart and attribute the improvement to a seasonal pattern, a new hire joining, or just random variation. The marker eliminates that ambiguity. It says: here is the before, here is the after, here is exactly what changed in between.</p>
+                        </div>
+                    </div>
+
+                    <!-- Category donut -->
+                    <div class="flex gap-5">
+                        <div class="flex-shrink-0 w-1 rounded-full bg-purple-400"></div>
+                        <div>
+                            <p class="font-bold text-slate-800 mb-1">Ticket Volume by Category</p>
+                            <p class="text-slate-500 text-xs font-semibold uppercase tracking-wide mb-3">Top right — where the workload is actually coming from</p>
+                            <p class="text-slate-600 text-sm leading-relaxed mb-3">This donut chart breaks down what kind of problems customers are bringing in. Right now: Technical issues at 38%, Billing questions at 27%, Account access at 16%, Shipping at 11%, Returns at 8%.</p>
+                            <p class="text-slate-600 text-sm leading-relaxed">This matters far more than most people realize. If Technical suddenly jumps from 38% to 55% in a week, that's not a support team problem — <strong class="text-slate-800">that's an engineering problem in disguise.</strong> Something broke in the product, customers are hitting it, and the support queue is the first place it shows up. A support analyst who reads this chart correctly becomes the early warning system between the customer base and the product and engineering teams. That's a much more valuable role than just answering tickets.</p>
+                        </div>
+                    </div>
+
+                    <!-- SLA chart -->
+                    <div class="flex gap-5">
+                        <div class="flex-shrink-0 w-1 rounded-full bg-amber-400"></div>
+                        <div>
+                            <p class="font-bold text-slate-800 mb-1">SLA Compliance Bar Chart</p>
+                            <p class="text-slate-500 text-xs font-semibold uppercase tracking-wide mb-3">Bottom left — are we keeping our promises to customers?</p>
+                            <p class="text-slate-600 text-sm leading-relaxed mb-3">Each bar shows what percentage of that week's tickets the team resolved within the committed response window. The dashed horizontal line at 95% is the target. Simple to read: bars above the line, team is on track. Bars below, something needs attention.</p>
+                            <p class="text-slate-600 text-sm leading-relaxed">Notice that the first two weeks are amber (below target) and every week after the AI launch turns green. The color coding is intentional — a team lead should be able to understand the story in this chart in about three seconds without reading a single number. Design that communicates at a glance isn't cosmetic, it's operational.</p>
+                        </div>
+                    </div>
+
+                    <!-- Agent leaderboard -->
+                    <div class="flex gap-5">
+                        <div class="flex-shrink-0 w-1 rounded-full bg-green-400"></div>
+                        <div>
+                            <p class="font-bold text-slate-800 mb-1">Agent Performance Leaderboard</p>
+                            <p class="text-slate-500 text-xs font-semibold uppercase tracking-wide mb-3">Bottom right — who's performing well, and how do we actually know?</p>
+                            <p class="text-slate-600 text-sm leading-relaxed mb-3">This table ranks agents by a composite performance score — and I want to explain why I didn't just sort by "tickets closed," because that's the mistake most teams make.</p>
+                            <p class="text-slate-600 text-sm leading-relaxed mb-3">An agent who closes 130 tickets a week at 70% First Contact Resolution is generating roughly 39 return contacts — customers who have to come back about the same problem because it wasn't fixed right the first time. Each return contact costs the team time and costs the customer patience. <strong class="text-slate-800">That agent isn't performing well, they're creating hidden debt.</strong> Raw ticket count rewards speed. The composite score here rewards actually solving the problem.</p>
+                            <p class="text-slate-600 text-sm leading-relaxed">The score balances four factors together: how many tickets they handled, their first contact resolution rate, their average handle time, and their customer satisfaction score. The result is a leaderboard that tells you who your genuinely best agents are — not just your fastest ones.</p>
+                        </div>
+                    </div>
+
+                    <!-- Ticket queue -->
+                    <div class="flex gap-5">
+                        <div class="flex-shrink-0 w-1 rounded-full bg-red-400"></div>
+                        <div>
+                            <p class="font-bold text-slate-800 mb-1">Live Ticket Queue</p>
+                            <p class="text-slate-500 text-xs font-semibold uppercase tracking-wide mb-3">The table — what the team is working on right now</p>
+                            <p class="text-slate-600 text-sm leading-relaxed mb-3">This is the operational view — every open ticket, who it belongs to, how long it's been open, and most importantly, whether it's at risk of breaching the SLA deadline. Tickets with a red left border and "At Risk" label are the ones that need someone's attention now, not at the end of the shift.</p>
+                            <p class="text-slate-600 text-sm leading-relaxed">The design principle here is that a team lead should be able to glance at this table for 10 seconds during a busy shift and immediately know where to intervene. Priority and SLA status are the first two columns you see because those are the two things that can blow up your CSAT score by end of day if left unattended. Everything else — category, assignee, status — is context that helps you act on that signal.</p>
+                        </div>
+                    </div>
+
+                    <!-- AI impact -->
+                    <div class="flex gap-5">
+                        <div class="flex-shrink-0 w-1 rounded-full bg-slate-400"></div>
+                        <div>
+                            <p class="font-bold text-slate-800 mb-1">AI Smart Triage — Impact Summary</p>
+                            <p class="text-slate-500 text-xs font-semibold uppercase tracking-wide mb-3">The dark panel — the business case in plain numbers</p>
+                            <p class="text-slate-600 text-sm leading-relaxed mb-3">This section translates everything above into the language that matters to leadership: dollars and hours. 1,284 tickets routed automatically. 214 agent hours freed up to work on harder problems instead of manual sorting. 91.3% routing accuracy. An estimated $47,000 in annual savings based on the reduction in average handle time.</p>
+                            <p class="text-slate-600 text-sm leading-relaxed">This panel exists because operational improvement alone rarely justifies continued investment. You need to show it in concrete business terms. A VP or CFO doesn't think in "AHT reduced by 18%" — they think in hours saved and money not spent. The translation from operational metric to business outcome is a skill in itself, and it's what turns a support team from a cost center into a function that leadership wants to invest in.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- What this says about me -->
+                <p class="text-slate-600 text-sm leading-relaxed mb-5">Each chart and table below has a small <i class="fa-solid fa-lightbulb text-violet-500 mx-0.5 text-xs"></i> <strong class="text-slate-700">plain-English explainer</strong> button — click it directly under any section to see what it shows and why it matters.</p>
+                <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-7 text-white">
+                    <p class="text-xs font-bold text-blue-400 uppercase tracking-widest mb-4">What This Says About Me</p>
+                    <p class="text-slate-200 text-sm leading-relaxed mb-4">
+                        The most underrated skill in support operations isn't handling a high ticket volume — it's knowing which data actually tells the truth, and being able to communicate that truth clearly to everyone from a frontline agent to a VP.
+                    </p>
+                    <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                        Most support teams are buried in data but struggle to act on it. They know CSAT dropped but can't pinpoint why. They know the queue is backed up but can't find the bottleneck. They deploy a new tool and assume it worked without actually measuring it. I've spent years building the infrastructure that closes those gaps — the dashboards that surface what matters, the frameworks that define what "good" actually looks like, and the reports that turn operational noise into decisions that leadership can act on.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div class="bg-white/10 rounded-lg p-4">
+                            <p class="text-white text-xs font-bold mb-1">I define the right metrics</p>
+                            <p class="text-slate-300 text-xs leading-relaxed">Not just tracking KPIs — deciding which ones actually predict outcomes your business cares about, and dropping the ones that look impressive but change nothing.</p>
+                        </div>
+                        <div class="bg-white/10 rounded-lg p-4">
+                            <p class="text-white text-xs font-bold mb-1">I measure whether changes actually work</p>
+                            <p class="text-slate-300 text-xs leading-relaxed">New tool, new process, new hire — I build the before/after framework that tells you honestly whether it moved the needle, not whether the team liked it.</p>
+                        </div>
+                        <div class="bg-white/10 rounded-lg p-4">
+                            <p class="text-white text-xs font-bold mb-1">I catch problems before they escalate</p>
+                            <p class="text-slate-300 text-xs leading-relaxed">SLA risk alerts, ticket category spikes, agent performance drops — I build systems that surface the signal early, not after a complaint lands in a VP's inbox.</p>
+                        </div>
+                        <div class="bg-white/10 rounded-lg p-4">
+                            <p class="text-white text-xs font-bold mb-1">I connect ops data to product teams</p>
+                            <p class="text-slate-300 text-xs leading-relaxed">When volume patterns signal a product bug, a confusing UI, or a broken flow — I make sure that information gets to engineering with enough context to act on it.</p>
+                        </div>
+                        <div class="bg-white/10 rounded-lg p-4">
+                            <p class="text-white text-xs font-bold mb-1">I coach with data, not gut feel</p>
+                            <p class="text-slate-300 text-xs leading-relaxed">Agent performance conversations backed by composite scores, FCR trends, and handle time patterns — not "I feel like you've been slower lately."</p>
+                        </div>
+                        <div class="bg-white/10 rounded-lg p-4">
+                            <p class="text-white text-xs font-bold mb-1">I speak the language of leadership</p>
+                            <p class="text-slate-300 text-xs leading-relaxed">$47K saved. 214 hours freed. 68% of tickets handled automatically. I translate support operations into business outcomes that justify investment and earn trust at the executive level.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real-world stack -->
+                <div class="mt-6">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Real-World Production Stack</p>
+                    <p class="text-slate-500 text-sm leading-relaxed mb-5">What this dashboard would be built on if deployed inside a real company — not a demo, an actual live internal tool.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div class="rounded-lg border border-slate-100 bg-slate-50 p-4">
+                            <p class="text-xs font-bold text-violet-700 uppercase tracking-wide mb-1">Ticket Data Source</p>
+                            <p class="text-xs font-semibold text-slate-800 mb-1">Zendesk · Salesforce Service Cloud · Freshdesk</p>
+                            <p class="text-slate-500 text-xs leading-relaxed">All ticket, agent, and SLA data pulled via REST API or webhook → triggers the pipeline on every status change.</p>
+                        </div>
+                        <div class="rounded-lg border border-slate-100 bg-slate-50 p-4">
+                            <p class="text-xs font-bold text-violet-700 uppercase tracking-wide mb-1">Data Pipeline</p>
+                            <p class="text-xs font-semibold text-slate-800 mb-1">Python (pandas / SQLAlchemy) · Fivetran · dbt</p>
+                            <p class="text-slate-500 text-xs leading-relaxed">Normalises raw ticket events into clean aggregated tables — hourly AHT, daily FCR, per-agent composite scores.</p>
+                        </div>
+                        <div class="rounded-lg border border-slate-100 bg-slate-50 p-4">
+                            <p class="text-xs font-bold text-violet-700 uppercase tracking-wide mb-1">Data Warehouse</p>
+                            <p class="text-xs font-semibold text-slate-800 mb-1">Snowflake · BigQuery · Redshift</p>
+                            <p class="text-slate-500 text-xs leading-relaxed">Stores the full historical record — required for period-over-period comparisons, trend charts, and any ML training later on.</p>
+                        </div>
+                        <div class="rounded-lg border border-slate-100 bg-slate-50 p-4">
+                            <p class="text-xs font-bold text-violet-700 uppercase tracking-wide mb-1">Backend API</p>
+                            <p class="text-xs font-semibold text-slate-800 mb-1">FastAPI · Node.js / Express</p>
+                            <p class="text-slate-500 text-xs leading-relaxed">Serves pre-aggregated metrics to the frontend. WebSocket channel for the live ticket queue — pushes updates the moment a ticket changes state.</p>
+                        </div>
+                        <div class="rounded-lg border border-slate-100 bg-slate-50 p-4">
+                            <p class="text-xs font-bold text-violet-700 uppercase tracking-wide mb-1">AI Triage Layer</p>
+                            <p class="text-xs font-semibold text-slate-800 mb-1">OpenAI API · fine-tuned classifier · AWS Comprehend</p>
+                            <p class="text-slate-500 text-xs leading-relaxed">Reads ticket subject + first message → predicts category and urgency → assigns to the right queue. The 91.3% accuracy card is what you benchmark this against.</p>
+                        </div>
+                        <div class="rounded-lg border border-slate-100 bg-slate-50 p-4">
+                            <p class="text-xs font-bold text-violet-700 uppercase tracking-wide mb-1">Frontend + Auth + Hosting</p>
+                            <p class="text-xs font-semibold text-slate-800 mb-1">React + Chart.js · Okta SSO · Vercel / AWS</p>
+                            <p class="text-slate-500 text-xs leading-relaxed">The layer you're looking at right now. Role-based access so agents see their own queue, team leads see everything. Deployed on Vercel or internal AWS infra depending on compliance requirements.</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 
-    <div id="logicModal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center z-50 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-4xl h-[80vh] rounded-xl shadow-2xl overflow-hidden flex flex-col">
-            
-            <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <h2 class="font-bold text-gray-800 flex items-center gap-2">
-                    <i class="fa-solid fa-layer-group text-slate-500"></i> Project Architecture
-                </h2>
-                <button onclick="toggleView('dashboard')" class="text-gray-400 hover:text-red-500 transition text-xl">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
+    <!-- Alert -->
+    <div id="alertBanner" class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+        <i class="fa-solid fa-triangle-exclamation text-amber-500 flex-shrink-0"></i>
+        <div class="flex-1 text-sm">
+            <span class="font-semibold text-amber-800">SLA Risk Alert:</span>
+            <span class="text-amber-700"> 3 tickets approaching breach threshold (&gt;4h open). </span>
+            <a href="#ticket-queue" class="font-bold text-amber-800 underline">View tickets →</a>
+        </div>
+        <button onclick="document.getElementById('alertBanner').remove()" class="text-amber-400 hover:text-amber-700 ml-2">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
 
-            <div class="flex flex-1 overflow-hidden">
-                <div class="w-1/3 bg-gray-50 border-r border-gray-200 p-6 overflow-y-auto">
-                    <div class="mb-6">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase mb-3">Data Sources</h3>
-                        <p class="text-sm text-gray-600 mb-2">
-                            <strong>1. Ticket Logs (SQL):</strong><br>
-                            Simulated extract from a PostgreSQL data warehouse containing timestamped support interactions.
-                        </p>
-                        <p class="text-sm text-gray-600">
-                            <strong>2. CSAT Surveys (API):</strong><br>
-                            JSON response simulation from a Qualtrics/SurveyMonkey webhook.
-                        </p>
-                    </div>
-                    <div class="mb-6">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase mb-3">Tech Stack</h3>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded border border-yellow-200">Python/Pandas</span>
-                            <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded border border-blue-200">SQL</span>
-                            <span class="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs rounded border border-cyan-200">Tailwind CSS</span>
-                            <span class="px-2 py-1 bg-pink-100 text-pink-700 text-xs rounded border border-pink-200">Chart.js</span>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 class="text-xs font-bold text-gray-400 uppercase mb-3">Methodology</h3>
-                        <p class="text-xs text-gray-500 leading-relaxed">
-                            This page demonstrates a "Headless BI" concept. Instead of using Tableau/PowerBI, I built a custom frontend to have full control over the UX. The Python backend (shown on right) handles the heavy lifting—cleaning the raw SQL data and calculating rolling averages—before sending lightweight JSON to the browser.
-                        </p>
+    <!-- KPI Row -->
+    <div class="grid grid-cols-2 xl:grid-cols-6 gap-4 mb-6">
+        <div class="kpi-card bg-white p-5 rounded-xl shadow-sm border border-slate-100">
+            <div class="flex justify-between items-start mb-3">
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">CSAT</p>
+                <div class="bg-green-50 p-1.5 rounded-lg"><i class="fa-solid fa-face-smile text-green-500 text-xs"></i></div>
+            </div>
+            <p class="text-2xl font-bold text-slate-800">4.8<span class="text-sm font-normal text-slate-400">/5</span></p>
+            <p class="text-xs mt-2"><span class="text-green-600 font-semibold">↑ +0.3</span> <span class="text-slate-400">vs last period</span></p>
+        </div>
+        <div class="kpi-card bg-white p-5 rounded-xl shadow-sm border border-slate-100">
+            <div class="flex justify-between items-start mb-3">
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">FCR Rate</p>
+                <div class="bg-blue-50 p-1.5 rounded-lg"><i class="fa-solid fa-check-double text-blue-500 text-xs"></i></div>
+            </div>
+            <p class="text-2xl font-bold text-slate-800">82.4<span class="text-sm font-normal text-slate-400">%</span></p>
+            <p class="text-xs mt-2"><span class="text-green-600 font-semibold">↑ +3.1%</span> <span class="text-slate-400">vs last period</span></p>
+        </div>
+        <div class="kpi-card bg-white p-5 rounded-xl shadow-sm border border-slate-100">
+            <div class="flex justify-between items-start mb-3">
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Avg Handle Time</p>
+                <div class="bg-orange-50 p-1.5 rounded-lg"><i class="fa-solid fa-clock text-orange-500 text-xs"></i></div>
+            </div>
+            <p class="text-2xl font-bold text-slate-800">4:12<span class="text-sm font-normal text-slate-400">m</span></p>
+            <p class="text-xs mt-2"><span class="text-green-600 font-semibold">↓ −18%</span> <span class="text-slate-400">vs last period</span></p>
+        </div>
+        <div class="kpi-card bg-white p-5 rounded-xl shadow-sm border border-slate-100">
+            <div class="flex justify-between items-start mb-3">
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Open Tickets</p>
+                <div class="bg-red-50 p-1.5 rounded-lg"><i class="fa-solid fa-ticket text-red-500 text-xs"></i></div>
+            </div>
+            <p class="text-2xl font-bold text-slate-800">47</p>
+            <p class="text-xs mt-2"><span class="text-red-600 font-semibold">↑ +12</span> <span class="text-slate-400">vs yesterday</span></p>
+        </div>
+        <div class="kpi-card bg-white p-5 rounded-xl shadow-sm border border-slate-100">
+            <div class="flex justify-between items-start mb-3">
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">SLA Compliance</p>
+                <div class="bg-purple-50 p-1.5 rounded-lg"><i class="fa-solid fa-shield-halved text-purple-500 text-xs"></i></div>
+            </div>
+            <p class="text-2xl font-bold text-slate-800">96.2<span class="text-sm font-normal text-slate-400">%</span></p>
+            <p class="text-xs mt-2"><span class="text-red-600 font-semibold">↓ −1.8%</span> <span class="text-slate-400">vs last period</span></p>
+        </div>
+        <div class="kpi-card bg-white p-5 rounded-xl shadow-sm border border-slate-100">
+            <div class="flex justify-between items-start mb-3">
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Escalation Rate</p>
+                <div class="bg-rose-50 p-1.5 rounded-lg"><i class="fa-solid fa-arrow-up-from-bracket text-rose-500 text-xs"></i></div>
+            </div>
+            <p class="text-2xl font-bold text-slate-800">3.1<span class="text-sm font-normal text-slate-400">%</span></p>
+            <p class="text-xs mt-2"><span class="text-green-600 font-semibold">↓ −0.8%</span> <span class="text-slate-400">vs last period</span></p>
+        </div>
+    </div>
+
+    <!-- KPI inline explainer -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 px-5 py-3 mb-6">
+        <button onclick="toggleMiniExplainer(this)" class="flex w-full items-center gap-2 text-xs text-slate-400 hover:text-violet-600 transition-colors text-left">
+            <i class="fa-solid fa-lightbulb text-xs"></i>
+            <span class="font-medium">What do these 6 numbers mean?</span>
+            <i class="fa-solid fa-chevron-down ml-auto transition-transform duration-200"></i>
+        </button>
+        <div style="max-height:0;overflow:hidden;transition:max-height 0.4s ease">
+            <div class="pt-3">
+                <p class="text-slate-600 text-sm leading-relaxed mb-3">These are the six numbers that between them tell you almost everything you need to know about whether a support team is healthy on any given day. Let me explain each one in plain language:</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="bg-slate-50 rounded-lg p-3 border border-slate-100"><p class="text-xs font-bold text-slate-700 mb-1">CSAT — Customer Satisfaction Score</p><p class="text-xs text-slate-500 leading-relaxed">After a ticket is resolved, the customer gets asked to rate the experience out of 5. Ours is 4.8. That's excellent — most teams consider anything above 4.5 to be world-class.</p></div>
+                    <div class="bg-slate-50 rounded-lg p-3 border border-slate-100"><p class="text-xs font-bold text-slate-700 mb-1">FCR — First Contact Resolution</p><p class="text-xs text-slate-500 leading-relaxed">The percentage of customers who got their problem fully solved the first time they reached out — without needing to call or email again. Ours is 82.4%. Anything below 70% means you're accidentally creating double the work for yourself.</p></div>
+                    <div class="bg-slate-50 rounded-lg p-3 border border-slate-100"><p class="text-xs font-bold text-slate-700 mb-1">Avg Handle Time</p><p class="text-xs text-slate-500 leading-relaxed">How long each customer interaction takes from start to finish. Currently 4 minutes 12 seconds — down 18% from last period. Lower is better, but only when satisfaction doesn't drop alongside it. That's the key tension this whole dashboard is built to track.</p></div>
+                    <div class="bg-slate-50 rounded-lg p-3 border border-slate-100"><p class="text-xs font-bold text-slate-700 mb-1">SLA Compliance</p><p class="text-xs text-slate-500 leading-relaxed">SLA stands for Service Level Agreement — the formal promise you make to customers about how quickly you'll respond. 96.2% of tickets are being handled within that window. The slight dip from last period is what triggered the alert banner at the top.</p></div>
+                    <div class="bg-slate-50 rounded-lg p-3 border border-slate-100"><p class="text-xs font-bold text-slate-700 mb-1">Open Tickets</p><p class="text-xs text-slate-500 leading-relaxed">47 tickets are currently active and waiting to be resolved. The +12 spike from yesterday is worth watching — that's a 34% jump in a single day. Could be a product issue, a promotion that drove traffic, or just a Monday. Context matters.</p></div>
+                    <div class="bg-slate-50 rounded-lg p-3 border border-slate-100"><p class="text-xs font-bold text-slate-700 mb-1">Escalation Rate</p><p class="text-xs text-slate-500 leading-relaxed">How often a ticket is too complex for the first agent and has to be handed to someone more senior. At 3.1% and trending down, this means the team is solving more problems on their own — a sign of improving capability over time.</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="font-semibold text-slate-800">AHT vs. CSAT Trend</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Post-AI triage intervention analysis · 8-week window</p>
+                </div>
+                <span class="inline-flex items-center gap-1.5 bg-red-50 text-red-700 text-xs font-medium px-2.5 py-1 rounded-full">
+                    <i class="fa-solid fa-robot text-xs"></i> AI Launch: Week 4
+                </span>
+            </div>
+            <div class="h-[260px]">
+                <canvas id="trendChart"></canvas>
+            </div>
+            <div class="border-t border-slate-100 mt-4 pt-3">
+                <button onclick="toggleMiniExplainer(this)" class="flex w-full items-center gap-2 text-xs text-slate-400 hover:text-violet-600 transition-colors text-left">
+                    <i class="fa-solid fa-lightbulb text-xs"></i>
+                    <span class="font-medium">What does this chart show?</span>
+                    <i class="fa-solid fa-chevron-down ml-auto transition-transform duration-200"></i>
+                </button>
+                <div style="max-height:0;overflow:hidden;transition:max-height 0.4s ease">
+                    <div class="pt-3 space-y-3">
+                        <p class="text-slate-600 text-sm leading-relaxed">This is the most important chart on the page. The blue shaded area shows Average Handle Time — how long each customer conversation takes. The green dotted line shows CSAT — customer satisfaction. The red vertical line at Week 4 is when the AI triage model went live.</p>
+                        <p class="text-slate-600 text-sm leading-relaxed">Here's what the story is: after Week 4, handle time drops sharply — the team is processing tickets significantly faster. But look at what CSAT does. It doesn't dip. It actually climbs. That's the whole point. <strong class="text-slate-800">Speed gains that come at the cost of customer experience aren't gains — they're a trade-off that will hurt you later.</strong> When both lines move in your favor at the same time, that's a genuine improvement worth investing in more of.</p>
+                        <p class="text-slate-600 text-sm leading-relaxed">The annotation marker at Week 4 isn't just decorative — it's a discipline. Without it, someone could look at this chart and attribute the improvement to a seasonal pattern, a new hire joining, or just random variation. The marker eliminates that ambiguity. It says: here is the before, here is the after, here is exactly what changed in between.</p>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+            <h3 class="font-semibold text-slate-800">Volume by Category</h3>
+            <p class="text-xs text-slate-400 mt-0.5 mb-4">Current period breakdown</p>
+            <div class="h-[260px]">
+                <canvas id="categoryChart"></canvas>
+            </div>
+            <div class="border-t border-slate-100 mt-4 pt-3">
+                <button onclick="toggleMiniExplainer(this)" class="flex w-full items-center gap-2 text-xs text-slate-400 hover:text-violet-600 transition-colors text-left">
+                    <i class="fa-solid fa-lightbulb text-xs"></i>
+                    <span class="font-medium">What does this chart show?</span>
+                    <i class="fa-solid fa-chevron-down ml-auto transition-transform duration-200"></i>
+                </button>
+                <div style="max-height:0;overflow:hidden;transition:max-height 0.4s ease">
+                    <div class="pt-3 space-y-3">
+                        <p class="text-slate-600 text-sm leading-relaxed">This donut chart breaks down what kind of problems customers are bringing in. Right now: Technical issues at 38%, Billing questions at 27%, Account access at 16%, Shipping at 11%, Returns at 8%.</p>
+                        <p class="text-slate-600 text-sm leading-relaxed">This matters far more than most people realize. If Technical suddenly jumps from 38% to 55% in a week, that's not a support team problem — <strong class="text-slate-800">that's an engineering problem in disguise.</strong> Something broke in the product, customers are hitting it, and the support queue is the first place it shows up. A support analyst who reads this chart correctly becomes the early warning system between the customer base and the product and engineering teams. That's a much more valuable role than just answering tickets.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                <div class="w-2/3 bg-[#1e1e1e] overflow-y-auto code-scroll">
-                    <div class="p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-gray-400 font-mono text-sm">backend/analysis_pipeline.py</span>
-                            <span class="text-green-500 text-xs font-mono">● Active</span>
-                        </div>
-<pre class="font-mono text-sm leading-6">
-<span class="text-gray-500"># ---------------------------------------------------</span>
-<span class="text-gray-500"># 1. DATA EXTRACTION LAYER</span>
-<span class="text-gray-500"># ---------------------------------------------------</span>
+    <!-- Charts Row 2 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+            <h3 class="font-semibold text-slate-800">SLA Compliance</h3>
+            <p class="text-xs text-slate-400 mt-0.5 mb-4">Weekly % — target 95%</p>
+            <div class="h-[190px]">
+                <canvas id="slaChart"></canvas>
+            </div>
+            <div class="border-t border-slate-100 mt-4 pt-3">
+                <button onclick="toggleMiniExplainer(this)" class="flex w-full items-center gap-2 text-xs text-slate-400 hover:text-violet-600 transition-colors text-left">
+                    <i class="fa-solid fa-lightbulb text-xs"></i>
+                    <span class="font-medium">What does this chart show?</span>
+                    <i class="fa-solid fa-chevron-down ml-auto transition-transform duration-200"></i>
+                </button>
+                <div style="max-height:0;overflow:hidden;transition:max-height 0.4s ease">
+                    <div class="pt-3 space-y-3">
+                        <p class="text-slate-600 text-sm leading-relaxed">Each bar shows what percentage of that week's tickets the team resolved within the committed response window. The dashed horizontal line at 95% is the target. Simple to read: bars above the line, team is on track. Bars below, something needs attention.</p>
+                        <p class="text-slate-600 text-sm leading-relaxed">Notice that the first two weeks are amber (below target) and every week after the AI launch turns green. The color coding is intentional — a team lead should be able to understand the story in this chart in about three seconds without reading a single number. Design that communicates at a glance isn't cosmetic, it's operational.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h3 class="font-semibold text-slate-800">Agent Performance</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Ranked by composite score</p>
+                </div>
+                <select id="dashAgentPeriod" onchange="applyAgentPeriod(this.value)" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 text-slate-600 focus:outline-none bg-white">
+                    <option value="current">This Month</option>
+                    <option value="last">Last Month</option>
+                    <option value="q2">Q2 2024</option>
+                </select>
+            </div>
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-xs text-slate-400 uppercase border-b border-slate-100">
+                        <th class="text-left pb-3 font-semibold">Agent</th>
+                        <th class="text-center pb-3 font-semibold">Closed</th>
+                        <th class="text-center pb-3 font-semibold">FCR</th>
+                        <th class="text-center pb-3 font-semibold">AHT</th>
+                        <th class="text-center pb-3 font-semibold">CSAT</th>
+                        <th class="text-left pb-3 font-semibold pl-4">Score</th>
+                    </tr>
+                </thead>
+                <tbody id="agentTable" class="divide-y divide-slate-50"></tbody>
+            </table>
+            <div class="border-t border-slate-100 px-6 pt-3 pb-4 mt-1">
+                <button onclick="toggleMiniExplainer(this)" class="flex w-full items-center gap-2 text-xs text-slate-400 hover:text-violet-600 transition-colors text-left">
+                    <i class="fa-solid fa-lightbulb text-xs"></i>
+                    <span class="font-medium">Why composite score instead of tickets closed?</span>
+                    <i class="fa-solid fa-chevron-down ml-auto transition-transform duration-200"></i>
+                </button>
+                <div style="max-height:0;overflow:hidden;transition:max-height 0.4s ease">
+                    <div class="pt-3 space-y-3">
+                        <p class="text-slate-600 text-sm leading-relaxed">This table ranks agents by a composite performance score — and I want to explain why I didn't just sort by "tickets closed," because that's the mistake most teams make.</p>
+                        <p class="text-slate-600 text-sm leading-relaxed">An agent who closes 130 tickets a week at 70% First Contact Resolution is generating roughly 39 return contacts — customers who have to come back about the same problem because it wasn't fixed right the first time. Each return contact costs the team time and costs the customer patience. <strong class="text-slate-800">That agent isn't performing well, they're creating hidden debt.</strong> Raw ticket count rewards speed. The composite score here rewards actually solving the problem.</p>
+                        <p class="text-slate-600 text-sm leading-relaxed">The score balances four factors together: how many tickets they handled, their first contact resolution rate, their average handle time, and their customer satisfaction score. The result is a leaderboard that tells you who your genuinely best agents are — not just your fastest ones.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticket Queue -->
+    <div id="ticket-queue" class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden mb-6">
+        <div class="flex justify-between items-center p-6 border-b border-slate-100">
+            <div>
+                <h3 class="font-semibold text-slate-800">Live Ticket Queue</h3>
+                <p class="text-xs text-slate-400 mt-0.5">47 open · 3 at risk · auto-refreshes every 60s</p>
+            </div>
+            <div class="flex gap-2">
+                <select id="filterPri" onchange="applyQueueFilters()" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 text-slate-600 bg-white focus:outline-none">
+                    <option value="">All Priorities</option>
+                    <option value="Critical">Critical</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option>
+                </select>
+                <select id="filterStat" onchange="applyQueueFilters()" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 text-slate-600 bg-white focus:outline-none">
+                    <option value="">All Status</option>
+                    <option value="Open">Open</option><option value="Pending">Pending</option><option value="Escalated">Escalated</option>
+                </select>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50">
+                    <tr class="text-xs text-slate-500 uppercase">
+                        <th class="text-left px-6 py-3 font-semibold">Priority</th>
+                        <th class="text-left px-6 py-3 font-semibold">Ticket ID</th>
+                        <th class="text-left px-6 py-3 font-semibold">Subject</th>
+                        <th class="text-left px-6 py-3 font-semibold">Category</th>
+                        <th class="text-left px-6 py-3 font-semibold">Assigned To</th>
+                        <th class="text-left px-6 py-3 font-semibold">Status</th>
+                        <th class="text-left px-6 py-3 font-semibold">Time Open</th>
+                        <th class="text-left px-6 py-3 font-semibold">SLA</th>
+                    </tr>
+                </thead>
+                <tbody id="ticketTable" class="divide-y divide-slate-50"></tbody>
+            </table>
+        </div>
+        <div class="px-6 py-3 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+            <span id="queueCount" class="text-xs text-slate-400">Showing 8 of 16 tickets</span>
+            <div class="flex gap-1" id="pagination"></div>
+        </div>
+        <div class="border-t border-slate-100 px-6 pt-3 pb-4">
+            <button onclick="toggleMiniExplainer(this)" class="flex w-full items-center gap-2 text-xs text-slate-400 hover:text-violet-600 transition-colors text-left">
+                <i class="fa-solid fa-lightbulb text-xs"></i>
+                <span class="font-medium">How to read this table</span>
+                <i class="fa-solid fa-chevron-down ml-auto transition-transform duration-200"></i>
+            </button>
+            <div style="max-height:0;overflow:hidden;transition:max-height 0.4s ease">
+                <div class="pt-3 space-y-3">
+                    <p class="text-slate-600 text-sm leading-relaxed">This is the operational view — every open ticket, who it belongs to, how long it's been open, and most importantly, whether it's at risk of breaching the SLA deadline. Tickets with a red left border and "At Risk" label are the ones that need someone's attention now, not at the end of the shift.</p>
+                    <p class="text-slate-600 text-sm leading-relaxed">The design principle here is that a team lead should be able to glance at this table for 10 seconds during a busy shift and immediately know where to intervene. Priority and SLA status are the first two columns you see because those are the two things that can blow up your CSAT score by end of day if left unattended. Everything else — category, assignee, status — is context that helps you act on that signal.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Impact Panel -->
+    <div class="bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-6 text-white mb-6">
+        <div class="flex justify-between items-start mb-5">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <i class="fa-solid fa-robot text-blue-400"></i>
+                    <h3 class="font-semibold">AI Smart Triage — Impact Summary</h3>
+                    <span class="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">ACTIVE</span>
+                </div>
+                <p class="text-slate-300 text-sm">Deployed Week 4. Automates initial ticket classification and routing via NLP — 91.3% accuracy, reducing manual triage overhead by 68%.</p>
+            </div>
+            <button onclick="openModal()" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm transition border border-white/10 flex-shrink-0 ml-4">
+                <i class="fa-solid fa-code text-blue-400"></i> View Code
+            </button>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white/10 rounded-lg p-4">
+                <p class="text-slate-300 text-xs mb-1">Tickets Auto-Routed</p>
+                <p class="text-2xl font-bold">1,284</p>
+                <p class="text-green-400 text-xs mt-1">↑ 68% of total volume</p>
+            </div>
+            <div class="bg-white/10 rounded-lg p-4">
+                <p class="text-slate-300 text-xs mb-1">Routing Accuracy</p>
+                <p class="text-2xl font-bold">91.3%</p>
+                <p class="text-green-400 text-xs mt-1">↑ +3.2% from baseline</p>
+            </div>
+            <div class="bg-white/10 rounded-lg p-4">
+                <p class="text-slate-300 text-xs mb-1">Agent Hours Saved</p>
+                <p class="text-2xl font-bold">214h</p>
+                <p class="text-green-400 text-xs mt-1">Freed for Tier-2 work</p>
+            </div>
+            <div class="bg-white/10 rounded-lg p-4">
+                <p class="text-slate-300 text-xs mb-1">Est. Annual Savings</p>
+                <p class="text-2xl font-bold">$47K</p>
+                <p class="text-green-400 text-xs mt-1">Based on AHT reduction</p>
+            </div>
+        </div>
+        <div class="border-t border-white/10 mt-5 pt-4">
+            <button onclick="toggleMiniExplainer(this)" class="flex w-full items-center gap-2 text-xs text-slate-400 hover:text-blue-300 transition-colors text-left">
+                <i class="fa-solid fa-lightbulb text-xs"></i>
+                <span class="font-medium">Why does this panel exist?</span>
+                <i class="fa-solid fa-chevron-down ml-auto transition-transform duration-200"></i>
+            </button>
+            <div style="max-height:0;overflow:hidden;transition:max-height 0.4s ease">
+                <div class="pt-3 space-y-2">
+                    <p class="text-slate-300 text-sm leading-relaxed">This section translates everything above into the language that matters to leadership: dollars and hours. 1,284 tickets routed automatically. 214 agent hours freed up to work on harder problems instead of manual sorting. 91.3% routing accuracy. An estimated $47,000 in annual savings based on the reduction in average handle time.</p>
+                    <p class="text-slate-300 text-sm leading-relaxed">This panel exists because operational improvement alone rarely justifies continued investment. You need to show it in concrete business terms. A VP or CFO doesn't think in "AHT reduced by 18%" — they think in hours saved and money not spent. The translation from operational metric to business outcome is a skill in itself, and it's what turns a support team from a cost center into a function that leadership wants to invest in.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div><!-- /view-dashboard -->
+
+<!-- VIEW: Ticket Queue -->
+<div id="view-tickets" class="view-section hidden">
+    <header class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Ticket Queue</h1>
+            <div class="flex items-center gap-2 mt-1">
+                <div class="w-2 h-2 rounded-full bg-green-500 pulse-dot"></div>
+                <p class="text-slate-500 text-sm">47 open · 3 at risk · auto-refreshes every 60s</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <select id="vq-filterPri" onchange="renderViewQueue()" class="text-xs border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-600 focus:outline-none">
+                <option value="">All Priorities</option>
+                <option value="Critical">Critical</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+            </select>
+            <select id="vq-filterStat" onchange="renderViewQueue()" class="text-xs border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-600 focus:outline-none">
+                <option value="">All Status</option>
+                <option value="Open">Open</option>
+                <option value="Pending">Pending</option>
+                <option value="Escalated">Escalated</option>
+            </select>
+            <button onclick="exportCSV()" class="flex items-center gap-2 border border-slate-200 text-slate-600 px-4 py-2 rounded-lg text-sm hover:bg-slate-50 bg-white transition">
+                <i class="fa-solid fa-download text-slate-400"></i> Export CSV
+            </button>
+        </div>
+    </header>
+    <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Showing</p>
+            <p class="text-3xl font-bold text-slate-800" id="vq-stat-total">47</p>
+            <p class="text-xs mt-2 text-slate-400" id="vq-stat-trend">of 47 total open</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 shadow-sm border border-red-100">
+            <p class="text-xs font-semibold text-red-400 uppercase tracking-wider mb-2">Critical</p>
+            <p class="text-3xl font-bold text-red-600" id="vq-stat-critical">1</p>
+            <p class="text-xs mt-2 text-slate-400">Requires immediate action</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 shadow-sm border border-amber-100">
+            <p class="text-xs font-semibold text-amber-500 uppercase tracking-wider mb-2">At SLA Risk</p>
+            <p class="text-3xl font-bold text-amber-600" id="vq-stat-risk">3</p>
+            <p class="text-xs mt-2 text-slate-400">Approaching breach threshold</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Escalated</p>
+            <p class="text-3xl font-bold text-slate-700" id="vq-stat-escalated">1</p>
+            <p class="text-xs mt-2 text-slate-400">Pending Tier-2 review</p>
+        </div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50">
+                    <tr class="text-xs text-slate-500 uppercase">
+                        <th class="text-left px-6 py-3 font-semibold">Priority</th>
+                        <th class="text-left px-6 py-3 font-semibold">Ticket ID</th>
+                        <th class="text-left px-6 py-3 font-semibold">Subject</th>
+                        <th class="text-left px-6 py-3 font-semibold">Category</th>
+                        <th class="text-left px-6 py-3 font-semibold">Assigned To</th>
+                        <th class="text-left px-6 py-3 font-semibold">Status</th>
+                        <th class="text-left px-6 py-3 font-semibold">Time Open</th>
+                        <th class="text-left px-6 py-3 font-semibold">SLA</th>
+                    </tr>
+                </thead>
+                <tbody id="vq-ticketTable" class="divide-y divide-slate-50"></tbody>
+            </table>
+        </div>
+        <div class="px-6 py-3 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+            <span id="vq-queueCount" class="text-xs text-slate-400"></span>
+            <div class="flex gap-1" id="vq-pagination"></div>
+        </div>
+    </div>
+</div>
+
+<!-- VIEW: Agent Performance -->
+<div id="view-agents" class="view-section hidden">
+    <header class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Agent Performance</h1>
+            <p class="text-slate-500 text-sm mt-1">Composite scores across FCR, AHT, CSAT, and volume</p>
+        </div>
+        <select id="va-teamFilter" onchange="renderViewAgents(this.value)" class="text-xs border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-600 focus:outline-none">
+            <option value="all">All Teams</option>
+            <option value="tier1">Tier 1 Support</option>
+            <option value="tier2">Tier 2 / Enterprise</option>
+        </select>
+    </header>
+    <div class="grid grid-cols-3 gap-4 mb-6" id="va-spotlight"></div>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100">
+            <h3 class="font-semibold text-slate-800">Full Leaderboard</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Ranked by composite performance score</p>
+        </div>
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="text-xs text-slate-400 uppercase border-b border-slate-100">
+                    <th class="text-left px-6 py-3 font-semibold">Rank</th>
+                    <th class="text-left py-3 font-semibold">Agent</th>
+                    <th class="text-center py-3 font-semibold">Tickets Closed</th>
+                    <th class="text-center py-3 font-semibold">FCR</th>
+                    <th class="text-center py-3 font-semibold">Avg Handle Time</th>
+                    <th class="text-center py-3 font-semibold">CSAT</th>
+                    <th class="text-left py-3 font-semibold pl-4">Score</th>
+                </tr>
+            </thead>
+            <tbody id="va-agentTable" class="divide-y divide-slate-50"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- VIEW: SLA Reports -->
+<div id="view-sla" class="view-section hidden">
+    <header class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">SLA Reports</h1>
+            <p class="text-slate-500 text-sm mt-1">Service Level Agreement compliance · Target 95%</p>
+        </div>
+        <div class="flex bg-white border border-slate-200 rounded-lg p-1 gap-1">
+            <button class="vs-period filter-btn active px-3 py-1.5 text-xs font-medium rounded-md" onclick="setSLAPeriod(this,'30d')">30D</button>
+            <button class="vs-period filter-btn px-3 py-1.5 text-xs font-medium rounded-md text-slate-500" onclick="setSLAPeriod(this,'90d')">90D</button>
+            <button class="vs-period filter-btn px-3 py-1.5 text-xs font-medium rounded-md text-slate-500" onclick="setSLAPeriod(this,'ytd')">YTD</button>
+        </div>
+    </header>
+    <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Current Compliance</p>
+            <p class="text-3xl font-bold text-green-600">96.2%</p>
+            <p class="text-xs mt-2 text-green-600 font-semibold">↑ Above 95% target</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">SLA Breaches</p>
+            <p class="text-3xl font-bold text-slate-800">2</p>
+            <p class="text-xs mt-2 text-slate-400">This week · both resolved</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 shadow-sm border border-amber-100">
+            <p class="text-xs font-semibold text-amber-500 uppercase tracking-wider mb-2">At Risk Now</p>
+            <p class="text-3xl font-bold text-amber-600">3</p>
+            <p class="text-xs mt-2 text-slate-400">Open tickets near breach</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Avg Response</p>
+            <p class="text-3xl font-bold text-slate-800">1.4h</p>
+            <p class="text-xs mt-2 text-green-600 font-semibold">↓ −22min vs last period</p>
+        </div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 mb-6">
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <h3 class="font-semibold text-slate-800">Weekly SLA Compliance</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Green bars = on target (≥95%) · Amber = below target</p>
+            </div>
+            <div class="flex items-center gap-4 text-xs">
+                <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded bg-green-500"></div><span class="text-slate-500">On Target</span></div>
+                <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded bg-amber-400"></div><span class="text-slate-500">Below Target</span></div>
+            </div>
+        </div>
+        <div class="h-[280px]"><canvas id="slaViewChart"></canvas></div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100">
+            <h3 class="font-semibold text-slate-800">SLA Performance by Category</h3>
+        </div>
+        <table class="w-full text-sm">
+            <thead class="bg-slate-50">
+                <tr class="text-xs text-slate-500 uppercase">
+                    <th class="text-left px-6 py-3 font-semibold">Category</th>
+                    <th class="text-center px-6 py-3 font-semibold">Volume</th>
+                    <th class="text-center px-6 py-3 font-semibold">SLA Met</th>
+                    <th class="text-center px-6 py-3 font-semibold">Avg Response</th>
+                    <th class="text-left px-6 py-3 font-semibold">Compliance</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+                <tr class="hover:bg-slate-50"><td class="px-6 py-3 font-medium text-slate-700">Technical</td><td class="px-6 py-3 text-center text-slate-500">487</td><td class="px-6 py-3 text-center text-slate-500">459</td><td class="px-6 py-3 text-center text-slate-500">1.8h</td><td class="px-6 py-3"><div class="flex items-center gap-2"><div class="flex-1 bg-slate-100 h-2 rounded-full"><div class="bg-green-500 h-2 rounded-full" style="width:94.3%"></div></div><span class="text-xs font-bold text-slate-600">94.3%</span></div></td></tr>
+                <tr class="hover:bg-slate-50"><td class="px-6 py-3 font-medium text-slate-700">Billing</td><td class="px-6 py-3 text-center text-slate-500">346</td><td class="px-6 py-3 text-center text-slate-500">338</td><td class="px-6 py-3 text-center text-slate-500">1.1h</td><td class="px-6 py-3"><div class="flex items-center gap-2"><div class="flex-1 bg-slate-100 h-2 rounded-full"><div class="bg-green-500 h-2 rounded-full" style="width:97.7%"></div></div><span class="text-xs font-bold text-slate-600">97.7%</span></div></td></tr>
+                <tr class="hover:bg-slate-50"><td class="px-6 py-3 font-medium text-slate-700">Account</td><td class="px-6 py-3 text-center text-slate-500">205</td><td class="px-6 py-3 text-center text-slate-500">201</td><td class="px-6 py-3 text-center text-slate-500">0.9h</td><td class="px-6 py-3"><div class="flex items-center gap-2"><div class="flex-1 bg-slate-100 h-2 rounded-full"><div class="bg-green-500 h-2 rounded-full" style="width:98.0%"></div></div><span class="text-xs font-bold text-slate-600">98.0%</span></div></td></tr>
+                <tr class="hover:bg-slate-50"><td class="px-6 py-3 font-medium text-slate-700">Shipping</td><td class="px-6 py-3 text-center text-slate-500">141</td><td class="px-6 py-3 text-center text-slate-500">134</td><td class="px-6 py-3 text-center text-slate-500">2.1h</td><td class="px-6 py-3"><div class="flex items-center gap-2"><div class="flex-1 bg-slate-100 h-2 rounded-full"><div class="bg-amber-400 h-2 rounded-full" style="width:95%"></div></div><span class="text-xs font-bold text-slate-600">95.0%</span></div></td></tr>
+                <tr class="hover:bg-slate-50"><td class="px-6 py-3 font-medium text-slate-700">Returns</td><td class="px-6 py-3 text-center text-slate-500">103</td><td class="px-6 py-3 text-center text-slate-500">96</td><td class="px-6 py-3 text-center text-slate-500">2.6h</td><td class="px-6 py-3"><div class="flex items-center gap-2"><div class="flex-1 bg-slate-100 h-2 rounded-full"><div class="bg-amber-400 h-2 rounded-full" style="width:93.2%"></div></div><span class="text-xs font-bold text-slate-600">93.2%</span></div></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- VIEW: AI Triage -->
+<div id="view-ai" class="view-section hidden">
+    <header class="flex justify-between items-center mb-6">
+        <div>
+            <div class="flex items-center gap-2">
+                <h1 class="text-2xl font-bold text-slate-800">AI Smart Triage</h1>
+                <span class="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">ACTIVE</span>
+                <span class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-medium">NEW</span>
+            </div>
+            <p class="text-slate-500 text-sm mt-1">scikit-learn NLP pipeline · Deployed Week 4 · 91.3% routing accuracy</p>
+        </div>
+        <button onclick="openModal()" class="flex items-center gap-2 bg-slate-800 text-white px-4 py-2 rounded-lg text-sm hover:bg-slate-700 transition">
+            <i class="fa-solid fa-code text-blue-400"></i> View Code
+        </button>
+    </header>
+    <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-5 text-white">
+            <p class="text-blue-200 text-xs mb-2">Tickets Auto-Routed</p>
+            <p class="text-3xl font-bold">1,284</p>
+            <p class="text-blue-300 text-xs mt-2">↑ 68% of total volume</p>
+        </div>
+        <div class="bg-gradient-to-br from-green-600 to-green-700 rounded-xl p-5 text-white">
+            <p class="text-green-200 text-xs mb-2">Routing Accuracy</p>
+            <p class="text-3xl font-bold">91.3%</p>
+            <p class="text-green-300 text-xs mt-2">↑ +3.2% from baseline</p>
+        </div>
+        <div class="bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl p-5 text-white">
+            <p class="text-purple-200 text-xs mb-2">Agent Hours Freed</p>
+            <p class="text-3xl font-bold">214h</p>
+            <p class="text-purple-300 text-xs mt-2">Redirected to Tier-2</p>
+        </div>
+        <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl p-5 text-white">
+            <p class="text-amber-100 text-xs mb-2">Est. Annual Savings</p>
+            <p class="text-3xl font-bold">$47K</p>
+            <p class="text-amber-200 text-xs mt-2">Based on AHT reduction</p>
+        </div>
+    </div>
+    <div class="grid grid-cols-3 gap-6">
+        <div class="col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100">
+                <h3 class="font-semibold text-slate-800">Category Routing Accuracy</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Per-class precision from 5-fold cross-validation</p>
+            </div>
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50">
+                    <tr class="text-xs text-slate-500 uppercase">
+                        <th class="text-left px-6 py-3 font-semibold">Category</th>
+                        <th class="text-center px-6 py-3 font-semibold">Precision</th>
+                        <th class="text-center px-6 py-3 font-semibold">Recall</th>
+                        <th class="text-center px-6 py-3 font-semibold">F1 Score</th>
+                        <th class="text-left px-6 py-3 font-semibold">Confidence</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    <tr class="hover:bg-slate-50"><td class="px-6 py-3 font-medium text-slate-700">Technical</td><td class="px-6 py-3 text-center text-green-600 font-semibold">94.1%</td><td class="px-6 py-3 text-center text-slate-500">92.8%</td><td class="px-6 py-3 text-center text-slate-600 font-medium">0.934</td><td class="px-6 py-3"><div class="flex items-center gap-2"><div class="flex-1 bg-slate-100 h-2 rounded-full"><div class="bg-green-500 h-2 rounded-full" style="width:94.1%"></div></div><span class="text-xs text-slate-500">High</span></div></td></tr>
+                    <tr class="hover:bg-slate-50"><td class="px-6 py-3 font-medium text-slate-700">Billing</td><td class="px-6 py-3 text-center text-green-600 font-semibold">95.8%</td><td class="px-6 py-3 text-center text-slate-500">94.2%</td><td class="px-6 py-3 text-center text-slate-600 font-medium">0.950</td><td class="px-6 py-3"><div class="flex items-center gap-2"><div class="flex-1 bg-slate-100 h-2 rounded-full"><div class="bg-green-500 h-2 rounded-full" style="width:95.8%"></div></div><span class="text-xs text-slate-500">High</span></div></td></tr>
+                    <tr class="hover:bg-slate-50"><td class="px-6 py-3 font-medium text-slate-700">Account</td><td class="px-6 py-3 text-center text-green-600 font-semibold">91.2%</td><td class="px-6 py-3 text-center text-slate-500">89.7%</td><td class="px-6 py-3 text-center text-slate-600 font-medium">0.904</td><td class="px-6 py-3"><div class="flex items-center gap-2"><div class="flex-1 bg-slate-100 h-2 rounded-full"><div class="bg-green-500 h-2 rounded-full" style="width:91.2%"></div></div><span class="text-xs text-slate-500">High</span></div></td></tr>
+                    <tr class="hover:bg-slate-50"><td class="px-6 py-3 font-medium text-slate-700">Shipping</td><td class="px-6 py-3 text-center text-blue-600 font-semibold">88.4%</td><td class="px-6 py-3 text-center text-slate-500">86.1%</td><td class="px-6 py-3 text-center text-slate-600 font-medium">0.872</td><td class="px-6 py-3"><div class="flex items-center gap-2"><div class="flex-1 bg-slate-100 h-2 rounded-full"><div class="bg-blue-400 h-2 rounded-full" style="width:88.4%"></div></div><span class="text-xs text-slate-500">Med</span></div></td></tr>
+                    <tr class="hover:bg-slate-50"><td class="px-6 py-3 font-medium text-slate-700">Returns</td><td class="px-6 py-3 text-center text-blue-600 font-semibold">86.7%</td><td class="px-6 py-3 text-center text-slate-500">84.3%</td><td class="px-6 py-3 text-center text-slate-600 font-medium">0.855</td><td class="px-6 py-3"><div class="flex items-center gap-2"><div class="flex-1 bg-slate-100 h-2 rounded-full"><div class="bg-blue-400 h-2 rounded-full" style="width:86.7%"></div></div><span class="text-xs text-slate-500">Med</span></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="space-y-4">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+                <h3 class="font-semibold text-slate-800 text-sm mb-3">Model Configuration</h3>
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between"><span class="text-slate-400">Algorithm</span><span class="font-medium text-slate-700">Logistic Regression</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Vectorizer</span><span class="font-medium text-slate-700">TF-IDF (1-2 gram)</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Max features</span><span class="font-medium text-slate-700">10,000</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">CV folds</span><span class="font-medium text-slate-700">5</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Confidence threshold</span><span class="font-medium text-slate-700">0.65</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Low-conf fallback</span><span class="font-medium text-slate-700">Human review</span></div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+                <h3 class="font-semibold text-slate-800 text-sm mb-3">Deployment Timeline</h3>
+                <div class="space-y-3">
+                    <div class="flex gap-3"><div class="w-2 h-2 rounded-full bg-green-500 mt-1.5 flex-shrink-0"></div><div><p class="text-xs font-medium text-slate-700">Week 4 — Go Live</p><p class="text-xs text-slate-400">Model v2 deployed to prod</p></div></div>
+                    <div class="flex gap-3"><div class="w-2 h-2 rounded-full bg-green-500 mt-1.5 flex-shrink-0"></div><div><p class="text-xs font-medium text-slate-700">Week 5 — Accuracy 87.1%</p><p class="text-xs text-slate-400">Initial calibration period</p></div></div>
+                    <div class="flex gap-3"><div class="w-2 h-2 rounded-full bg-green-500 mt-1.5 flex-shrink-0"></div><div><p class="text-xs font-medium text-slate-700">Week 8 — Accuracy 91.3%</p><p class="text-xs text-slate-400">Post-feedback retraining</p></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- VIEW: Alerts -->
+<div id="view-alerts" class="view-section hidden">
+    <header class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Alerts</h1>
+            <p class="text-slate-500 text-sm mt-1">3 active alerts · updated just now</p>
+        </div>
+        <button onclick="dismissAllAlerts()" class="text-xs text-slate-500 hover:text-slate-700 border border-slate-200 rounded-lg px-3 py-2 bg-white hover:bg-slate-50 transition">
+            Mark All Read
+        </button>
+    </header>
+    <div class="space-y-4" id="alertsList">
+        <div class="alert-card bg-white rounded-xl shadow-sm border-l-4 border-red-500 border border-slate-100 p-5 flex items-start gap-4">
+            <div class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-triangle-exclamation text-red-500"></i>
+            </div>
+            <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-xs font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full">CRITICAL</span>
+                    <span class="text-xs text-slate-400">3 minutes ago</span>
+                </div>
+                <p class="font-semibold text-slate-800 text-sm mb-1">SLA Breach Risk — 3 Tickets</p>
+                <p class="text-slate-500 text-xs leading-relaxed">Tickets #TKT-4821, #TKT-4815, and #TKT-4797 are within 30 minutes of breaching their SLA window. Immediate reassignment or escalation recommended.</p>
+                <a href="#" onclick="switchView('tickets'); return false;" class="inline-block mt-2 text-xs font-semibold text-red-600 hover:text-red-800">View at-risk tickets →</a>
+            </div>
+            <button class="text-slate-300 hover:text-slate-500 flex-shrink-0" onclick="this.closest('.alert-card').remove(); updateAlertCount();">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="alert-card bg-white rounded-xl shadow-sm border-l-4 border-amber-400 border border-slate-100 p-5 flex items-start gap-4">
+            <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-arrow-trend-up text-amber-500"></i>
+            </div>
+            <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">WARNING</span>
+                    <span class="text-xs text-slate-400">1 hour ago</span>
+                </div>
+                <p class="font-semibold text-slate-800 text-sm mb-1">Ticket Volume Spike — +34% vs Yesterday</p>
+                <p class="text-slate-500 text-xs leading-relaxed">Open ticket count jumped from 35 to 47 since 9 AM. Technical category accounts for 58% of new arrivals — possible product issue. Engineering has been notified.</p>
+                <a href="#" onclick="switchView('sla'); return false;" class="inline-block mt-2 text-xs font-semibold text-amber-600 hover:text-amber-800">Check SLA impact →</a>
+            </div>
+            <button class="text-slate-300 hover:text-slate-500 flex-shrink-0" onclick="this.closest('.alert-card').remove(); updateAlertCount();">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="alert-card bg-white rounded-xl shadow-sm border-l-4 border-blue-400 border border-slate-100 p-5 flex items-start gap-4">
+            <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-users text-blue-500"></i>
+            </div>
+            <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">INFO</span>
+                    <span class="text-xs text-slate-400">2 hours ago</span>
+                </div>
+                <p class="font-semibold text-slate-800 text-sm mb-1">Tier 1 Capacity at 94%</p>
+                <p class="text-slate-500 text-xs leading-relaxed">Current queue load means Tier 1 agents are at near-full capacity. AI triage is handling overflow correctly — 68% of new tickets routed automatically. No manual intervention required at this time.</p>
+                <a href="#" onclick="switchView('agents'); return false;" class="inline-block mt-2 text-xs font-semibold text-blue-600 hover:text-blue-800">View agent capacity →</a>
+            </div>
+            <button class="text-slate-300 hover:text-slate-500 flex-shrink-0" onclick="this.closest('.alert-card').remove(); updateAlertCount();">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- VIEW: Settings -->
+<div id="view-settings" class="view-section hidden">
+    <header class="mb-6">
+        <h1 class="text-2xl font-bold text-slate-800">Settings</h1>
+        <p class="text-slate-500 text-sm mt-1">Dashboard configuration and team preferences</p>
+    </header>
+    <div class="grid grid-cols-3 gap-6">
+        <div class="col-span-2 space-y-4">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100">
+                    <h3 class="font-semibold text-slate-800">Notification Rules</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Configure when and how alerts are triggered</p>
+                </div>
+                <div class="divide-y divide-slate-50">
+                    <div class="px-6 py-4 flex items-center justify-between">
+                        <div><p class="text-sm font-medium text-slate-700">SLA breach risk alerts</p><p class="text-xs text-slate-400 mt-0.5">Notify when tickets are within 30 min of SLA threshold</p></div>
+                        <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" checked class="sr-only peer"><div class="w-10 h-5 bg-slate-200 peer-checked:bg-blue-600 rounded-full peer transition after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition peer-checked:after:translate-x-5"></div></label>
+                    </div>
+                    <div class="px-6 py-4 flex items-center justify-between">
+                        <div><p class="text-sm font-medium text-slate-700">Volume spike detection</p><p class="text-xs text-slate-400 mt-0.5">Alert when ticket volume exceeds +25% vs previous day</p></div>
+                        <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" checked class="sr-only peer"><div class="w-10 h-5 bg-slate-200 peer-checked:bg-blue-600 rounded-full peer transition after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition peer-checked:after:translate-x-5"></div></label>
+                    </div>
+                    <div class="px-6 py-4 flex items-center justify-between">
+                        <div><p class="text-sm font-medium text-slate-700">Agent capacity warnings</p><p class="text-xs text-slate-400 mt-0.5">Alert when team utilization exceeds 90%</p></div>
+                        <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" checked class="sr-only peer"><div class="w-10 h-5 bg-slate-200 peer-checked:bg-blue-600 rounded-full peer transition after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition peer-checked:after:translate-x-5"></div></label>
+                    </div>
+                    <div class="px-6 py-4 flex items-center justify-between">
+                        <div><p class="text-sm font-medium text-slate-700">Daily digest email</p><p class="text-xs text-slate-400 mt-0.5">Summary of KPIs sent to team leads at 8 AM</p></div>
+                        <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer"><div class="w-10 h-5 bg-slate-200 peer-checked:bg-blue-600 rounded-full peer transition after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition peer-checked:after:translate-x-5"></div></label>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100">
+                    <h3 class="font-semibold text-slate-800">SLA Thresholds</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Define response time targets by priority tier</p>
+                </div>
+                <div class="px-6 py-5 grid grid-cols-2 gap-4">
+                    <div><label class="text-xs font-semibold text-slate-500 block mb-1">Critical (hours)</label><input type="number" value="2" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:border-blue-400"></div>
+                    <div><label class="text-xs font-semibold text-slate-500 block mb-1">High (hours)</label><input type="number" value="4" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:border-blue-400"></div>
+                    <div><label class="text-xs font-semibold text-slate-500 block mb-1">Medium (hours)</label><input type="number" value="8" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:border-blue-400"></div>
+                    <div><label class="text-xs font-semibold text-slate-500 block mb-1">Low (hours)</label><input type="number" value="24" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:border-blue-400"></div>
+                </div>
+                <div class="px-6 pb-5"><button class="bg-blue-600 text-white text-xs px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium">Save Thresholds</button></div>
+            </div>
+        </div>
+        <div class="space-y-4">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-100"><h3 class="font-semibold text-slate-800 text-sm">Integrations</h3></div>
+                <div class="divide-y divide-slate-50">
+                    <div class="px-5 py-3 flex items-center justify-between"><div class="flex items-center gap-2"><div class="w-6 h-6 bg-slate-100 rounded flex items-center justify-center"><i class="fa-brands fa-slack text-purple-600 text-xs"></i></div><span class="text-xs font-medium text-slate-700">Slack</span></div><span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Connected</span></div>
+                    <div class="px-5 py-3 flex items-center justify-between"><div class="flex items-center gap-2"><div class="w-6 h-6 bg-slate-100 rounded flex items-center justify-center"><i class="fa-solid fa-database text-blue-500 text-xs"></i></div><span class="text-xs font-medium text-slate-700">PostgreSQL</span></div><span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Connected</span></div>
+                    <div class="px-5 py-3 flex items-center justify-between"><div class="flex items-center gap-2"><div class="w-6 h-6 bg-slate-100 rounded flex items-center justify-center"><i class="fa-solid fa-envelope text-red-400 text-xs"></i></div><span class="text-xs font-medium text-slate-700">Email SMTP</span></div><span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-medium">Disabled</span></div>
+                    <div class="px-5 py-3 flex items-center justify-between"><div class="flex items-center gap-2"><div class="w-6 h-6 bg-slate-100 rounded flex items-center justify-center"><i class="fa-solid fa-chart-bar text-orange-500 text-xs"></i></div><span class="text-xs font-medium text-slate-700">GoatCounter</span></div><span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Connected</span></div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+                <h3 class="font-semibold text-slate-800 text-sm mb-3">Team Configuration</h3>
+                <div class="space-y-3">
+                    <div><label class="text-xs font-semibold text-slate-500 block mb-1">Auto-refresh interval</label>
+                    <select class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-700 focus:outline-none"><option>Every 60 seconds</option><option>Every 5 minutes</option><option>Every 15 minutes</option></select></div>
+                    <div><label class="text-xs font-semibold text-slate-500 block mb-1">Default view</label>
+                    <select class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-700 focus:outline-none"><option>Dashboard</option><option>Ticket Queue</option><option>SLA Reports</option></select></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- Under the Hood Modal -->
+<div id="logicModal" style="display:none" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+    <div class="bg-white w-full max-w-5xl h-[85vh] rounded-xl shadow-2xl overflow-hidden flex flex-col">
+        <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h2 class="font-bold text-gray-800 flex items-center gap-2">
+                <i class="fa-solid fa-layer-group text-slate-500"></i> Project Architecture
+            </h2>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-red-500 transition text-xl"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Left -->
+            <div class="w-1/3 bg-gray-50 border-r border-gray-200 p-6 overflow-y-auto">
+                <div class="mb-6">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase mb-3">Data Sources</h3>
+                    <p class="text-sm text-gray-600 mb-3"><strong>1. Ticket Logs (SQL)</strong><br>PostgreSQL data warehouse via SQLAlchemy. Aggregated weekly with rolling averages.</p>
+                    <p class="text-sm text-gray-600 mb-3"><strong>2. CSAT Surveys (Webhook)</strong><br>Simulated Qualtrics JSON payload. Production deployment consumes from Kafka topic.</p>
+                    <p class="text-sm text-gray-600"><strong>3. Agent Metrics (REST API)</strong><br>FCR and AHT pulled from internal CRM API, normalized per agent per week.</p>
+                </div>
+                <div class="mb-6">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase mb-3">Tech Stack</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded border border-yellow-200">Python 3.11</span>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded border border-blue-200">PostgreSQL</span>
+                        <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded border border-green-200">Pandas / NumPy</span>
+                        <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded border border-purple-200">scikit-learn NLP</span>
+                        <span class="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded border border-slate-200">FastAPI</span>
+                        <span class="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs rounded border border-cyan-200">Tailwind CSS</span>
+                        <span class="px-2 py-1 bg-pink-100 text-pink-700 text-xs rounded border border-pink-200">Chart.js</span>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase mb-3">Architecture</h3>
+                    <p class="text-xs text-gray-500 leading-relaxed">Headless BI implementation — Python handles ETL and NLP classification, serializes to JSON, served via FastAPI. Frontend is dependency-free for instant CDN deployment.</p>
+                </div>
+                <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <p class="text-xs text-green-800 font-semibold mb-1">Key Outcome</p>
+                    <p class="text-xs text-green-700">15% AHT reduction · 68% auto-routing rate · ~$47K projected annual savings attributable to AI triage deployment.</p>
+                </div>
+            </div>
+            <!-- Right: code tabs -->
+            <div class="w-2/3 bg-[#1e1e1e] flex flex-col overflow-hidden">
+                <div class="flex gap-1 px-4 pt-3 pb-0 border-b border-gray-700">
+                    <button onclick="showTab('pipeline')" id="tab-pipeline" class="tab-btn text-xs px-3 py-1.5 rounded-t text-white bg-[#2d2d2d] -mb-px border-b-2 border-blue-400">analysis_pipeline.py</button>
+                    <button onclick="showTab('model')" id="tab-model" class="tab-btn text-xs px-3 py-1.5 rounded-t text-gray-400 hover:text-gray-200">triage_model.py</button>
+                    <button onclick="showTab('api')" id="tab-api" class="tab-btn text-xs px-3 py-1.5 rounded-t text-gray-400 hover:text-gray-200">api/endpoints.py</button>
+                </div>
+                <div class="flex-1 overflow-y-auto code-scroll p-6">
+                    <div id="code-pipeline">
+<pre class="font-mono text-sm leading-6 text-gray-300"><span class="text-gray-500"># analysis_pipeline.py — ETL: raw tickets → weekly KPIs</span>
+
 <span class="text-purple-400">import</span> pandas <span class="text-purple-400">as</span> pd
-<span class="text-purple-400">import</span> sqlalchemy
+<span class="text-purple-400">import</span> numpy <span class="text-purple-400">as</span> np
+<span class="text-purple-400">from</span> sqlalchemy <span class="text-purple-400">import</span> create_engine
 
-<span class="text-gray-500"># Raw SQL Query to fetch performance metrics</span>
 sql_query = <span class="text-yellow-300">"""
-    SELECT 
-        date_trunc('week', created_at) as week,
-        AVG(EXTRACT(EPOCH FROM (resolved_at - created_at))/60) as aht_min,
-        AVG(csat_score) as csat,
-        COUNT(ticket_id) as volume
+    SELECT
+        date_trunc('week', created_at)                    AS week,
+        ticket_id, category, agent_id,
+        EXTRACT(EPOCH FROM (resolved_at - created_at))/60 AS aht_min,
+        csat_score,
+        first_contact_resolved                            AS fcr,
+        escalated
     FROM support_tickets
-    WHERE department = 'Operations'
-    GROUP BY 1
-    ORDER BY 1 ASC;
+    WHERE created_at >= NOW() - INTERVAL '90 days'
+      AND department = 'Operations'
+    ORDER BY created_at ASC;
 """</span>
 
-df = pd.read_sql(sql_query, db_engine)
+df = pd.read_sql(sql_query, create_engine(DB_URL))
 
-<span class="text-gray-500"># ---------------------------------------------------</span>
-<span class="text-gray-500"># 2. TRANSFORMATION & INTERVENTION LOGIC</span>
-<span class="text-gray-500"># ---------------------------------------------------</span>
-intervention_date = <span class="text-yellow-300">'2023-W04'</span>
+INTERVENTION_WEEK = <span class="text-yellow-300">'2024-W04'</span>
 
-<span class="text-purple-400">def</span> <span class="text-blue-400">calculate_impact</span>(data):
-    pre_data = data[data[<span class="text-yellow-300">'week'</span>] < intervention_date]
-    post_data = data[data[<span class="text-yellow-300">'week'</span>] >= intervention_date]
-    
-    impact = {
-        <span class="text-yellow-300">'aht_change'</span>: post_data[<span class="text-yellow-300">'aht_min'</span>].mean() - pre_data[<span class="text-yellow-300">'aht_min'</span>].mean(),
-        <span class="text-yellow-300">'efficiency_gain'</span>: <span class="text-yellow-300">f"{((pre_aht - post_aht) / pre_aht):.1%}"</span>
+<span class="text-blue-400">def</span> <span class="text-green-400">build_weekly_kpis</span>(df):
+    weekly = df.groupby(<span class="text-yellow-300">'week'</span>).agg(
+        aht_avg     = (<span class="text-yellow-300">'aht_min'</span>,    <span class="text-yellow-300">'mean'</span>),
+        csat_avg    = (<span class="text-yellow-300">'csat_score'</span>, <span class="text-yellow-300">'mean'</span>),
+        fcr_rate    = (<span class="text-yellow-300">'fcr'</span>,        <span class="text-yellow-300">'mean'</span>),
+        volume      = (<span class="text-yellow-300">'ticket_id'</span>,  <span class="text-yellow-300">'count'</span>),
+        escalations = (<span class="text-yellow-300">'escalated'</span>,  <span class="text-yellow-300">'sum'</span>),
+    ).round(<span class="text-orange-300">2</span>)
+    weekly[<span class="text-yellow-300">'period'</span>] = np.where(
+        weekly.index >= INTERVENTION_WEEK, <span class="text-yellow-300">'post_ai'</span>, <span class="text-yellow-300">'pre_ai'</span>
+    )
+    <span class="text-purple-400">return</span> weekly
+
+<span class="text-blue-400">def</span> <span class="text-green-400">calculate_impact</span>(weekly):
+    pre  = weekly[weekly[<span class="text-yellow-300">'period'</span>] == <span class="text-yellow-300">'pre_ai'</span>]
+    post = weekly[weekly[<span class="text-yellow-300">'period'</span>] == <span class="text-yellow-300">'post_ai'</span>]
+    <span class="text-purple-400">return</span> {
+        <span class="text-yellow-300">'aht_delta_pct'</span>:  round((post.aht_avg.mean()  - pre.aht_avg.mean())  / pre.aht_avg.mean()  * <span class="text-orange-300">100</span>, <span class="text-orange-300">1</span>),
+        <span class="text-yellow-300">'csat_delta'</span>:     round( post.csat_avg.mean() - pre.csat_avg.mean(), <span class="text-orange-300">2</span>),
+        <span class="text-yellow-300">'fcr_delta_pct'</span>:  round((post.fcr_rate.mean() - pre.fcr_rate.mean()) * <span class="text-orange-300">100</span>, <span class="text-orange-300">1</span>),
     }
-    <span class="text-purple-400">return</span> impact
 
-<span class="text-gray-500"># Output: JSON payload for frontend</span>
-<span class="text-purple-400">print</span>(calculate_impact(df))
-</pre>
+weekly_kpis = build_weekly_kpis(df)
+impact      = calculate_impact(weekly_kpis)
+result_json = weekly_kpis.to_json(orient=<span class="text-yellow-300">'records'</span>, date_format=<span class="text-yellow-300">'iso'</span>)</pre>
+                    </div>
+                    <div id="code-model" class="hidden">
+<pre class="font-mono text-sm leading-6 text-gray-300"><span class="text-gray-500"># triage_model.py — NLP classifier for auto-routing</span>
+
+<span class="text-purple-400">from</span> sklearn.pipeline              <span class="text-purple-400">import</span> Pipeline
+<span class="text-purple-400">from</span> sklearn.feature_extraction.text <span class="text-purple-400">import</span> TfidfVectorizer
+<span class="text-purple-400">from</span> sklearn.linear_model          <span class="text-purple-400">import</span> LogisticRegression
+<span class="text-purple-400">from</span> sklearn.model_selection       <span class="text-purple-400">import</span> cross_val_score
+<span class="text-purple-400">import</span> joblib
+
+CATEGORIES = [<span class="text-yellow-300">'billing'</span>, <span class="text-yellow-300">'technical'</span>, <span class="text-yellow-300">'account'</span>, <span class="text-yellow-300">'shipping'</span>, <span class="text-yellow-300">'returns'</span>]
+
+<span class="text-blue-400">def</span> <span class="text-green-400">build_triage_model</span>(X_train, y_train):
+    pipeline = Pipeline([
+        (<span class="text-yellow-300">'tfidf'</span>, TfidfVectorizer(
+            ngram_range=(<span class="text-orange-300">1</span>, <span class="text-orange-300">2</span>),
+            max_features=<span class="text-orange-300">10_000</span>,
+            sublinear_tf=<span class="text-blue-400">True</span>
+        )),
+        (<span class="text-yellow-300">'clf'</span>, LogisticRegression(
+            C=<span class="text-orange-300">5.0</span>, max_iter=<span class="text-orange-300">1000</span>, class_weight=<span class="text-yellow-300">'balanced'</span>
+        ))
+    ])
+    scores = cross_val_score(pipeline, X_train, y_train, cv=<span class="text-orange-300">5</span>)
+    print(<span class="text-yellow-300">f"CV accuracy: {scores.mean():.3f} ± {scores.std():.3f}"</span>)
+    pipeline.fit(X_train, y_train)
+    joblib.dump(pipeline, <span class="text-yellow-300">'models/triage_v2.pkl'</span>)
+    <span class="text-purple-400">return</span> pipeline
+
+<span class="text-blue-400">def</span> <span class="text-green-400">predict_category</span>(model, ticket_text: str) -> dict:
+    proba   = model.predict_proba([ticket_text])[<span class="text-orange-300">0</span>]
+    top_idx = proba.argmax()
+    <span class="text-purple-400">return</span> {
+        <span class="text-yellow-300">'category'</span>:   CATEGORIES[top_idx],
+        <span class="text-yellow-300">'confidence'</span>: round(proba[top_idx], <span class="text-orange-300">3</span>),
+        <span class="text-yellow-300">'all_scores'</span>: dict(zip(CATEGORIES, proba.round(<span class="text-orange-300">3</span>)))
+    }</pre>
+                    </div>
+                    <div id="code-api" class="hidden">
+<pre class="font-mono text-sm leading-6 text-gray-300"><span class="text-gray-500"># api/endpoints.py — FastAPI: KPI data + triage predictions</span>
+
+<span class="text-purple-400">from</span> fastapi  <span class="text-purple-400">import</span> FastAPI, HTTPException
+<span class="text-purple-400">from</span> pydantic <span class="text-purple-400">import</span> BaseModel
+<span class="text-purple-400">import</span> joblib
+
+app          = FastAPI(title=<span class="text-yellow-300">"SupportOps API"</span>)
+triage_model = joblib.load(<span class="text-yellow-300">"models/triage_v2.pkl"</span>)
+
+<span class="text-blue-400">class</span> <span class="text-green-400">TriageRequest</span>(BaseModel):
+    ticket_id: str
+    subject:   str
+    body:      str
+
+<span class="text-blue-400">@app.get</span>(<span class="text-yellow-300">"/api/kpis"</span>)
+<span class="text-blue-400">async def</span> <span class="text-green-400">get_kpis</span>(period: str = <span class="text-yellow-300">"30d"</span>):
+    data = fetch_weekly_kpis(period)
+    <span class="text-purple-400">return</span> {
+        <span class="text-yellow-300">"kpis"</span>:         data.to_dict(orient=<span class="text-yellow-300">"records"</span>),
+        <span class="text-yellow-300">"impact"</span>:       calculate_impact(data),
+        <span class="text-yellow-300">"generated_at"</span>: datetime.utcnow().isoformat()
+    }
+
+<span class="text-blue-400">@app.post</span>(<span class="text-yellow-300">"/api/triage"</span>)
+<span class="text-blue-400">async def</span> <span class="text-green-400">classify_ticket</span>(req: TriageRequest):
+    text   = <span class="text-yellow-300">f"{req.subject} {req.body}"</span>
+    result = predict_category(triage_model, text)
+    <span class="text-purple-400">if</span> result[<span class="text-yellow-300">'confidence'</span>] < <span class="text-orange-300">0.65</span>:
+        <span class="text-purple-400">raise</span> HTTPException(
+            status_code=<span class="text-orange-300">422</span>,
+            detail=<span class="text-yellow-300">"Low confidence — routing to human review"</span>
+        )
+    <span class="text-purple-400">return</span> {<span class="text-yellow-300">"ticket_id"</span>: req.ticket_id, **result}</pre>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        // Chart Config
-        const ctx = document.getElementById('performanceChart').getContext('2d');
-        let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
-        gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+<script>
+// ── PERIOD DATA ───────────────────────────────────────────────────────────────
+const PERIODS = {
+    '7d': {
+        trendLabels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+        aht:         [4.3,4.1,4.5,4.0,4.1,4.2,4.1],
+        csat:        [4.7,4.8,4.7,4.9,4.8,4.8,4.8],
+        aiLaunch:    null,
+        slaLabels:   ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+        slaVals:     [96.1,97.2,95.8,96.4,97.1,96.8,96.2],
+        catData:     [36,29,17,10,8],
+        kpis: [
+            { val:'4.8',  sfx:'/5', trend:'↑ +0.1',  good:true,  note:'vs last period' },
+            { val:'84.1', sfx:'%',  trend:'↑ +1.2%', good:true,  note:'vs last period' },
+            { val:'4:07', sfx:'m',  trend:'↓ −9%',   good:true,  note:'vs last period' },
+            { val:'12',   sfx:'',   trend:'↑ +2',     good:false, note:'vs yesterday'   },
+            { val:'96.8', sfx:'%',  trend:'↑ +0.6%', good:true,  note:'vs last period' },
+            { val:'2.9',  sfx:'%',  trend:'↓ −0.2%', good:true,  note:'vs last period' },
+        ],
+    },
+    '30d': {
+        trendLabels: ['Wk 1','Wk 2','Wk 3','Wk 4','Wk 5','Wk 6','Wk 7','Wk 8'],
+        aht:         [5.2,5.1,5.3,5.0,4.5,4.3,4.2,4.1],
+        csat:        [4.2,4.3,4.2,4.4,4.6,4.5,4.7,4.8],
+        aiLaunch:    3,
+        slaLabels:   ['Wk1','Wk2','Wk3','Wk4','Wk5','Wk6','Wk7','Wk8'],
+        slaVals:     [94.1,93.8,95.2,95.8,96.5,97.1,96.8,96.2],
+        catData:     [38,27,16,11,8],
+        kpis: [
+            { val:'4.8',  sfx:'/5', trend:'↑ +0.3',  good:true,  note:'vs last period' },
+            { val:'82.4', sfx:'%',  trend:'↑ +3.1%', good:true,  note:'vs last period' },
+            { val:'4:12', sfx:'m',  trend:'↓ −18%',  good:true,  note:'vs last period' },
+            { val:'47',   sfx:'',   trend:'↑ +12',    good:false, note:'vs yesterday'   },
+            { val:'96.2', sfx:'%',  trend:'↓ −1.8%', good:false, note:'vs last period' },
+            { val:'3.1',  sfx:'%',  trend:'↓ −0.8%', good:true,  note:'vs last period' },
+        ],
+    },
+    '90d': {
+        trendLabels: ['Wk 1','Wk 2','Wk 3','Wk 4','Wk 5','Wk 6','Wk 7','Wk 8','Wk 9','Wk 10','Wk 11','Wk 12'],
+        aht:         [5.8,5.6,5.4,5.3,5.1,5.3,5.0,4.5,4.3,4.2,4.1,4.0],
+        csat:        [4.0,4.1,4.2,4.1,4.3,4.2,4.4,4.6,4.5,4.7,4.8,4.8],
+        aiLaunch:    7,
+        slaLabels:   ['W1','W2','W3','W4','W5','W6','W7','W8','W9','W10','W11','W12'],
+        slaVals:     [91.2,92.4,93.1,94.2,93.8,95.2,95.8,96.5,97.1,96.8,96.2,96.9],
+        catData:     [40,25,18,10,7],
+        kpis: [
+            { val:'4.6',  sfx:'/5', trend:'↑ +0.8',  good:true,  note:'vs period start' },
+            { val:'79.8', sfx:'%',  trend:'↑ +6.4%', good:true,  note:'vs period start' },
+            { val:'4:41', sfx:'m',  trend:'↓ −31%',  good:true,  note:'vs period start' },
+            { val:'47',   sfx:'',   trend:'↑ +31',    good:false, note:'vs period start' },
+            { val:'94.7', sfx:'%',  trend:'↑ +4.2%', good:true,  note:'vs period start' },
+            { val:'4.2',  sfx:'%',  trend:'↓ −1.4%', good:true,  note:'vs period start' },
+        ],
+    },
+    'ytd': {
+        trendLabels: ['Jan','Feb','Mar','Apr','May'],
+        aht:         [6.1,5.8,5.4,4.8,4.2],
+        csat:        [3.9,4.1,4.3,4.6,4.8],
+        aiLaunch:    2,
+        slaLabels:   ['Jan','Feb','Mar','Apr','May'],
+        slaVals:     [89.2,91.4,93.8,95.6,96.2],
+        catData:     [41,26,15,12,6],
+        kpis: [
+            { val:'4.5',  sfx:'/5', trend:'↑ +0.9',  good:true,  note:'vs Jan 1' },
+            { val:'76.2', sfx:'%',  trend:'↑ +8.7%', good:true,  note:'vs Jan 1' },
+            { val:'5:17', sfx:'m',  trend:'↓ −31%',  good:true,  note:'vs Jan 1' },
+            { val:'47',   sfx:'',   trend:'↑ +47',    good:false, note:'since Jan 1' },
+            { val:'93.2', sfx:'%',  trend:'↑ +7.0%', good:true,  note:'vs Jan 1' },
+            { val:'5.1',  sfx:'%',  trend:'↓ −2.3%', good:true,  note:'vs Jan 1' },
+        ],
+    },
+};
 
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8'],
-                datasets: [
-                    {
-                        label: 'AHT (Minutes)',
-                        data: [5.2, 5.1, 5.3, 5.0, 4.5, 4.3, 4.2, 4.1],
-                        borderColor: '#3b82f6',
-                        backgroundColor: gradient,
-                        fill: true,
-                        tension: 0.4,
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: 'CSAT Score',
-                        data: [4.2, 4.3, 4.2, 4.4, 4.6, 4.5, 4.7, 4.8],
-                        borderColor: '#10b981',
-                        borderDash: [6, 6],
-                        tension: 0.4,
-                        yAxisID: 'y1'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                plugins: {
-                    annotation: {
-                        annotations: {
-                            line1: {
-                                type: 'line',
-                                xMin: 3,
-                                xMax: 3,
-                                borderColor: '#ef4444',
-                                borderWidth: 2,
-                                label: {
-                                    content: 'AI Launch',
-                                    display: true,
-                                    position: 'start',
-                                    backgroundColor: '#ef4444',
-                                    color: 'white'
-                                }
-                            }
-                        }
-                    },
-                    legend: { position: 'top' }
-                },
-                scales: {
-                    y: { 
-                        type: 'linear', 
-                        display: true, 
-                        position: 'left',
-                        title: { display: true, text: 'Handle Time (min)' }
-                    },
-                    y1: { 
-                        type: 'linear', 
-                        display: true, 
-                        position: 'right', 
-                        grid: { drawOnChartArea: false },
-                        min: 3, max: 5
-                    }
-                }
-            }
-        });
+// ── AGENT DATA BY TEAM ────────────────────────────────────────────────────────
+const TEAM_AGENTS = {
+    all: [
+        { name:'Maya Chen',     av:'MC', tickets:127, fcr:91, aht:'3:42', csat:4.9, score:97 },
+        { name:'James Torres',  av:'JT', tickets:114, fcr:88, aht:'4:01', csat:4.8, score:93 },
+        { name:'Priya Patel',   av:'PP', tickets:109, fcr:86, aht:'4:18', csat:4.7, score:89 },
+        { name:'Carlos M.',     av:'CM', tickets:98,  fcr:83, aht:'4:35', csat:4.6, score:84 },
+        { name:"Sam O'Brien",   av:'SO', tickets:87,  fcr:79, aht:'4:52', csat:4.4, score:78 },
+    ],
+    tier1: [
+        { name:'Aisha Patel',   av:'AP', tickets:142, fcr:80, aht:'3:55', csat:4.5, score:82 },
+        { name:'Tom Nguyen',    av:'TN', tickets:138, fcr:78, aht:'4:10', csat:4.4, score:78 },
+        { name:'Sara Kim',      av:'SK', tickets:121, fcr:75, aht:'4:28', csat:4.3, score:73 },
+        { name:'Devon Blake',   av:'DB', tickets:109, fcr:71, aht:'4:44', csat:4.2, score:68 },
+        { name:'Mia Santos',    av:'MS', tickets:94,  fcr:68, aht:'5:02', csat:4.0, score:61 },
+    ],
+    tier2: [
+        { name:'Maya Chen',     av:'MC', tickets:52,  fcr:96, aht:'7:15', csat:4.9, score:97 },
+        { name:'Priya Patel',   av:'PP', tickets:48,  fcr:94, aht:'7:42', csat:4.8, score:93 },
+        { name:'James Torres',  av:'JT', tickets:44,  fcr:91, aht:'8:05', csat:4.8, score:90 },
+        { name:'Alexei Volkov', av:'AV', tickets:39,  fcr:89, aht:'8:31', csat:4.7, score:85 },
+        { name:'Nina Osei',     av:'NO', tickets:34,  fcr:86, aht:'9:12', csat:4.6, score:79 },
+    ],
+};
 
-        function toggleView(view) {
-            const modal = document.getElementById('logicModal');
-            if (view === 'logic') modal.classList.remove('hidden');
-            else modal.classList.add('hidden');
+// ── ALL TICKETS (2 pages) ─────────────────────────────────────────────────────
+const ALL_TICKETS = [
+    { p:'Critical', id:'#TKT-4821', sub:'Payment gateway down — 500 errors on checkout',      cat:'Technical', agent:'Maya Chen',    st:'Escalated', t:'3h 58m', sla:true  },
+    { p:'High',     id:'#TKT-4819', sub:'Enterprise account locked — billing dispute',          cat:'Billing',   agent:'James Torres', st:'Open',      t:'2h 12m', sla:false },
+    { p:'High',     id:'#TKT-4817', sub:'API rate limits exceeded unexpectedly',                cat:'Technical', agent:'Priya Patel',  st:'Pending',   t:'1h 47m', sla:false },
+    { p:'High',     id:'#TKT-4815', sub:'Refund not processed after 10 business days',          cat:'Returns',   agent:'Carlos M.',    st:'Open',      t:'3h 51m', sla:true  },
+    { p:'Medium',   id:'#TKT-4813', sub:"Can't update shipping address post-order",             cat:'Shipping',  agent:"Sam O'Brien",  st:'Open',      t:'45m',    sla:false },
+    { p:'Medium',   id:'#TKT-4811', sub:'Two-factor auth not sending SMS codes',                cat:'Account',   agent:'Maya Chen',    st:'Pending',   t:'1h 02m', sla:false },
+    { p:'Medium',   id:'#TKT-4809', sub:'Incorrect invoice generated for Pro plan',             cat:'Billing',   agent:'James Torres', st:'Open',      t:'55m',    sla:false },
+    { p:'Low',      id:'#TKT-4807', sub:'Data export request under GDPR Article 20',            cat:'Account',   agent:'Priya Patel',  st:'Open',      t:'3h 44m', sla:true  },
+    { p:'High',     id:'#TKT-4805', sub:'Mobile app crashing on iOS 17.4 after latest update', cat:'Technical', agent:'Maya Chen',    st:'Open',      t:'1h 23m', sla:false },
+    { p:'High',     id:'#TKT-4803', sub:'Bulk CSV import failing silently with no error log',   cat:'Technical', agent:'James Torres', st:'Pending',   t:'2h 05m', sla:false },
+    { p:'Medium',   id:'#TKT-4801', sub:'Customer charged twice for same subscription',         cat:'Billing',   agent:'Priya Patel',  st:'Open',      t:'38m',    sla:false },
+    { p:'Medium',   id:'#TKT-4799', sub:'Password reset email not arriving in Gmail',           cat:'Account',   agent:'Carlos M.',    st:'Open',      t:'1h 14m', sla:false },
+    { p:'Medium',   id:'#TKT-4797', sub:'Tracking number not updating after 3 days',            cat:'Shipping',  agent:"Sam O'Brien",  st:'Pending',   t:'4h 02m', sla:true  },
+    { p:'Low',      id:'#TKT-4795', sub:'Request to change billing email address',              cat:'Billing',   agent:'Maya Chen',    st:'Open',      t:'22m',    sla:false },
+    { p:'Low',      id:'#TKT-4793', sub:'Old return label still showing as active in portal',   cat:'Returns',   agent:'James Torres', st:'Open',      t:'1h 31m', sla:false },
+    { p:'Low',      id:'#TKT-4791', sub:'Feature request: dark mode for customer portal',       cat:'Account',   agent:'Priya Patel',  st:'Open',      t:'2h 47m', sla:false },
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+const PAGE_SIZE = 8;
+let currentPage = 1;
+let filteredTickets = [...ALL_TICKETS];
+let trendChartInst, catChartInst, slaChartInst;
+let activePeriod = '30d';
+
+const pClass = { Critical:'bg-red-100 text-red-700', High:'bg-orange-100 text-orange-700', Medium:'bg-blue-100 text-blue-700', Low:'bg-slate-100 text-slate-600' };
+const sClass  = { Open:'bg-amber-50 text-amber-700', Pending:'bg-blue-50 text-blue-700', Resolved:'bg-green-50 text-green-700', Escalated:'bg-red-50 text-red-700' };
+const barCol  = ['bg-green-500','bg-green-400','bg-blue-400','bg-blue-300','bg-slate-300'];
+
+// ── RENDER: AGENTS ────────────────────────────────────────────────────────────
+function renderAgents(list) {
+    document.getElementById('agentTable').innerHTML = list.map((a,i) => `
+        <tr class="hover:bg-slate-50 transition">
+            <td class="py-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center flex-shrink-0">${a.av}</div>
+                    <div><p class="font-medium text-slate-800 text-sm">${a.name}</p><p class="text-slate-400 text-xs">Tier ${i<2?2:1} Agent</p></div>
+                </div>
+            </td>
+            <td class="px-6 py-3 text-center font-medium text-sm">${a.tickets}</td>
+            <td class="px-6 py-3 text-center text-sm font-medium ${a.fcr>=88?'text-green-600':a.fcr>=80?'text-blue-600':'text-slate-500'}">${a.fcr}%</td>
+            <td class="px-6 py-3 text-center text-sm">${a.aht}m</td>
+            <td class="px-6 py-3 text-center text-sm"><i class="fa-solid fa-star text-yellow-400 text-xs mr-1"></i>${a.csat}</td>
+            <td class="py-3 pl-4 w-32">
+                <div class="flex items-center gap-2">
+                    <div class="flex-1 bg-slate-100 rounded-full h-2"><div class="h-2 rounded-full ${barCol[i]}" style="width:${a.score}%"></div></div>
+                    <span class="text-xs font-bold text-slate-600 w-6">${a.score}</span>
+                </div>
+            </td>
+        </tr>`).join('');
+}
+
+// ── RENDER: TICKETS ───────────────────────────────────────────────────────────
+function renderTickets() {
+    const total = filteredTickets.length;
+    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    currentPage = Math.min(currentPage, totalPages);
+    const slice = filteredTickets.slice((currentPage-1)*PAGE_SIZE, currentPage*PAGE_SIZE);
+
+    document.getElementById('ticketTable').innerHTML = slice.length ? slice.map(t => `
+        <tr class="hover:bg-slate-50 transition${t.sla?' border-l-2 border-red-400':''}">
+            <td class="px-6 py-3"><span class="px-2 py-1 rounded text-xs font-bold ${pClass[t.p]}">${t.p}</span></td>
+            <td class="px-6 py-3 font-mono text-xs text-slate-400">${t.id}</td>
+            <td class="px-6 py-3 text-sm font-medium text-slate-700 max-w-xs truncate" title="${t.sub}">${t.sub}</td>
+            <td class="px-6 py-3"><span class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded">${t.cat}</span></td>
+            <td class="px-6 py-3 text-sm text-slate-600">${t.agent}</td>
+            <td class="px-6 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${sClass[t.st]}">${t.st}</span></td>
+            <td class="px-6 py-3 text-sm ${t.sla?'text-red-600 font-semibold':'text-slate-500'}">${t.t}</td>
+            <td class="px-6 py-3 text-xs ${t.sla?'text-red-600 font-semibold':'text-green-600'}">
+                ${t.sla?'<i class="fa-solid fa-circle-exclamation mr-1"></i>At Risk':'<i class="fa-solid fa-circle-check mr-1"></i>On Track'}
+            </td>
+        </tr>`).join('')
+    : '<tr><td colspan="8" class="px-6 py-10 text-center text-slate-400 text-sm">No tickets match the current filters.</td></tr>';
+
+    document.getElementById('queueCount').textContent =
+        `Showing ${slice.length} of ${total} ticket${total!==1?'s':''}`;
+
+    renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
+    const pg = document.getElementById('pagination');
+    const btnBase = 'px-3 py-1 text-xs border border-slate-200 rounded text-slate-500 hover:bg-white transition';
+    const btnActive = 'px-3 py-1 text-xs bg-blue-600 text-white rounded';
+    let html = `<button onclick="changePage(${currentPage-1})" ${currentPage===1?'disabled':''} class="${btnBase} disabled:opacity-40">← Prev</button>`;
+    for (let i=1; i<=totalPages; i++) {
+        html += `<button onclick="changePage(${i})" class="${i===currentPage?btnActive:btnBase}">${i}</button>`;
+    }
+    html += `<button onclick="changePage(${currentPage+1})" ${currentPage===totalPages?'disabled':''} class="${btnBase} disabled:opacity-40">Next →</button>`;
+    pg.innerHTML = html;
+}
+
+function changePage(p) {
+    const total = Math.max(1, Math.ceil(filteredTickets.length / PAGE_SIZE));
+    currentPage = Math.max(1, Math.min(p, total));
+    renderTickets();
+}
+
+function applyQueueFilters() {
+    const pri  = document.getElementById('filterPri').value;
+    const stat = document.getElementById('filterStat').value;
+    filteredTickets = ALL_TICKETS.filter(t =>
+        (!pri  || t.p  === pri) &&
+        (!stat || t.st === stat)
+    );
+    currentPage = 1;
+    renderTickets();
+}
+
+// ── UPDATE KPIs ───────────────────────────────────────────────────────────────
+function updateKPIs(period) {
+    const cards = document.querySelectorAll('.kpi-card');
+    PERIODS[period].kpis.forEach((k, i) => {
+        const card = cards[i];
+        card.querySelector('.text-2xl').innerHTML =
+            k.val + (k.sfx ? `<span class="text-sm font-normal text-slate-400">${k.sfx}</span>` : '');
+        const tSpan = card.querySelector('.text-xs.mt-2 span:first-child');
+        if (tSpan) {
+            tSpan.textContent = k.trend;
+            tSpan.className = `font-semibold ${k.good ? 'text-green-600' : 'text-red-600'}`;
         }
-    </script>
+    });
+}
+
+// ── UPDATE CHARTS ─────────────────────────────────────────────────────────────
+function updateCharts(period) {
+    const d = PERIODS[period];
+
+    // Trend chart
+    trendChartInst.data.labels = d.trendLabels;
+    trendChartInst.data.datasets[0].data = d.aht;
+    trendChartInst.data.datasets[1].data = d.csat;
+    const ann = trendChartInst.options.plugins.annotation.annotations.aiLaunch;
+    if (d.aiLaunch !== null) {
+        ann.display = true;
+        ann.xMin = d.aiLaunch;
+        ann.xMax = d.aiLaunch;
+    } else {
+        ann.display = false;
+    }
+    trendChartInst.update();
+
+    // SLA chart
+    slaChartInst.data.labels = d.slaLabels;
+    slaChartInst.data.datasets[0].data = d.slaVals;
+    slaChartInst.data.datasets[0].backgroundColor = d.slaVals.map(v => v >= 95 ? '#10b981' : '#f59e0b');
+    slaChartInst.update();
+
+    // Category chart
+    catChartInst.data.datasets[0].data = d.catData;
+    catChartInst.update();
+}
+
+// ── DATE FILTER ───────────────────────────────────────────────────────────────
+function setFilter(btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => {
+        b.classList.remove('active');
+        b.classList.add('text-slate-500');
+    });
+    btn.classList.add('active');
+    btn.classList.remove('text-slate-500');
+    activePeriod = btn.textContent.trim().toLowerCase();
+    updateKPIs(activePeriod);
+    updateCharts(activePeriod);
+}
+
+// ── TEAM FILTER ───────────────────────────────────────────────────────────────
+function applyTeamFilter(val) {
+    renderAgents(TEAM_AGENTS[val] || TEAM_AGENTS.all);
+}
+
+// ── EXPORT CSV ────────────────────────────────────────────────────────────────
+function exportCSV() {
+    const headers = ['Priority','Ticket ID','Subject','Category','Assigned To','Status','Time Open','SLA Status'];
+    const rows = filteredTickets.map(t => [
+        t.p, t.id, `"${t.sub}"`, t.cat, t.agent, t.st, t.t, t.sla ? 'At Risk' : 'On Track'
+    ]);
+    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type:'text/csv' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `support-ops-tickets-${activePeriod}-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// ── INIT CHARTS ───────────────────────────────────────────────────────────────
+function initTrendChart() {
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    const g = ctx.createLinearGradient(0,0,0,260);
+    g.addColorStop(0,'rgba(59,130,246,0.15)'); g.addColorStop(1,'rgba(59,130,246,0)');
+    trendChartInst = new Chart(ctx, {
+        type:'line',
+        data:{
+            labels: PERIODS['30d'].trendLabels,
+            datasets:[
+                { label:'AHT (min)', data:PERIODS['30d'].aht, borderColor:'#3b82f6', backgroundColor:g, fill:true, tension:0.4, borderWidth:2, pointBackgroundColor:'#3b82f6', pointRadius:4, yAxisID:'y' },
+                { label:'CSAT Score', data:PERIODS['30d'].csat, borderColor:'#10b981', borderDash:[5,5], borderWidth:2, tension:0.4, pointBackgroundColor:'#10b981', pointRadius:4, yAxisID:'y1' }
+            ]
+        },
+        options:{
+            responsive:true, maintainAspectRatio:false,
+            interaction:{mode:'index',intersect:false},
+            plugins:{
+                annotation:{annotations:{aiLaunch:{type:'line',xMin:3,xMax:3,display:true,borderColor:'#ef4444',borderWidth:1.5,borderDash:[4,4],label:{content:'AI Launch',display:true,position:'start',backgroundColor:'#ef4444',color:'white',font:{size:10}}}}},
+                legend:{position:'top',labels:{font:{size:11},boxWidth:12,padding:16}}
+            },
+            scales:{
+                y:{type:'linear',position:'left',title:{display:true,text:'Handle Time (min)',font:{size:10}},grid:{color:'#f1f5f9'},ticks:{font:{size:10}}},
+                y1:{type:'linear',position:'right',min:3.5,max:5.2,grid:{drawOnChartArea:false},title:{display:true,text:'CSAT',font:{size:10}},ticks:{font:{size:10}}}
+            }
+        }
+    });
+}
+
+function initCategoryChart() {
+    catChartInst = new Chart(document.getElementById('categoryChart').getContext('2d'), {
+        type:'doughnut',
+        data:{
+            labels:['Technical','Billing','Account','Shipping','Returns'],
+            datasets:[{data:PERIODS['30d'].catData,backgroundColor:['#3b82f6','#f59e0b','#8b5cf6','#10b981','#ef4444'],borderWidth:0,hoverOffset:6}]
+        },
+        options:{
+            responsive:true,maintainAspectRatio:false,
+            plugins:{
+                legend:{position:'bottom',labels:{font:{size:11},boxWidth:12,padding:12}},
+                tooltip:{callbacks:{label:c=>` ${c.label}: ${c.raw}%`}}
+            },
+            cutout:'65%'
+        }
+    });
+}
+
+function initSlaChart() {
+    const vals = PERIODS['30d'].slaVals;
+    slaChartInst = new Chart(document.getElementById('slaChart').getContext('2d'), {
+        type:'bar',
+        data:{
+            labels: PERIODS['30d'].slaLabels,
+            datasets:[{
+                label:'SLA %', data:vals,
+                backgroundColor: vals.map(v => v >= 95 ? '#10b981' : '#f59e0b'),
+                borderRadius:4, borderSkipped:false
+            }]
+        },
+        options:{
+            responsive:true,maintainAspectRatio:false,
+            plugins:{
+                legend:{display:false},
+                annotation:{annotations:{target:{type:'line',yMin:95,yMax:95,borderColor:'#94a3b8',borderWidth:1,borderDash:[4,4],label:{content:'Target 95%',display:true,position:'end',font:{size:9},backgroundColor:'transparent',color:'#94a3b8'}}}}
+            },
+            scales:{
+                y:{min:88,max:100,grid:{color:'#f1f5f9'},ticks:{font:{size:9},callback:v=>v+'%'}},
+                x:{grid:{display:false},ticks:{font:{size:9}}}
+            }
+        }
+    });
+}
+
+// ── MODAL + TABS ──────────────────────────────────────────────────────────────
+function openModal()  { document.getElementById('logicModal').style.display = 'flex'; }
+function closeModal() { document.getElementById('logicModal').style.display = 'none'; }
+
+function toggleMiniExplainer(btn) {
+    const body    = btn.nextElementSibling;
+    const chevron = btn.querySelector('.fa-chevron-down');
+    const isOpen  = body.style.maxHeight && body.style.maxHeight !== '0px';
+    body.style.maxHeight = isOpen ? '0px' : body.scrollHeight + 'px';
+    if (chevron) chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+function toggleExplainer() {
+    const body    = document.getElementById('explainerBody');
+    const chevron = document.getElementById('explainerChevron');
+    const isOpen  = body.style.maxHeight && body.style.maxHeight !== '0px';
+    body.style.maxHeight = isOpen ? '0px' : body.scrollHeight + 'px';
+    chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+function showTab(id) {
+    ['pipeline','model','api'].forEach(t => {
+        const code = document.getElementById('code-'+t);
+        const btn  = document.getElementById('tab-'+t);
+        const active = t === id;
+        code.classList.toggle('hidden', !active);
+        btn.classList.toggle('text-white',    active);
+        btn.classList.toggle('bg-[#2d2d2d]',  active);
+        btn.classList.toggle('border-b-2',    active);
+        btn.classList.toggle('border-blue-400', active);
+        btn.classList.toggle('text-gray-400', !active);
+    });
+}
+
+window.addEventListener('click', e => {
+    if (e.target === document.getElementById('logicModal')) closeModal();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    renderAgents(TEAM_AGENTS.all);
+    renderTickets();
+    initTrendChart();
+    initCategoryChart();
+    initSlaChart();
+});
+
+// ── AGENT PERIOD DATA ─────────────────────────────────────────────────────────
+const PERIOD_AGENTS = {
+    last: [
+        { name:'James Torres',  av:'JT', tickets:121, fcr:89, aht:'3:58', csat:4.8, score:94 },
+        { name:'Maya Chen',     av:'MC', tickets:118, fcr:88, aht:'3:51', csat:4.7, score:91 },
+        { name:'Priya Patel',   av:'PP', tickets:104, fcr:84, aht:'4:22', csat:4.6, score:86 },
+        { name:'Carlos M.',     av:'CM', tickets:91,  fcr:80, aht:'4:48', csat:4.5, score:80 },
+        { name:"Sam O'Brien",   av:'SO', tickets:79,  fcr:76, aht:'5:04', csat:4.2, score:72 },
+    ],
+    q2: [
+        { name:'Priya Patel',   av:'PP', tickets:312, fcr:87, aht:'4:31', csat:4.8, score:92 },
+        { name:'Maya Chen',     av:'MC', tickets:298, fcr:85, aht:'3:59', csat:4.7, score:89 },
+        { name:'James Torres',  av:'JT', tickets:276, fcr:82, aht:'4:14', csat:4.6, score:85 },
+        { name:"Sam O'Brien",   av:'SO', tickets:251, fcr:79, aht:'4:58', csat:4.5, score:78 },
+        { name:'Carlos M.',     av:'CM', tickets:228, fcr:76, aht:'5:11', csat:4.3, score:72 },
+    ],
+};
+
+function applyAgentPeriod(val) {
+    renderAgents(val === 'current' ? TEAM_AGENTS.all : (PERIOD_AGENTS[val] || TEAM_AGENTS.all));
+}
+
+// ── SWITCH VIEW ────────────────────────────────────────────────────────────────
+function switchView(view) {
+    document.querySelectorAll('.nav-item').forEach(item => {
+        const active = item.dataset.view === view;
+        item.classList.toggle('active', active);
+        const icon  = item.querySelector('i');
+        const label = item.querySelector('span');
+        if (icon)  { icon.classList.toggle('text-blue-400', active); icon.classList.toggle('text-slate-400', !active); }
+        if (label) {
+            if (active) { label.classList.remove('text-slate-400'); label.classList.add('text-white', 'font-medium'); }
+            else        { label.classList.remove('text-white', 'font-medium'); label.classList.add('text-slate-400'); }
+        }
+    });
+    document.querySelectorAll('.view-section').forEach(v => v.classList.add('hidden'));
+    document.getElementById('view-' + view).classList.remove('hidden');
+    if (view === 'dashboard') { setTimeout(() => { trendChartInst?.resize(); catChartInst?.resize(); slaChartInst?.resize(); }, 50); }
+    if (view === 'tickets')   { renderViewQueue(); }
+    if (view === 'agents')    { renderViewAgents('all'); document.getElementById('va-teamFilter').value = 'all'; }
+    if (view === 'sla')       { initSLAViewChart(); }
+}
+
+// ── VIEW: TICKET QUEUE ────────────────────────────────────────────────────────
+let vqPage = 1, vqTickets = [...ALL_TICKETS];
+
+function renderViewQueue() {
+    const pri  = document.getElementById('vq-filterPri').value;
+    const stat = document.getElementById('vq-filterStat').value;
+    vqTickets  = ALL_TICKETS.filter(t => (!pri || t.p === pri) && (!stat || t.st === stat));
+    vqPage = 1;
+    renderVQPage();
+}
+
+function renderVQPage() {
+    const total = vqTickets.length;
+    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    vqPage = Math.min(vqPage, totalPages);
+    const slice = vqTickets.slice((vqPage-1)*PAGE_SIZE, vqPage*PAGE_SIZE);
+    document.getElementById('vq-ticketTable').innerHTML = slice.length ? slice.map(t => `
+        <tr class="hover:bg-slate-50 transition${t.sla?' border-l-2 border-red-400':''}">
+            <td class="px-6 py-3"><span class="px-2 py-1 rounded text-xs font-bold ${pClass[t.p]}">${t.p}</span></td>
+            <td class="px-6 py-3 font-mono text-xs text-slate-400">${t.id}</td>
+            <td class="px-6 py-3 text-sm font-medium text-slate-700 max-w-xs truncate" title="${t.sub}">${t.sub}</td>
+            <td class="px-6 py-3"><span class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded">${t.cat}</span></td>
+            <td class="px-6 py-3 text-sm text-slate-600">${t.agent}</td>
+            <td class="px-6 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${sClass[t.st]}">${t.st}</span></td>
+            <td class="px-6 py-3 text-sm ${t.sla?'text-red-600 font-semibold':'text-slate-500'}">${t.t}</td>
+            <td class="px-6 py-3 text-xs ${t.sla?'text-red-600 font-semibold':'text-green-600'}">${t.sla?'<i class="fa-solid fa-circle-exclamation mr-1"></i>At Risk':'<i class="fa-solid fa-circle-check mr-1"></i>On Track'}</td>
+        </tr>`).join('')
+    : '<tr><td colspan="8" class="px-6 py-10 text-center text-slate-400 text-sm">No tickets match the filters.</td></tr>';
+    document.getElementById('vq-queueCount').textContent = `Showing ${slice.length} of ${total} ticket${total!==1?'s':''}`;
+    document.getElementById('vq-stat-total').textContent    = total;
+    document.getElementById('vq-stat-trend').textContent    = total === ALL_TICKETS.length ? `of ${ALL_TICKETS.length} total open` : `filtered from ${ALL_TICKETS.length}`;
+    document.getElementById('vq-stat-critical').textContent = vqTickets.filter(t => t.p === 'Critical').length;
+    document.getElementById('vq-stat-risk').textContent     = vqTickets.filter(t => t.sla).length;
+    document.getElementById('vq-stat-escalated').textContent= vqTickets.filter(t => t.st === 'Escalated').length;
+    const pg = document.getElementById('vq-pagination');
+    const bB = 'px-3 py-1 text-xs border border-slate-200 rounded text-slate-500 hover:bg-white transition';
+    const bA = 'px-3 py-1 text-xs bg-blue-600 text-white rounded';
+    let html = `<button onclick="vqChangePage(${vqPage-1})" ${vqPage===1?'disabled':''} class="${bB} disabled:opacity-40">← Prev</button>`;
+    for (let i=1;i<=totalPages;i++) html += `<button onclick="vqChangePage(${i})" class="${i===vqPage?bA:bB}">${i}</button>`;
+    html += `<button onclick="vqChangePage(${vqPage+1})" ${vqPage===totalPages?'disabled':''} class="${bB} disabled:opacity-40">Next →</button>`;
+    pg.innerHTML = html;
+}
+
+function vqChangePage(p) { const t=Math.max(1,Math.ceil(vqTickets.length/PAGE_SIZE)); vqPage=Math.max(1,Math.min(p,t)); renderVQPage(); }
+
+// ── VIEW: AGENT PERFORMANCE ───────────────────────────────────────────────────
+const rankBadge = ['bg-yellow-100 text-yellow-700','bg-slate-100 text-slate-500','bg-orange-100 text-orange-700'];
+
+function renderViewAgents(team) {
+    const list = TEAM_AGENTS[team] || TEAM_AGENTS.all;
+    document.getElementById('va-spotlight').innerHTML = list.slice(0,3).map((a,i) => `
+        <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 text-center">
+            <div class="w-14 h-14 rounded-full bg-blue-100 text-blue-700 font-bold text-lg flex items-center justify-center mx-auto mb-3">${a.av}</div>
+            <p class="font-bold text-slate-800 text-sm">${a.name}</p>
+            <span class="inline-block text-xs font-bold px-2 py-0.5 rounded-full mt-1 mb-3 ${rankBadge[i]}">#${i+1} ${i===0?'Top Performer':i===1?'Runner-up':'3rd Place'}</span>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="bg-slate-50 rounded p-2"><p class="text-slate-400 mb-0.5">CSAT</p><p class="font-bold text-slate-700">${a.csat}</p></div>
+                <div class="bg-slate-50 rounded p-2"><p class="text-slate-400 mb-0.5">FCR</p><p class="font-bold text-slate-700">${a.fcr}%</p></div>
+                <div class="bg-slate-50 rounded p-2"><p class="text-slate-400 mb-0.5">AHT</p><p class="font-bold text-slate-700">${a.aht}m</p></div>
+                <div class="bg-slate-50 rounded p-2"><p class="text-slate-400 mb-0.5">Score</p><p class="font-bold text-blue-600">${a.score}</p></div>
+            </div>
+        </div>`).join('');
+    document.getElementById('va-agentTable').innerHTML = list.map((a,i) => `
+        <tr class="hover:bg-slate-50 transition">
+            <td class="px-6 py-3 text-sm font-bold text-slate-400">#${i+1}</td>
+            <td class="py-3"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center">${a.av}</div><p class="font-medium text-slate-800 text-sm">${a.name}</p></div></td>
+            <td class="px-6 py-3 text-center font-medium text-sm">${a.tickets}</td>
+            <td class="px-6 py-3 text-center text-sm font-medium ${a.fcr>=88?'text-green-600':a.fcr>=80?'text-blue-600':'text-slate-500'}">${a.fcr}%</td>
+            <td class="px-6 py-3 text-center text-sm">${a.aht}m</td>
+            <td class="px-6 py-3 text-center text-sm"><i class="fa-solid fa-star text-yellow-400 text-xs mr-1"></i>${a.csat}</td>
+            <td class="py-3 pl-4 w-36"><div class="flex items-center gap-2"><div class="flex-1 bg-slate-100 rounded-full h-2"><div class="h-2 rounded-full ${barCol[i]}" style="width:${a.score}%"></div></div><span class="text-xs font-bold text-slate-600 w-6">${a.score}</span></div></td>
+        </tr>`).join('');
+}
+
+// ── VIEW: SLA REPORTS ─────────────────────────────────────────────────────────
+let slaViewChartInst = null, slaViewPeriod = '30d';
+
+function initSLAViewChart() {
+    if (slaViewChartInst) { updateSLAViewChart(slaViewPeriod); return; }
+    const vals = PERIODS[slaViewPeriod].slaVals;
+    slaViewChartInst = new Chart(document.getElementById('slaViewChart').getContext('2d'), {
+        type:'bar',
+        data:{ labels:PERIODS[slaViewPeriod].slaLabels, datasets:[{ label:'SLA %', data:vals, backgroundColor:vals.map(v=>v>=95?'#10b981':'#f59e0b'), borderRadius:5, borderSkipped:false }] },
+        options:{
+            responsive:true, maintainAspectRatio:false,
+            plugins:{ legend:{display:false}, annotation:{annotations:{target:{type:'line',yMin:95,yMax:95,borderColor:'#94a3b8',borderWidth:1.5,borderDash:[5,5],label:{content:'Target 95%',display:true,position:'end',font:{size:10},backgroundColor:'transparent',color:'#64748b'}}}} },
+            scales:{ y:{min:85,max:100,grid:{color:'#f1f5f9'},ticks:{font:{size:10},callback:v=>v+'%'}}, x:{grid:{display:false},ticks:{font:{size:10}}} }
+        }
+    });
+}
+
+function updateSLAViewChart(period) {
+    slaViewPeriod = period;
+    if (!slaViewChartInst) return;
+    const d = PERIODS[period];
+    slaViewChartInst.data.labels = d.slaLabels;
+    slaViewChartInst.data.datasets[0].data = d.slaVals;
+    slaViewChartInst.data.datasets[0].backgroundColor = d.slaVals.map(v => v>=95?'#10b981':'#f59e0b');
+    slaViewChartInst.update();
+}
+
+function setSLAPeriod(btn, period) {
+    document.querySelectorAll('.vs-period').forEach(b => { b.classList.remove('active'); b.classList.add('text-slate-500'); });
+    btn.classList.add('active'); btn.classList.remove('text-slate-500');
+    slaViewPeriod = period;
+    if (slaViewChartInst) updateSLAViewChart(period);
+}
+
+// ── VIEW: ALERTS ──────────────────────────────────────────────────────────────
+function updateAlertCount() {
+    const remaining = document.querySelectorAll('.alert-card').length;
+    const badge = document.getElementById('alertsBadge');
+    badge.textContent = remaining;
+    badge.style.display = remaining === 0 ? 'none' : '';
+}
+
+function dismissAllAlerts() {
+    document.querySelectorAll('.alert-card').forEach(c => c.remove());
+    updateAlertCount();
+}
+</script>
 </body>
 </html>

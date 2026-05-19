@@ -1021,11 +1021,282 @@ repo at session start. push.py uses Git Data API (file-list only).
     </div>
 
     <div id="tab-other" class="tab-panel">
-        <div class="placeholder-panel">
-            <div class="ph-icon">🚧</div>
-            <h2>Something Else</h2>
-            <p>This section is under construction. Drop ideas in the session and we'll build it out.</p>
-        </div>
+
+        <section style="margin-bottom:50px">
+            <h2 style="font-size:1.4rem;color:var(--text-main);margin:0 0 8px;text-align:center">Deep Dives</h2>
+            <p style="color:var(--text-muted);font-size:0.95rem;text-align:center;max-width:640px;margin:0 auto 40px">Detailed explainers on Claude Code features worth actually understanding. Not surface-level — full mechanics.</p>
+
+            <!-- /goal EXPLAINER CARD -->
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:40px;position:relative;overflow:hidden;max-width:960px;margin:0 auto">
+
+                <!-- Background glow -->
+                <div style="position:absolute;top:-60px;right:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(139,92,246,0.12),transparent 70%);pointer-events:none"></div>
+
+                <!-- Card Header -->
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;flex-wrap:wrap;gap:12px">
+                    <div>
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+                            <span style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:#a78bfa;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:4px 12px;border-radius:20px">Claude Code</span>
+                            <span style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);color:#10b981;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:4px 12px;border-radius:20px">Built-in Command</span>
+                        </div>
+                        <h2 style="font-size:2rem;color:#fff;margin:0 0 6px;letter-spacing:-0.03em">/goal — Autonomous Task Completion</h2>
+                        <p style="color:var(--text-muted);font-size:1rem;margin:0">Set a verifiable end condition once. Claude works until it's met — no re-prompting required.</p>
+                    </div>
+                    <div style="background:var(--code-bg);border:1px solid #334155;border-radius:12px;padding:14px 20px;font-family:Consolas,monospace;font-size:1.1rem;color:#bef264;flex-shrink:0">
+                        /goal [condition]
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div style="border-top:1px solid var(--border);margin-bottom:32px"></div>
+
+                <!-- What it actually does -->
+                <div style="margin-bottom:36px">
+                    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#60a5fa;margin-bottom:14px">What it actually does</div>
+                    <p style="color:var(--text-muted);font-size:0.97rem;line-height:1.8;margin:0 0 14px">
+                        Most Claude interactions are <strong style="color:var(--text-main)">reactive</strong> — you prompt, Claude responds, you decide what's next. <code style="background:var(--code-bg);color:var(--code-text);padding:1px 6px;border-radius:3px;font-size:0.85em">/goal</code> flips this. You define an end state, and Claude drives itself toward it across as many turns as it takes — automatically, without you typing another message.
+                    </p>
+                    <p style="color:var(--text-muted);font-size:0.97rem;line-height:1.8;margin:0">
+                        The key mechanism: a <strong style="color:var(--text-main)">separate evaluator model</strong> (not Claude itself) checks the condition after every turn. If the condition isn't met, the evaluator explains why — and Claude starts the next turn automatically. This separation matters: the model doing the work doesn't decide when to stop. An independent judge does.
+                    </p>
+                </div>
+
+                <!-- How it runs — step flow -->
+                <div style="margin-bottom:36px">
+                    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#60a5fa;margin-bottom:16px">How the loop runs</div>
+                    <div style="display:flex;flex-direction:column;gap:0">
+
+                        <div style="display:flex;gap:16px;align-items:flex-start">
+                            <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
+                                <div style="width:32px;height:32px;background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:#a78bfa">1</div>
+                                <div style="width:1px;height:32px;background:rgba(139,92,246,0.2)"></div>
+                            </div>
+                            <div style="padding-top:6px;padding-bottom:24px">
+                                <p style="margin:0 0 4px;color:var(--text-main);font-weight:600;font-size:0.95rem">You type <code style="background:var(--code-bg);color:#bef264;padding:1px 6px;border-radius:3px;font-size:0.85em">/goal [your condition]</code></p>
+                                <p style="margin:0;color:var(--text-muted);font-size:0.87rem">One time. That's it. The condition is your measurable end state — what "done" looks like.</p>
+                            </div>
+                        </div>
+
+                        <div style="display:flex;gap:16px;align-items:flex-start">
+                            <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
+                                <div style="width:32px;height:32px;background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:#60a5fa">2</div>
+                                <div style="width:1px;height:32px;background:rgba(59,130,246,0.2)"></div>
+                            </div>
+                            <div style="padding-top:6px;padding-bottom:24px">
+                                <p style="margin:0 0 4px;color:var(--text-main);font-weight:600;font-size:0.95rem">Claude works — Turn 1</p>
+                                <p style="margin:0;color:var(--text-muted);font-size:0.87rem">Claude reads your goal and starts executing toward it. Edits files, runs commands, reads output — whatever is needed.</p>
+                            </div>
+                        </div>
+
+                        <div style="display:flex;gap:16px;align-items:flex-start">
+                            <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
+                                <div style="width:32px;height:32px;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:#fbbf24">3</div>
+                                <div style="width:1px;height:32px;background:rgba(251,191,36,0.2)"></div>
+                            </div>
+                            <div style="padding-top:6px;padding-bottom:24px">
+                                <p style="margin:0 0 4px;color:var(--text-main);font-weight:600;font-size:0.95rem">Evaluator checks the condition</p>
+                                <p style="margin:0;color:var(--text-muted);font-size:0.87rem">A <em>separate</em> model reads the conversation transcript. It doesn't run commands — it judges based on what Claude surfaced (test output, git status, etc.).</p>
+                            </div>
+                        </div>
+
+                        <div style="display:flex;gap:16px;align-items:flex-start">
+                            <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
+                                <div style="width:32px;height:32px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:#f87171">4a</div>
+                                <div style="width:1px;height:32px;background:rgba(239,68,68,0.2)"></div>
+                            </div>
+                            <div style="padding-top:6px;padding-bottom:24px">
+                                <p style="margin:0 0 4px;color:var(--text-main);font-weight:600;font-size:0.95rem">Not met → Next turn starts automatically</p>
+                                <p style="margin:0;color:var(--text-muted);font-size:0.87rem">Evaluator explains what's missing. Claude starts the next turn without waiting for you. You don't type anything.</p>
+                            </div>
+                        </div>
+
+                        <div style="display:flex;gap:16px;align-items:flex-start">
+                            <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
+                                <div style="width:32px;height:32px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:#10b981">4b</div>
+                            </div>
+                            <div style="padding-top:6px;padding-bottom:8px">
+                                <p style="margin:0 0 4px;color:var(--text-main);font-weight:600;font-size:0.95rem">Met → Goal clears, control returns to you</p>
+                                <p style="margin:0;color:var(--text-muted);font-size:0.87rem">Goal is recorded as achieved. The loop ends. You get the session back.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Concrete example -->
+                <div style="background:var(--code-bg);border-radius:14px;padding:28px;margin-bottom:36px;border:1px solid #1e3a5f">
+                    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#60a5fa;margin-bottom:18px">Concrete example — fixing a failing test suite</div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+                        <div>
+                            <div style="font-size:0.7rem;font-weight:700;color:#f87171;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">❌ Without /goal (reactive)</div>
+                            <div style="background:#0f172a;border-radius:8px;padding:14px;font-family:Consolas,monospace;font-size:0.8rem;color:#94a3b8;line-height:1.8">
+                                <span style="color:#64748b">You:</span> migrate payment module<br>
+                                <span style="color:#64748b">Claude:</span> [edits 2 files]<br>
+                                <span style="color:#64748b">You:</span> run the tests<br>
+                                <span style="color:#64748b">Claude:</span> [3 tests fail]<br>
+                                <span style="color:#64748b">You:</span> fix the failing tests<br>
+                                <span style="color:#64748b">Claude:</span> [fixes them]<br>
+                                <span style="color:#64748b">You:</span> check if anything else broke<br>
+                                <span style="color:#64748b">Claude:</span> [full suite passes]<br>
+                                <span style="color:#fbbf24">→ You typed 4 prompts</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size:0.7rem;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">✅ With /goal (autonomous)</div>
+                            <div style="background:#0f172a;border-radius:8px;padding:14px;font-family:Consolas,monospace;font-size:0.8rem;color:#94a3b8;line-height:1.8">
+                                <span style="color:#bef264">You:</span> /goal all tests in test/payment<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pass and lint is clean<br>
+                                <span style="color:#64748b">Turn 1:</span> migrates API calls<br>
+                                <span style="color:#64748b">Eval:</span> No — 3 tests failing<br>
+                                <span style="color:#64748b">Turn 2:</span> fixes failing tests<br>
+                                <span style="color:#64748b">Eval:</span> No — lint has 2 warnings<br>
+                                <span style="color:#64748b">Turn 3:</span> fixes lint warnings<br>
+                                <span style="color:#64748b">Eval:</span> ✓ Condition met<br>
+                                <span style="color:#10b981">→ You typed 1 prompt</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Writing good conditions -->
+                <div style="margin-bottom:36px">
+                    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#60a5fa;margin-bottom:16px">Writing conditions that work</div>
+                    <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.7;margin:0 0 16px">The evaluator only reads the transcript — it can't run commands or check your actual system. Your condition must be something Claude can surface in its output so the evaluator can verify it.</p>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+                        <div>
+                            <div style="font-size:0.7rem;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px">✅ Good conditions</div>
+                            <div style="display:flex;flex-direction:column;gap:8px">
+                                <div style="background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.15);border-radius:8px;padding:10px 14px;font-family:Consolas,monospace;font-size:0.82rem;color:#86efac;line-height:1.5">"all tests in test/auth pass<br>and lint step is clean"</div>
+                                <div style="background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.15);border-radius:8px;padding:10px 14px;font-family:Consolas,monospace;font-size:0.82rem;color:#86efac;line-height:1.5">"git status is clean and<br>CHANGELOG has a new entry"</div>
+                                <div style="background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.15);border-radius:8px;padding:10px 14px;font-family:Consolas,monospace;font-size:0.82rem;color:#86efac;line-height:1.5">"preview loads with no JS errors<br>in the browser console"</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size:0.7rem;font-weight:700;color:#f87171;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px">❌ Bad conditions</div>
+                            <div style="display:flex;flex-direction:column;gap:8px">
+                                <div style="background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.15);border-radius:8px;padding:10px 14px;font-family:Consolas,monospace;font-size:0.82rem;color:#fca5a5;line-height:1.5">"make it look better"<br><span style="color:#64748b;font-size:0.75rem">— subjective, not verifiable</span></div>
+                                <div style="background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.15);border-radius:8px;padding:10px 14px;font-family:Consolas,monospace;font-size:0.82rem;color:#fca5a5;line-height:1.5">"fix the database schema"<br><span style="color:#64748b;font-size:0.75rem">— evaluator can't check the DB</span></div>
+                                <div style="background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.15);border-radius:8px;padding:10px 14px;font-family:Consolas,monospace;font-size:0.82rem;color:#fca5a5;line-height:1.5">"everything works"<br><span style="color:#64748b;font-size:0.75rem">— too vague to evaluate</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.2);border-radius:10px;padding:14px 18px">
+                        <span style="color:#fbbf24;font-weight:700;font-size:0.85rem">Pro tip:</span>
+                        <span style="color:var(--text-muted);font-size:0.87rem"> Add a turn cap to prevent infinite loops: </span>
+                        <code style="background:var(--code-bg);color:#bef264;padding:1px 6px;border-radius:3px;font-size:0.82em">/goal all tests pass — or stop after 15 turns</code>
+                    </div>
+                </div>
+
+                <!-- Comparison table -->
+                <div style="margin-bottom:36px">
+                    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#60a5fa;margin-bottom:16px">/goal vs. alternatives</div>
+                    <div style="overflow-x:auto;border-radius:12px;border:1px solid var(--border)">
+                        <table style="width:100%;border-collapse:collapse;font-size:0.87rem">
+                            <thead>
+                                <tr style="background:rgba(15,23,42,0.8)">
+                                    <th style="text-align:left;padding:12px 18px;color:#60a5fa;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:700">Approach</th>
+                                    <th style="text-align:left;padding:12px 18px;color:#60a5fa;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:700">Next turn triggers when</th>
+                                    <th style="text-align:left;padding:12px 18px;color:#60a5fa;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:700">Stops when</th>
+                                    <th style="text-align:left;padding:12px 18px;color:#60a5fa;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:700">Best for</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="border-top:1px solid var(--border)">
+                                    <td style="padding:12px 18px;color:#a78bfa;font-family:Consolas,monospace;font-weight:700">Plain text</td>
+                                    <td style="padding:12px 18px;color:var(--text-muted)">You type a new message</td>
+                                    <td style="padding:12px 18px;color:var(--text-muted)">You stop typing</td>
+                                    <td style="padding:12px 18px;color:var(--text-muted)">Exploratory, back-and-forth work</td>
+                                </tr>
+                                <tr style="border-top:1px solid var(--border);background:rgba(139,92,246,0.04)">
+                                    <td style="padding:12px 18px;color:#bef264;font-family:Consolas,monospace;font-weight:700">/goal</td>
+                                    <td style="padding:12px 18px;color:var(--text-muted)">Previous turn finishes</td>
+                                    <td style="padding:12px 18px;color:var(--text-muted)">Evaluator confirms condition met</td>
+                                    <td style="padding:12px 18px;color:var(--text-main);font-weight:600">Defined end states — tests, deploys, file states</td>
+                                </tr>
+                                <tr style="border-top:1px solid var(--border)">
+                                    <td style="padding:12px 18px;color:#a78bfa;font-family:Consolas,monospace;font-weight:700">/loop</td>
+                                    <td style="padding:12px 18px;color:var(--text-muted)">Time interval elapses</td>
+                                    <td style="padding:12px 18px;color:var(--text-muted)">You stop it manually</td>
+                                    <td style="padding:12px 18px;color:var(--text-muted)">Polling, monitoring, recurring tasks</td>
+                                </tr>
+                                <tr style="border-top:1px solid var(--border)">
+                                    <td style="padding:12px 18px;color:#a78bfa;font-family:Consolas,monospace;font-weight:700">Stop hook</td>
+                                    <td style="padding:12px 18px;color:var(--text-muted)">Previous turn finishes</td>
+                                    <td style="padding:12px 18px;color:var(--text-muted)">Your script decides</td>
+                                    <td style="padding:12px 18px;color:var(--text-muted)">Permanent per-session automation (settings.json)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- What persists -->
+                <div style="margin-bottom:36px">
+                    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#60a5fa;margin-bottom:14px">What /goal persists</div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+                        <div style="background:rgba(15,23,42,0.6);border:1px solid var(--border);border-radius:10px;padding:14px 16px">
+                            <div style="color:#a78bfa;font-size:0.8rem;font-weight:700;margin-bottom:4px">The condition</div>
+                            <div style="color:var(--text-muted);font-size:0.82rem;line-height:1.5">Survives session resume with <code style="font-size:0.78em;color:var(--code-text)">--resume</code> or <code style="font-size:0.78em;color:var(--code-text)">--continue</code></div>
+                        </div>
+                        <div style="background:rgba(15,23,42,0.6);border:1px solid var(--border);border-radius:10px;padding:14px 16px">
+                            <div style="color:#a78bfa;font-size:0.8rem;font-weight:700;margin-bottom:4px">Progress stats</div>
+                            <div style="color:var(--text-muted);font-size:0.82rem;line-height:1.5">Turn count, elapsed time, and token spend tracked across turns</div>
+                        </div>
+                        <div style="background:rgba(15,23,42,0.6);border:1px solid var(--border);border-radius:10px;padding:14px 16px">
+                            <div style="color:#a78bfa;font-size:0.8rem;font-weight:700;margin-bottom:4px">Evaluator reasoning</div>
+                            <div style="color:var(--text-muted);font-size:0.82rem;line-height:1.5">Why each turn didn't satisfy — visible in the transcript after each check</div>
+                        </div>
+                        <div style="background:rgba(15,23,42,0.6);border:1px solid var(--border);border-radius:10px;padding:14px 16px">
+                            <div style="color:#a78bfa;font-size:0.8rem;font-weight:700;margin-bottom:4px">Auto-clears on success</div>
+                            <div style="color:var(--text-muted);font-size:0.82rem;line-height:1.5">Goal clears itself when met. Manual clear: <code style="font-size:0.78em;color:var(--code-text)">/goal clear</code></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ready to use examples -->
+                <div>
+                    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#60a5fa;margin-bottom:14px">Copy-ready examples</div>
+                    <div style="display:flex;flex-direction:column;gap:10px">
+
+                        <div style="background:var(--code-bg);border-left:3px solid #8b5cf6;border-radius:6px;padding:14px 16px;position:relative">
+                            <div style="font-size:0.68rem;color:#64748b;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Testing</div>
+                            <code style="font-family:Consolas,monospace;font-size:0.87rem;color:#bef264">/goal all tests in test/ pass and npm run lint exits 0</code>
+                            <button class="snippet-copy" onclick="copyGoalExample(this)">⧉ Copy</button>
+                        </div>
+
+                        <div style="background:var(--code-bg);border-left:3px solid #8b5cf6;border-radius:6px;padding:14px 16px;position:relative">
+                            <div style="font-size:0.68rem;color:#64748b;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Git / Deploy</div>
+                            <code style="font-family:Consolas,monospace;font-size:0.87rem;color:#bef264">/goal git status is clean, CHANGELOG has a new entry, and push.py runs without errors</code>
+                            <button class="snippet-copy" onclick="copyGoalExample(this)">⧉ Copy</button>
+                        </div>
+
+                        <div style="background:var(--code-bg);border-left:3px solid #8b5cf6;border-radius:6px;padding:14px 16px;position:relative">
+                            <div style="font-size:0.68rem;color:#64748b;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">UI / Preview</div>
+                            <code style="font-family:Consolas,monospace;font-size:0.87rem;color:#bef264">/goal the preview loads with no JS errors and the ticket queue renders with correct SLA badges — or stop after 12 turns</code>
+                            <button class="snippet-copy" onclick="copyGoalExample(this)">⧉ Copy</button>
+                        </div>
+
+                        <div style="background:var(--code-bg);border-left:3px solid #8b5cf6;border-radius:6px;padding:14px 16px;position:relative">
+                            <div style="font-size:0.68rem;color:#64748b;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Refactor</div>
+                            <code style="font-family:Consolas,monospace;font-size:0.87rem;color:#bef264">/goal all usages of the old auth middleware are removed, new middleware is wired in, and existing tests still pass</code>
+                            <button class="snippet-copy" onclick="copyGoalExample(this)">⧉ Copy</button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Requirements footer -->
+                <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border);display:flex;gap:20px;flex-wrap:wrap">
+                    <div style="font-size:0.8rem;color:var(--text-muted)"><span style="color:#60a5fa;font-weight:700">Requires:</span> Claude Code v2.1.139+</div>
+                    <div style="font-size:0.8rem;color:var(--text-muted)"><span style="color:#60a5fa;font-weight:700">Note:</span> <code style="font-size:0.8em;color:var(--code-text)">disableAllHooks</code> in settings.json will break /goal</div>
+                    <div style="font-size:0.8rem;color:var(--text-muted)"><span style="color:#60a5fa;font-weight:700">Clear manually:</span> <code style="font-size:0.8em;color:var(--code-text)">/goal clear</code></div>
+                </div>
+
+            </div>
+        </section>
+
     </div>
 
 </div>
@@ -1342,6 +1613,16 @@ repo at session start. push.py uses Git Data API (file-list only).
         );
         renderResources(filtered);
     });
+
+    // Copy goal examples
+    window.copyGoalExample = function(btn) {
+        const code = btn.previousElementSibling;
+        navigator.clipboard.writeText(code.textContent.trim()).then(() => {
+            btn.textContent = '✓ Copied';
+            btn.classList.add('copied');
+            setTimeout(() => { btn.textContent = '⧉ Copy'; btn.classList.remove('copied'); }, 1500);
+        });
+    };
 
     // Copy Functionality
     window.copyToClipboard = function(element) {
