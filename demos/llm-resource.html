@@ -207,7 +207,7 @@
         /* --- KNOWLEDGE GRID --- */
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            grid-template-columns: 1fr;
             gap: 25px;
         }
 
@@ -260,9 +260,25 @@
         .card p {
             color: var(--text-muted);
             font-size: 0.95rem;
-            margin-bottom: 20px;
-            flex-grow: 1;
+            margin-bottom: 12px;
         }
+
+        .snippet-copy {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(51,65,85,0.9);
+            border: 1px solid #475569;
+            border-radius: 5px;
+            color: #94a3b8;
+            padding: 3px 8px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            line-height: 1.4;
+        }
+        .snippet-copy:hover { background: #475569; color: #fff; }
+        .snippet-copy.copied { color: #10b981; border-color: #10b981; }
 
         .snippet-box {
             background: var(--code-bg);
@@ -274,6 +290,17 @@
             color: #bef264; /* Lime 300 */
             overflow-x: auto;
             position: relative;
+            line-height: 1.2;
+        }
+
+        .snippet-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #86efac;
+            opacity: 0.75;
+            margin-bottom: 6px;
         }
         
         /* Specific Link Styling */
@@ -287,6 +314,181 @@
         .promo-link:hover {
             color: #fff;
             border-bottom-color: #fff;
+        }
+
+        /* --- PAGE TABS --- */
+        .tab-nav {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin: -10px 0 44px;
+            border-bottom: 1px solid var(--border);
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 13px 28px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            position: relative;
+            margin-bottom: -1px;
+            font-family: inherit;
+            letter-spacing: 0.01em;
+            transition: color 0.2s;
+        }
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--accent-primary);
+            border-radius: 2px 2px 0 0;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .tab-btn:hover { color: var(--text-main); }
+        .tab-btn.active { color: #c4b5fd; }
+        .tab-btn.active::after { opacity: 1; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* --- PLACEHOLDER PANELS --- */
+        .placeholder-panel {
+            margin: 80px auto;
+            max-width: 600px;
+            text-align: center;
+            background: rgba(30,41,59,0.5);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 70px 40px;
+        }
+        .placeholder-panel .ph-icon { font-size: 3rem; margin-bottom: 20px; }
+        .placeholder-panel h2 { font-size: 1.5rem; color: var(--text-main); margin-bottom: 14px; }
+        .placeholder-panel p { color: var(--text-muted); font-size: 1rem; line-height: 1.8; margin: 0; }
+
+        /* --- WORKFLOW GRID (compact multi-col) --- */
+        .wf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .wf-card { padding: 20px; }
+        .wf-card h3 { font-size: 1rem; line-height: 1.4; }
+        .wf-card > p { font-size: 0.85rem; margin-bottom: 14px; line-height: 1.6; }
+        .wf-card .wf-thumb-wrap { max-width: 100%; }
+        .wf-credit {
+            margin-top: 10px;
+            padding: 3px 0 3px 8px;
+            border-left: 2px solid var(--success);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'Consolas', monospace;
+        }
+
+        /* --- WORKFLOW SLIDE THUMBNAIL --- */
+        .wf-thumb-wrap {
+            position: relative;
+            cursor: pointer;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            max-width: 220px;
+            transition: all 0.25s;
+        }
+        .wf-thumb-wrap:hover { border-color: var(--accent-primary); box-shadow: 0 0 20px var(--accent-glow); transform: translateY(-3px); }
+        .wf-thumb { width: 100%; display: block; }
+        .wf-thumb-overlay {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: flex; align-items: flex-end; justify-content: center;
+            padding-bottom: 14px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .wf-thumb-wrap:hover .wf-thumb-overlay { opacity: 1; }
+        .wf-thumb-count {
+            background: rgba(139,92,246,0.9);
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+
+        /* --- SLIDESHOW LIGHTBOX --- */
+        #slideshow-modal {
+            display: none;
+            position: fixed; inset: 0; z-index: 10000;
+            background: rgba(0,0,0,0.88);
+            backdrop-filter: blur(8px);
+            align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        #slideshow-modal.open { display: flex; }
+        .ss-box {
+            position: relative;
+            display: flex; align-items: center; gap: 16px;
+            max-height: 90vh;
+        }
+        .ss-img-wrap {
+            display: flex; align-items: center; justify-content: center;
+            max-height: 88vh;
+        }
+        #ss-img {
+            max-height: 88vh;
+            max-width: calc(100vw - 140px);
+            border-radius: 12px;
+            object-fit: contain;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+            cursor: zoom-in;
+            transition: border-radius 0.15s;
+        }
+        #ss-img.zoomed {
+            max-height: none;
+            max-width: none;
+            width: 88vw;
+            cursor: zoom-out;
+            border-radius: 6px;
+        }
+        .ss-img-wrap.zoomed {
+            overflow-y: auto;
+            overflow-x: hidden;
+            align-items: flex-start;
+            max-height: 88vh;
+        }
+        .ss-zoom-hint {
+            position: absolute;
+            bottom: -52px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: #475569;
+            white-space: nowrap;
+        }
+        .ss-nav {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #fff;
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            font-size: 1.6rem;
+            cursor: pointer;
+            line-height: 1;
+            flex-shrink: 0;
+            transition: background 0.15s;
+        }
+        .ss-nav:hover { background: rgba(139,92,246,0.5); }
+        .ss-close {
+            position: absolute; top: -44px; right: 0;
+            background: none; border: none; color: #94a3b8;
+            font-size: 1.4rem; cursor: pointer;
+        }
+        .ss-close:hover { color: #fff; }
+        .ss-counter {
+            position: absolute; bottom: -32px; left: 50%; transform: translateX(-50%);
+            font-size: 0.82rem; color: #64748b;
         }
 
         /* --- RESPONSIVE --- */
@@ -391,6 +593,15 @@
             <div>Curated Reference</div>
         </div>
     </header>
+
+    <!-- PAGE TABS -->
+    <nav class="tab-nav">
+        <button class="tab-btn active" data-tab="wiki">LLM Wiki</button>
+        <button class="tab-btn" data-tab="workflow">Workflow Ideas</button>
+        <button class="tab-btn" data-tab="other">Something Else</button>
+    </nav>
+
+    <div id="tab-wiki" class="tab-panel active">
 
     <!-- INTRO SECTION -->
     <section style="margin-bottom: 60px;">
@@ -520,6 +731,7 @@ RULES:
                 <p>
                     <code style="background:var(--code-bg);color:var(--code-text);padding:2px 6px;border-radius:4px;font-size:0.85em;">~/.claude/CLAUDE.md</code> (Windows: <code style="background:var(--code-bg);color:var(--code-text);padding:2px 6px;border-radius:4px;font-size:0.85em;">%APPDATA%\Claude\CLAUDE.md</code>) applies to every project, every session. Claude reads it before anything else. Put in it: your OS and shell, universal "never do X" rules, where API keys live, tool preferences. One rule written here follows you across every project forever — no re-explaining.
                 </p>
+                <div class="snippet-label">📄 What to put in ~/.claude/CLAUDE.md</div>
                 <div class="snippet-box"># ~/.claude/CLAUDE.md
 
 ## Environment
@@ -543,6 +755,7 @@ RULES:
                 <p>
                     Each project gets its own <code style="background:var(--code-bg);color:var(--code-text);padding:2px 6px;border-radius:4px;font-size:0.85em;">CLAUDE.md</code> in the root. It stacks on top of global — project rules win where they conflict. Document: what the project is (one paragraph), the active workflow (exact commands: how to preview, how to deploy), hard constraints ("never edit X file"), and file locations that aren't obvious from the directory structure. If future-you would have to guess — write it down now.
                 </p>
+                <div class="snippet-label">📄 What to put in your project's CLAUDE.md</div>
                 <div class="snippet-box"># myproject/CLAUDE.md
 
 ## What This Is
@@ -569,6 +782,7 @@ Cannot run `npm run dev`. Original source lives elsewhere.
                 <p>
                     Claude has zero memory between sessions by default. Fix this with a <code style="background:var(--code-bg);color:var(--code-text);padding:2px 6px;border-radius:4px;font-size:0.85em;">memory/</code> directory — per-project or global. <code style="background:var(--code-bg);color:var(--code-text);padding:2px 6px;border-radius:4px;font-size:0.85em;">MEMORY.md</code> is the index (always loaded, one line per file). Each file covers one topic. Claude reads them at session start and updates them mid-session. Four types worth having: <strong style="color:var(--text-main);">user</strong> (who you are, how you work), <strong style="color:var(--text-main);">feedback</strong> (corrections + validated wins), <strong style="color:var(--text-main);">project</strong> (current goals, decisions, deadlines), <strong style="color:var(--text-main);">reference</strong> (where things live externally). Write it once, never explain it again.
                 </p>
+                <div class="snippet-label">📁 How your memory/ folder should look</div>
                 <div class="snippet-box">memory/
 ├── MEMORY.md           ← index (always loaded, ~150 char lines)
 ├── user_profile.md     ← role, preferences, communication style
@@ -591,6 +805,7 @@ Cannot run `npm run dev`. Original source lives elsewhere.
                 <p>
                     Skills are markdown files in <code style="background:var(--code-bg);color:var(--code-text);padding:2px 6px;border-radius:4px;font-size:0.85em;">~/.claude/skills/</code> that define how Claude handles specific task types. Once written, invoke from <em>any</em> project with <code style="background:var(--code-bg);color:var(--code-text);padding:2px 6px;border-radius:4px;font-size:0.85em;">/skill-name</code>. Think of them as your personal playbooks — video production workflow, UI testing patterns, API design conventions. Agents extend this further: spawn sub-agents for parallel research or isolated tasks, protecting your main context window from getting polluted by large code dumps. The more skills you write, the faster every new project starts.
                 </p>
+                <div class="snippet-label">⌨️ How to invoke skills &amp; spawn agents</div>
                 <div class="snippet-box"># Invoke a global skill from any project:
 /webapp-testing       ← Playwright UI test patterns
 /story-director       ← director's brief for video pipelines
@@ -613,6 +828,7 @@ Agent({ subagent_type: "Explore", prompt: "Find all API endpoints" })
                 <p>
                     Long conversations degrade. The context window fills with noise, prior decisions get buried, Claude starts contradicting itself and suggesting things you already solved. The fix is three habits used together: <strong style="color:var(--text-main);">/compact</strong> before starting a new sub-task (compresses history, keeps orientation), <strong style="color:var(--text-main);">/cost</strong> before any large operation (know where you stand), and writing decisions to memory <em>immediately</em> — not at end of session, because sessions end unexpectedly. If Claude suggests something that was already figured out two weeks ago, that's a memory gap, not a model failure.
                 </p>
+                <div class="snippet-label">⚡ Commands to run &amp; habits to avoid</div>
                 <div class="snippet-box">/compact        ← compress conversation history, keep working
 /cost           ← check token usage before a big task
 /clear          ← full reset (context gone — use carefully)
@@ -636,6 +852,7 @@ Agent({ subagent_type: "Explore", prompt: "Find all API endpoints" })
                 <p>
                     The most expensive failure mode: Claude solves a hard problem, the session ends, next session it recommends the same broken approach that was already ruled out. Prevention is a system, not a habit. The feedback memory type exists for exactly this — but only works if you capture the <em>why</em>, not just the what. "Don't mock the DB" is useless without "prior incident — mock passed, prod migration failed silently, 3 hours to diagnose." The why is what lets future Claude judge edge cases instead of blindly applying the rule. Also: before implementing anything, Claude should check memory for prior attempts on the same problem — if something similar failed before, surface it.
                 </p>
+                <div class="snippet-label">📝 How to write a feedback rule that actually sticks</div>
                 <div class="snippet-box"># memory/feedback_rules.md
 
 ## Integration tests must hit a real DB — never use mocks.
@@ -671,6 +888,145 @@ repo at session start. push.py uses Git Data API (file-list only).
 
     <div id="grid" class="grid-container">
         </div>
+
+    </div><!-- /tab-wiki -->
+
+    <div id="tab-workflow" class="tab-panel">
+        <section style="margin:0 0 50px">
+            <h2 style="font-size:1.4rem;color:var(--text-main);margin:0 0 8px;text-align:center">Workflow Ideas</h2>
+            <p style="color:var(--text-muted);font-size:0.95rem;text-align:center;max-width:640px;margin:0 auto 36px">Real AI workflow patterns and pipeline blueprints worth stealing. Click any card to see the full breakdown.</p>
+
+            <div class="wf-grid">
+
+                <div class="card wf-card">
+                    <div class="card-header">
+                        <h3>Claude Skill for AI Video Automation</h3>
+                        <span class="tag workflow">WORKFLOW</span>
+                    </div>
+                    <p>A permanent skill file that encodes every step of an AI video pipeline — what tools to call, in what order, when to ask vs. proceed. Single-prompt video factory.</p>
+                    <div class="wf-thumb-wrap" onclick="openSlideshow('martiendejong',0)">
+                        <img src="img/workflow-slides/slide-01.jpg" alt="Slide 1" class="wf-thumb">
+                        <div class="wf-thumb-overlay"><span class="wf-thumb-count">View 7 slides</span></div>
+                    </div>
+                    <div class="wf-credit">Credit: martiendejong_dev</div>
+                </div>
+
+                <div class="card wf-card">
+                    <div class="card-header">
+                        <h3>4-Folder AI Project Structure</h3>
+                        <span class="tag">SETUP</span>
+                    </div>
+                    <p>prompts/, data/, agents/, evals/ — one structure that works for solo, enterprise, agents, and RAG. Four folders. Four jobs. Zero confusion.</p>
+                    <div class="wf-thumb-wrap" onclick="openSlideshow('automation',0)">
+                        <img src="img/workflow-slides/automationtechworldtek1/slide-01.jpg" alt="Slide 1" class="wf-thumb">
+                        <div class="wf-thumb-overlay"><span class="wf-thumb-count">View 3 slides</span></div>
+                    </div>
+                    <div class="wf-credit">Credit: automationtechworldtek1</div>
+                </div>
+
+                <div class="card wf-card">
+                    <div class="card-header">
+                        <h3>100 Claude Prompt Codes</h3>
+                        <span class="tag memory">PROMPTING</span>
+                    </div>
+                    <p>Single-word modifiers that transform Claude's output instantly — grouped by category, ready to copy. 99% of users don't know these exist.</p>
+                    <div class="wf-thumb-wrap" onclick="openSlideshow('christelle',0)">
+                        <img src="img/workflow-slides/claude.with.christelle/slide-01.jpg" alt="Slide 1" class="wf-thumb">
+                        <div class="wf-thumb-overlay"><span class="wf-thumb-count">View 11 slides</span></div>
+                    </div>
+                    <div class="wf-credit">Credit: claude.with.christelle</div>
+                </div>
+
+                <div class="card wf-card">
+                    <div class="card-header">
+                        <h3>Google's Hidden AI Workflow</h3>
+                        <span class="tag advanced">NEWS</span>
+                    </div>
+                    <p>Gemma 4 ships a full AI workflow most people haven't noticed. Breakdown of what Google quietly built and how to plug into it.</p>
+                    <div class="wf-thumb-wrap" onclick="openSlideshow('itsaiguide',0)">
+                        <img src="img/workflow-slides/itsaiguide/slide-01.jpg" alt="Slide 1" class="wf-thumb">
+                        <div class="wf-thumb-overlay"><span class="wf-thumb-count">View 4 slides</span></div>
+                    </div>
+                    <div class="wf-credit">Credit: itsaiguide</div>
+                </div>
+
+                <div class="card wf-card">
+                    <div class="card-header">
+                        <h3>Claude for Excel: Full Setup</h3>
+                        <span class="tag">SETUP</span>
+                    </div>
+                    <p>8-step guide to connecting Claude to Excel via AppSource — write formulas, analyze data, and get instant insights without leaving the sheet.</p>
+                    <div class="wf-thumb-wrap" onclick="openSlideshow('pacific',0)">
+                        <img src="img/workflow-slides/pacific_ai_creatives/slide-01.jpg" alt="Slide 1" class="wf-thumb">
+                        <div class="wf-thumb-overlay"><span class="wf-thumb-count">View 1 slide</span></div>
+                    </div>
+                    <div class="wf-credit">Credit: pacific_ai_creatives</div>
+                </div>
+
+                <div class="card wf-card">
+                    <div class="card-header">
+                        <h3>Claude: Full System Map</h3>
+                        <span class="tag advanced">ADVANCED</span>
+                    </div>
+                    <p>Chat vs Code vs Project vs Skills vs Cowork — what each mode is, when to use it, and the exact workflow diagram for each. Stop picking the wrong tool.</p>
+                    <div class="wf-thumb-wrap" onclick="openSlideshow('saleam',0)">
+                        <img src="img/workflow-slides/saleamlakasrat/slide-01.jpg" alt="Slide 1" class="wf-thumb">
+                        <div class="wf-thumb-overlay"><span class="wf-thumb-count">View 1 slide</span></div>
+                    </div>
+                    <div class="wf-credit">Credit: saleamlakasrat</div>
+                </div>
+
+                <div class="card wf-card">
+                    <div class="card-header">
+                        <h3>Use Claude Better Than 99%</h3>
+                        <span class="tag workflow">WORKFLOW</span>
+                    </div>
+                    <p>Full setup checklist: Cowork folder, 3 context files, global instructions. Stop prompting and start clicking — complete step-by-step.</p>
+                    <div class="wf-thumb-wrap" onclick="openSlideshow('sambit',0)">
+                        <img src="img/workflow-slides/sambit.ai.tech/slide-01.jpg" alt="Slide 1" class="wf-thumb">
+                        <div class="wf-thumb-overlay"><span class="wf-thumb-count">View 1 slide</span></div>
+                    </div>
+                    <div class="wf-credit">Credit: sambit.ai.tech</div>
+                </div>
+
+                <div class="card wf-card">
+                    <div class="card-header">
+                        <h3>7 Smarter Prompts Than "Summarize"</h3>
+                        <span class="tag memory">PROMPTING</span>
+                    </div>
+                    <p>Stop getting robotic notes. These 7 replacements make Claude actually think instead of compress — get insight, not a word count.</p>
+                    <div class="wf-thumb-wrap" onclick="openSlideshow('yourgpt',0)">
+                        <img src="img/workflow-slides/yourgptguide/slide-01.jpg" alt="Slide 1" class="wf-thumb">
+                        <div class="wf-thumb-overlay"><span class="wf-thumb-count">View 2 slides</span></div>
+                    </div>
+                    <div class="wf-credit">Credit: yourgptguide</div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SLIDESHOW LIGHTBOX (shared) -->
+        <div id="slideshow-modal" onclick="if(event.target===this)closeSlideshow()">
+            <div class="ss-box">
+                <button class="ss-close" onclick="closeSlideshow()">✕</button>
+                <button class="ss-nav ss-prev" onclick="moveSlide(-1)">&#8249;</button>
+                <div class="ss-img-wrap">
+                    <img id="ss-img" src="" alt="">
+                </div>
+                <button class="ss-nav ss-next" onclick="moveSlide(1)">&#8250;</button>
+                <div class="ss-counter" id="ss-counter"></div>
+                <div class="ss-zoom-hint">🔍 click image to zoom</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-other" class="tab-panel">
+        <div class="placeholder-panel">
+            <div class="ph-icon">🚧</div>
+            <h2>Something Else</h2>
+            <p>This section is under construction. Drop ideas in the session and we'll build it out.</p>
+        </div>
+    </div>
 
 </div>
 
@@ -817,41 +1173,106 @@ repo at session start. push.py uses Git Data API (file-list only).
 </style>
 
 <script>
+    /* --- SLIDESHOW --- */
+    function deck(folder, n) {
+        return Array.from({length:n}, (_,i) => `img/workflow-slides/${folder}/slide-${String(i+1).padStart(2,'0')}.jpg`);
+    }
+    const WF_DECKS = {
+        martiendejong: Array.from({length:7}, (_,i) => `img/workflow-slides/slide-${String(i+1).padStart(2,'0')}.jpg`),
+        automation:    deck('automationtechworldtek1', 3),
+        christelle:    deck('claude.with.christelle', 11),
+        itsaiguide:    deck('itsaiguide', 4),
+        pacific:       deck('pacific_ai_creatives', 1),
+        saleam:        deck('saleamlakasrat', 1),
+        sambit:        deck('sambit.ai.tech', 1),
+        yourgpt:       deck('yourgptguide', 2),
+    };
+    let CURRENT_SLIDES = [];
+    let ssIdx = 0;
+
+    window.openSlideshow = function(deckKey, startIdx) {
+        CURRENT_SLIDES = WF_DECKS[deckKey];
+        ssIdx = startIdx || 0;
+        updateSlide();
+        document.getElementById('slideshow-modal').classList.add('open');
+    };
+    window.closeSlideshow = function() {
+        document.getElementById('slideshow-modal').classList.remove('open');
+    };
+    window.moveSlide = function(dir) {
+        ssIdx = (ssIdx + dir + CURRENT_SLIDES.length) % CURRENT_SLIDES.length;
+        updateSlide();
+    };
+    function updateSlide() {
+        const img = document.getElementById('ss-img');
+        img.classList.remove('zoomed');
+        img.closest('.ss-img-wrap').classList.remove('zoomed');
+        img.src = CURRENT_SLIDES[ssIdx];
+        document.getElementById('ss-counter').textContent = (ssIdx + 1) + ' / ' + CURRENT_SLIDES.length;
+    }
+    document.getElementById('ss-img').addEventListener('click', function() {
+        this.classList.toggle('zoomed');
+        this.closest('.ss-img-wrap').classList.toggle('zoomed');
+    });
+    document.addEventListener('keydown', e => {
+        const modal = document.getElementById('slideshow-modal');
+        if (!modal.classList.contains('open')) return;
+        if (e.key === 'ArrowRight') moveSlide(1);
+        if (e.key === 'ArrowLeft')  moveSlide(-1);
+        if (e.key === 'Escape')     closeSlideshow();
+    });
+
+    /* --- TAB SWITCHING --- */
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        });
+    });
+
     /* --- DATA SOURCE: TRANSCRIPTION + CORE KNOWLEDGE --- */
     const resources = [
         {
             category: "Core Philosophy",
             title: "Sub-Agent Orchestration",
+            label: "Wrong vs. right way to prompt",
             desc: "The #1 rule: Stop trying to do it all in one prompt. Replace yourself as the manager. Prompt Claude to assign tasks to 'Developer' and 'Tester' agents rather than writing code directly.<br><br><a href='https://skillsmp.com/' target='_blank' class='promo-link'>🎓 Get the full workflow at SkillsMP &rarr;</a>",
             code: "// Wrong: 'Write this app'\n// Right: 'Act as Manager. Create a plan using sub-agents.'"
         },
         {
             category: "Workflow",
             title: "The Feedback Loop",
+            label: "The loop structure",
             desc: "A closed loop prevents regression. Agent A (Developer) writes code. Agent B (Tester) critiques it. They iterate until tests pass. You only intervene if the loop breaks.",
             code: "Dev writes -> Test runs -> Fails -> Dev Fixes -> Test runs -> Passes."
         },
         {
             category: "Prompting",
             title: "The Master Prompt",
+            label: "Paste this at the start of every session",
             desc: "Use this prompt to kick off a self-healing session. It establishes the recursive relationship between your sub-agents.",
             code: "\"Please call the developer agent to accomplish all code writing tasks and recursively call the testing sub-agent until all tests pass.\""
         },
         {
             category: "Setup",
             title: "CLAUDE.md Protocol",
+            label: "Minimum viable CLAUDE.md",
             desc: "The CLI's memory bank. Always save a `CLAUDE.md` in root describing your stack (Vite/React), testing framework, and build commands. The CLI reads this on every startup.",
             code: "# Context\nStack: React, Vite, Tailwind\nTest: Vitest\nBuild: npm run build"
         },
         {
             category: "Debugging",
             title: "The 'Stop & Think' Trigger",
+            label: "Paste this when Claude is looping",
             desc: "When Claude gets stuck in an error loop, force a context switch. Make it explain the error in plain English before writing another line of code.",
             code: "\"Stop. You are looping. Read the error above. Explain WHY it failed first.\""
         },
         {
             category: "CLI Flags",
             title: "Danger Mode",
+            label: "Run this CLI command",
             desc: "Skip the 'Allow this edit?' confirmation for every file. Only use this if you have git committed your current state.",
             code: "claude --dangerously-skip-permissions"
         }
@@ -878,14 +1299,37 @@ repo at session start. push.py uses Git Data API (file-list only).
                 </div>
                 <h3>${item.title}</h3>
                 <p>${item.desc}</p>
+                <div class="snippet-label">📋 ${item.label}</div>
                 <div class="snippet-box">${item.code}</div>
             `;
             grid.appendChild(card);
+        });
+        addCopyButtons();
+    }
+
+    function addCopyButtons() {
+        document.querySelectorAll('.snippet-box').forEach(box => {
+            if (box.querySelector('.snippet-copy')) return;
+            const btn = document.createElement('button');
+            btn.className = 'snippet-copy';
+            btn.textContent = '⧉ Copy';
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const clone = box.cloneNode(true);
+                clone.querySelectorAll('.snippet-copy').forEach(b => b.remove());
+                navigator.clipboard.writeText((clone.innerText || clone.textContent).trim()).then(() => {
+                    btn.textContent = '✓ Copied';
+                    btn.classList.add('copied');
+                    setTimeout(() => { btn.textContent = '⧉ Copy'; btn.classList.remove('copied'); }, 1500);
+                });
+            };
+            box.appendChild(btn);
         });
     }
 
     // Initial Render
     renderResources(resources);
+    addCopyButtons(); // static cards
 
     // Search Logic
     searchInput.addEventListener('input', (e) => {
