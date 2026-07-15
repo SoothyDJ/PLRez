@@ -105,6 +105,28 @@
     .flow-box span { display: block; color: var(--muted); font-size: 11px; margin-top: 0.3rem; line-height: 1.4; }
     .flow-arrow { color: var(--accent2); font-size: 20px; font-weight: 700; }
 
+    .idea-item { padding: 0.8rem 0; border-top: 1px solid rgba(145,94,255,.15); }
+    .idea-item:first-of-type { border-top: none; padding-top: 0; }
+    .idea-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .idea-tag {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--accent2);
+      background: rgba(145,94,255,.12);
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+    }
+    .idea-text { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+
     .btn {
       background: var(--accent);
       color: #fff;
@@ -277,6 +299,37 @@
       <div class="flow-box">🗄️ Database<span>your real data</span></div>
     </div>
     <p class="explainer">The backend receives the user's question, runs a safe/read-only query against the database, and returns just the relevant text — the browser never sees a connection string or credential. In that setup, the "Upload File" step above would be replaced by a call to that backend API; everything downstream (grounding the system prompt, streaming the answer) works exactly the same way it does here.</p>
+  </div>
+
+  <!-- Other agent ideas for this role — explainer only, none of these are built -->
+  <div class="card">
+    <label>🗺️ Other Agent Ideas For This Role</label>
+    <p class="explainer">This KB Q&amp;A page is one example of "assist users with develop AI agents and/or integrating workflows" from the job posting. Here's how a few other day-to-day demos for the same role would work — none of these are built, just sketched out:</p>
+
+    <div class="idea-item">
+      <div class="idea-title">🎫 Ticket Triage Assistant <span class="idea-tag">30% of the role — troubleshooting</span></div>
+      <p class="idea-text">Paste a raw incident description → the agent classifies urgency/category and drafts a clean, ServiceNow-ready ticket summary with a suggested root-cause angle. Same BYOK architecture as this page — just a different system prompt and a structured output instead of open Q&amp;A.</p>
+    </div>
+
+    <div class="idea-item">
+      <div class="idea-title">🧭 Workflow / Data-Flow Diagram Generator</div>
+      <p class="idea-text">Describe a business process in plain English → the agent outputs a flowchart rendered right on the page. Maps to "develop workflow diagrams, data flow diagrams to support initiatives" — visually distinct from a chat box, same underlying API call as this page.</p>
+    </div>
+
+    <div class="idea-item">
+      <div class="idea-title">📝 KB Article / Training Guide Drafter</div>
+      <p class="idea-text">Paste rough fix notes or a support thread → the agent turns them into a polished knowledge-base article or process guide. Maps to "develop user-facing documentation... knowledge base articles, process guides."</p>
+    </div>
+
+    <div class="idea-item">
+      <div class="idea-title">🔒 Access-Request / Data-Sensitivity Reviewer</div>
+      <p class="idea-text">Describe an access request → the agent flags potential P3/P4 data-sensitivity concerns and suggests the right approval routing. Maps to "initiate and analyze UCSF security risks... administer access to sensitive resources."</p>
+    </div>
+
+    <div class="idea-item">
+      <div class="idea-title">🛒 Software / Vendor Comparison Assistant</div>
+      <p class="idea-text">Paste 2-3 vendor product blurbs → the agent produces a structured comparison table (security, cost, integration effort). Maps to "recommendations for purchase or upgrade of new computer hardware, software."</p>
+    </div>
   </div>
 
   <div class="nuclear-row">
