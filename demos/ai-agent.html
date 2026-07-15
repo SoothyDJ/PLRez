@@ -1,42 +1,576 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Agent | Portfolio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; }
-        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .gradient-text { background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; color: transparent; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Agent — Knowledge Base Q&A</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:     #050816;
+      --card:   #151030;
+      --card2:  #1d1836;
+      --accent: #915eff;
+      --accent2: #b083ff;
+      --text:   #fff;
+      --muted:  #aaa6c3;
+      --green:  #4ade80;
+      --red:    #f87171;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      padding: 80px 20px 80px;
+    }
+
+    #plrez-back-btn {
+      position: fixed;
+      top: 1.25rem;
+      left: 1.25rem;
+      background: var(--accent);
+      color: #fff;
+      padding: 0.5rem 1.25rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 14px;
+      text-decoration: none;
+      box-shadow: 0 4px 18px rgba(145,94,255,.4);
+      z-index: 100;
+      transition: background .2s, color .2s;
+    }
+    #plrez-back-btn:hover { background: #fff; color: var(--accent); }
+
+    .app { max-width: 860px; margin: 0 auto; }
+
+    .app-header { text-align: center; margin-bottom: 2rem; }
+    .app-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--accent), #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.4rem;
+    }
+    .app-header p { color: var(--muted); font-size: 13px; line-height: 1.6; max-width: 560px; margin: 0 auto; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(145,94,255,.2);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .card > label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent2);
+      margin-bottom: 0.75rem;
+    }
+    .explainer {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 0.9rem;
+    }
+    .explainer:last-child { margin-bottom: 0; margin-top: 0.9rem; }
+
+    .flow-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+      padding: 1rem;
+      background: var(--card2);
+      border-radius: 0.6rem;
+    }
+    .flow-box {
+      background: var(--card);
+      border: 1px solid rgba(145,94,255,.3);
+      border-radius: 0.5rem;
+      padding: 0.8rem 1rem;
+      text-align: center;
+      font-size: 12.5px;
+      min-width: 130px;
+    }
+    .flow-box span { display: block; color: var(--muted); font-size: 11px; margin-top: 0.3rem; line-height: 1.4; }
+    .flow-arrow { color: var(--accent2); font-size: 20px; font-weight: 700; }
+
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.6rem 1.5rem;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, opacity .2s, color .2s;
+      white-space: nowrap;
+    }
+    .btn:hover:not(:disabled) { background: var(--accent2); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-sm { padding: 0.3rem 0.9rem; font-size: 12px; }
+    .btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+    .btn-outline:hover:not(:disabled) { background: var(--accent); color: #fff; }
+
+    .kb-actions { display: flex; gap: 0.6rem; margin-bottom: 0.9rem; flex-wrap: wrap; }
+    #kb-text {
+      width: 100%;
+      min-height: 160px;
+      background: var(--card2);
+      border: 1px solid rgba(145,94,255,.3);
+      border-radius: 0.5rem;
+      padding: 0.8rem;
+      color: var(--text);
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      resize: vertical;
+      outline: none;
+    }
+    #kb-text:focus { border-color: var(--accent); }
+    .kb-meta { margin-top: 0.5rem; font-size: 12px; color: var(--muted); }
+    .parse-error { margin-top: 0.5rem; font-size: 12px; color: var(--red); display: none; }
+
+    .api-row { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+    .api-row label { font-size: 13px; font-weight: 600; color: var(--accent2); white-space: nowrap; }
+    .api-row input {
+      flex: 1;
+      min-width: 260px;
+      background: var(--card2);
+      border: 1px solid rgba(145,94,255,.3);
+      border-radius: 0.5rem;
+      padding: 0.6rem 1rem;
+      color: var(--text);
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .api-row input:focus { border-color: var(--accent); }
+    .api-note { margin-top: 0.5rem; font-size: 12px; color: var(--muted); }
+    .error-box { margin-top: 0.6rem; font-size: 12px; color: var(--red); }
+
+    .model-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.6rem;
+      padding: 0.3rem 0.8rem;
+      background: rgba(74,222,128,.1);
+      border: 1px solid rgba(74,222,128,.3);
+      border-radius: 9999px;
+      font-size: 12px;
+      color: var(--green);
+    }
+    .model-badge.hidden { display: none; }
+    .model-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+    #chat-log { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; max-height: 420px; overflow-y: auto; }
+    .chat-msg { padding: 0.7rem 1rem; border-radius: 0.7rem; font-size: 14px; line-height: 1.5; max-width: 90%; white-space: pre-wrap; }
+    .chat-msg.user { background: var(--card2); align-self: flex-end; }
+    .chat-msg.assistant { background: rgba(145,94,255,.12); border: 1px solid rgba(145,94,255,.25); align-self: flex-start; }
+    .chat-msg.empty-state { color: var(--muted); font-size: 13px; align-self: center; }
+
+    .chat-row { display: flex; gap: 0.6rem; }
+    .chat-row input {
+      flex: 1;
+      background: var(--card2);
+      border: 1px solid rgba(145,94,255,.3);
+      border-radius: 0.5rem;
+      padding: 0.7rem 1rem;
+      color: var(--text);
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      outline: none;
+    }
+    .chat-row input:focus { border-color: var(--accent); }
+
+    .nuclear-row { display: flex; justify-content: center; margin-bottom: 1.5rem; }
+    .btn-nuclear {
+      background: transparent;
+      border: 1px solid rgba(248,113,113,.35);
+      color: var(--red);
+      opacity: 0.75;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1.25rem;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, opacity .2s;
+    }
+    .btn-nuclear:hover:not(:disabled) { background: rgba(248,113,113,.16); border-color: rgba(248,113,113,.45); opacity: 1; }
+  </style>
 </head>
-<body class="min-h-screen flex items-center justify-center px-4">
-<style>
-  #plrez-back-btn{position:fixed;top:1rem;left:1rem;z-index:9999;display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1rem .5rem .9rem;background:#915eff;color:#fff !important;text-decoration:none !important;border-radius:9999px;font-family:Poppins,system-ui,-apple-system,Segoe UI,sans-serif;font-weight:700;font-size:13px;box-shadow:0 8px 24px -4px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.2);transition:transform .15s ease,background .15s ease,color .15s ease;letter-spacing:.02em}
-  #plrez-back-btn:hover{background:#fff;color:#915eff !important;transform:translateX(-2px)}
-</style>
+<body>
 <a href="/" id="plrez-back-btn">← Back to Portfolio</a>
 
-<div class="max-w-2xl w-full text-center">
-    <div class="glass-panel p-16 rounded-2xl">
-        <div class="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-8">
-            <span class="text-5xl">🧠</span>
-        </div>
+<div class="app">
+  <div class="app-header">
+    <h1>AI Agent — Knowledge Base Q&amp;A</h1>
+    <p>A working portfolio demo: load a knowledge base, connect your own Claude API key, and ask questions — answered strictly from what's loaded, nothing else. It's a small, practical example of the kind of agent an IT team builds so non-technical staff can self-serve answers instead of filing a ticket.</p>
+  </div>
 
-        <h1 class="text-4xl md:text-5xl font-bold mb-4">
-            <span class="gradient-text">AI Agent</span>
-        </h1>
-
-        <p class="text-slate-400 text-lg mb-2">
-            A working example is in the works.
-        </p>
-
-        <p class="text-slate-500 text-base">
-            Check back soon for a live demo.
-        </p>
+  <!-- Knowledge Base -->
+  <div class="card">
+    <label>📚 Knowledge Base</label>
+    <p class="explainer">This is the agent's source of truth — the only material it's allowed to answer from. Click "Load Sample KB" to try a bundled example, or upload your own <code>.txt</code>/<code>.pdf</code>. The extracted text is shown below and is fully editable before you ask anything.</p>
+    <div class="kb-actions">
+      <button class="btn btn-sm" id="load-sample-btn" type="button">Load Sample KB</button>
+      <button class="btn btn-sm btn-outline" id="browse-kb-btn" type="button">Upload File</button>
+      <input type="file" id="kb-file-picker" accept=".txt,.pdf" style="display:none" />
     </div>
+    <textarea id="kb-text" placeholder="Click &quot;Load Sample KB&quot; or upload your own .txt / .pdf file — the text will appear here, editable before you ask questions."></textarea>
+    <div class="kb-meta" id="kb-meta"></div>
+    <div class="parse-error" id="kb-parse-error"></div>
+  </div>
+
+  <!-- API Key -->
+  <div class="card">
+    <label>🔑 Claude API Key</label>
+    <p class="explainer">This is a bring-your-own-key demo. Your key goes straight from this browser tab to Anthropic's API — it's never sent to or stored on any server we control. It lives in <code>sessionStorage</code> only, so closing this tab clears it automatically.</p>
+    <div class="api-row">
+      <input type="password" id="api-key" placeholder="sk-ant-api03-…" autocomplete="off" spellcheck="false" />
+      <button class="btn" id="connect-btn" type="button">Connect</button>
+    </div>
+    <div class="model-badge hidden" id="model-badge">
+      <div class="dot"></div>
+      <span id="model-name">—</span>
+    </div>
+    <div class="error-box" id="connect-error" style="display:none;"></div>
+  </div>
+
+  <!-- Chat -->
+  <div class="card">
+    <label>💬 Ask a Question</label>
+    <p class="explainer">Every question is sent to Claude along with the full knowledge base text as its only allowed source. Ask something the KB covers and it answers from that text; ask something it doesn't cover (try "what's the capital of France?") and it should tell you that instead of guessing — that's what keeps an internal agent from making things up about your systems.</p>
+    <div id="chat-log">
+      <div class="chat-msg empty-state" id="chat-empty">Load a knowledge base and connect your API key, then ask a question.</div>
+    </div>
+    <div class="chat-row">
+      <input type="text" id="chat-input" placeholder="Ask a question about the loaded KB…" />
+      <button class="btn" id="ask-btn" type="button" disabled>Ask</button>
+    </div>
+  </div>
+
+  <!-- Advanced: DB-backed KB explainer (no functional DB connection — explanatory only) -->
+  <div class="card">
+    <label>🏗️ Advanced: Connecting to a Real Database</label>
+    <p class="explainer">This demo only loads a knowledge base from a file, on purpose. A browser can't safely talk to a database directly — there's no database driver in JavaScript, and any connection credentials placed in this page would be visible to every visitor's dev tools. A production agent that reads from a real database needs one more hop in between:</p>
+    <div class="flow-diagram">
+      <div class="flow-box">🖥️ Browser<span>(this page)</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">🔌 Backend API<span>holds credentials,<br>runs a scoped query</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">🗄️ Database<span>your real data</span></div>
+    </div>
+    <p class="explainer">The backend receives the user's question, runs a safe/read-only query against the database, and returns just the relevant text — the browser never sees a connection string or credential. In that setup, the "Upload File" step above would be replaced by a call to that backend API; everything downstream (grounding the system prompt, streaming the answer) works exactly the same way it does here.</p>
+  </div>
+
+  <div class="nuclear-row">
+    <button class="btn-nuclear" id="nuclear-btn" type="button">🗑 Nuclear Reset — Clear All Data</button>
+  </div>
 </div>
 
+<script>
+  const $ = id => document.getElementById(id);
+
+  const SAMPLE_KB = `IT Helpdesk Knowledge Base — Sample
+
+Q: How do I reset my password?
+A: Go to the self-service portal at password.example.org and click "Forgot Password." You'll receive a reset link at your registered email within 5 minutes. Links expire after 30 minutes.
+
+Q: My VPN won't connect.
+A: First confirm you're on the latest VPN client (v4.2+). If already updated, restart the client and your machine. If it still fails, check whether your account has VPN access enabled — request it via the IT ticket system if not.
+
+Q: How do I submit an IT ticket?
+A: Email helpdesk@example.org or use the ticket portal at tickets.example.org. Include your device asset tag and a description of the issue. Standard tickets are answered within one business day; urgent/outage tickets are flagged for same-day response.
+
+Q: A printer isn't working.
+A: Check the printer's network light first — solid green means it's online. If it's offline, power-cycle the printer (off 10 seconds, then on). Still stuck? Submit a ticket with the printer's asset tag, found on a sticker on the side panel.
+
+Q: How do I request access to a shared drive or system?
+A: Access requests go through the ticket portal under "Access Request." Include the resource name and your manager's name for approval. Most requests are processed within 2 business days.
+
+Q: What do I do if I suspect a phishing email?
+A: Do not click any links or attachments. Forward the email as an attachment to security@example.org, then delete it. Do not reply to the sender.`;
+
+  $('load-sample-btn').addEventListener('click', () => {
+    $('kb-text').value = SAMPLE_KB;
+    updateKbMeta();
+  });
+
+  $('browse-kb-btn').addEventListener('click', () => $('kb-file-picker').click());
+
+  $('kb-file-picker').addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (file) await handleKbFile(file);
+    e.target.value = '';
+  });
+
+  $('kb-text').addEventListener('input', updateKbMeta);
+
+  function updateKbMeta() {
+    const len = $('kb-text').value.length;
+    $('kb-meta').textContent = len ? `${len.toLocaleString()} chars loaded` : '';
+  }
+
+  function showKbError(msg) {
+    const el = $('kb-parse-error');
+    el.textContent = msg;
+    el.style.display = msg ? 'block' : 'none';
+  }
+
+  async function handleKbFile(file) {
+    showKbError('');
+    const ext = file.name.split('.').pop().toLowerCase();
+    try {
+      let text = '';
+      if (ext === 'pdf') {
+        if (typeof pdfjsLib === 'undefined') throw new Error('PDF.js failed to load. Refresh and try again.');
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        const buf = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          text += content.items.map(it => it.str).join(' ').replace(/\s+/g, ' ') + '\n';
+        }
+      } else {
+        text = await file.text();
+      }
+      text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+      if (!text) throw new Error('No readable text found in this file.');
+      $('kb-text').value = text;
+      updateKbMeta();
+    } catch (e) {
+      showKbError('⚠ ' + e.message);
+    }
+  }
+
+  // ── Connect (BYOK) ────────────────────────────────────────────────────────
+  const API = 'https://api.anthropic.com';
+  const VER = '2023-06-01';
+
+  let apiKey = sessionStorage.getItem('aia_key') || '';
+  let model  = sessionStorage.getItem('aia_model') || '';
+
+  if (apiKey) $('api-key').value = apiKey;
+
+  function hdrs() {
+    return {
+      'x-api-key': apiKey,
+      'anthropic-version': VER,
+      'content-type': 'application/json',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    };
+  }
+
+  function refreshAskEnabled() {
+    $('ask-btn').disabled = !(apiKey && model && $('kb-text').value.trim());
+  }
+
+  // Auto-reconnect if a key + model already exist for this tab session
+  if (apiKey && model) {
+    $('model-name').textContent = model;
+    $('model-badge').classList.remove('hidden');
+    const cb = $('connect-btn');
+    cb.textContent = '✓ Connected';
+    cb.style.cssText = 'background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.3);';
+  }
+  refreshAskEnabled();
+
+  $('connect-btn').addEventListener('click', async () => {
+    const key = $('api-key').value.trim();
+    if (!key) return;
+
+    const btn = $('connect-btn');
+    btn.disabled = true;
+    btn.textContent = 'Connecting…';
+    $('connect-error').style.display = 'none';
+    $('model-badge').classList.add('hidden');
+
+    apiKey = key;
+    sessionStorage.setItem('aia_key', key);
+
+    try {
+      const res = await fetch(`${API}/v1/models`, {
+        headers: {
+          'x-api-key': key,
+          'anthropic-version': VER,
+          'anthropic-dangerous-direct-browser-access': 'true'
+        }
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error?.message || `API error ${res.status}`);
+      }
+
+      const data = await res.json();
+      const haikus = (data.data || [])
+        .filter(m => m.id.toLowerCase().includes('haiku'))
+        .sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+
+      if (!haikus.length) throw new Error('No Haiku models found on this account.');
+
+      model = haikus[0].id;
+      sessionStorage.setItem('aia_model', model);
+      $('model-name').textContent = model;
+      $('model-badge').classList.remove('hidden');
+
+      btn.textContent = '✓ Connected';
+      btn.style.cssText = 'background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.3);';
+      refreshAskEnabled();
+
+    } catch (e) {
+      $('connect-error').textContent = '⚠ ' + e.message;
+      $('connect-error').style.display = 'block';
+      apiKey = '';
+      sessionStorage.removeItem('aia_key');
+      btn.disabled = false;
+      btn.textContent = 'Connect';
+      btn.style.cssText = '';
+    }
+  });
+
+  $('api-key').addEventListener('keydown', e => {
+    if (e.key === 'Enter') $('connect-btn').click();
+  });
+
+  $('kb-text').addEventListener('input', refreshAskEnabled);
+
+  // ── Chat ─────────────────────────────────────────────────────────────────
+  const convo = []; // rolling conversation history for this tab session
+
+  function getSystemPrompt() {
+    const kb = $('kb-text').value.trim();
+    return `You are a helpful assistant. Answer the user's questions using ONLY the knowledge base content below. If the answer is not contained in it, say so explicitly and do not use outside knowledge.
+
+=== KNOWLEDGE BASE ===
+${kb}
+=== END KNOWLEDGE BASE ===`;
+  }
+
+  function appendMsg(role, text) {
+    const empty = $('chat-empty');
+    if (empty) empty.remove();
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + role;
+    div.textContent = text;
+    $('chat-log').appendChild(div);
+    $('chat-log').scrollTop = $('chat-log').scrollHeight;
+    return div;
+  }
+
+  async function askQuestion() {
+    const input = $('chat-input');
+    const question = input.value.trim();
+    if (!question || $('ask-btn').disabled) return;
+
+    input.value = '';
+    $('ask-btn').disabled = true;
+    appendMsg('user', question);
+    convo.push({ role: 'user', content: question });
+    const answerEl = appendMsg('assistant', '');
+
+    try {
+      const res = await fetch(`${API}/v1/messages`, {
+        method: 'POST',
+        headers: hdrs(),
+        body: JSON.stringify({
+          model,
+          max_tokens: 1024,
+          stream: true,
+          system: getSystemPrompt(),
+          messages: convo
+        })
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error?.message || `API error ${res.status}`);
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = '';
+      let full = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split('\n');
+        buf = lines.pop();
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6).trim();
+          if (!data || data === '[DONE]') continue;
+          try {
+            const ev = JSON.parse(data);
+            if (ev.type === 'content_block_delta' && ev.delta?.type === 'text_delta') {
+              full += ev.delta.text;
+              answerEl.textContent = full;
+              $('chat-log').scrollTop = $('chat-log').scrollHeight;
+            }
+          } catch (_) {}
+        }
+      }
+
+      convo.push({ role: 'assistant', content: full });
+
+    } catch (e) {
+      answerEl.textContent = '⚠ ' + e.message;
+      convo.pop(); // drop the failed user turn so retry doesn't duplicate context
+    } finally {
+      refreshAskEnabled();
+    }
+  }
+
+  $('ask-btn').addEventListener('click', askQuestion);
+  $('chat-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') askQuestion();
+  });
+
+  // ── Nuclear Reset ────────────────────────────────────────────────────────
+  $('nuclear-btn').addEventListener('click', () => {
+    if (!confirm('Reset EVERYTHING? This clears your loaded KB, chat history, and API key. Cannot be undone.')) return;
+
+    sessionStorage.removeItem('aia_key');
+    sessionStorage.removeItem('aia_model');
+    apiKey = ''; model = '';
+    convo.length = 0;
+
+    $('kb-text').value = '';
+    updateKbMeta();
+    showKbError('');
+
+    $('api-key').value = '';
+    $('connect-error').style.display = 'none';
+    $('model-badge').classList.add('hidden');
+    $('model-name').textContent = '—';
+    $('connect-btn').textContent = 'Connect';
+    $('connect-btn').style.cssText = '';
+    $('connect-btn').disabled = false;
+
+    $('chat-log').innerHTML = '<div class="chat-msg empty-state" id="chat-empty">Load a knowledge base and connect your API key, then ask a question.</div>';
+    $('chat-input').value = '';
+    refreshAskEnabled();
+  });
+</script>
 </body>
 </html>
