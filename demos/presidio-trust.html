@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Peter Lee | Enterprise Applications Engineer — Presidio Trust</title>
+<meta name="description" content="Peter Lee's candidate showcase for the Enterprise Applications Engineer role at Presidio Trust." />
+<link rel="icon" type="image/svg+xml" href="/logo.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:      #0e1316;
+    --panel:   #161d22;
+    --panel-2: #1b2329;
+    --line:    #2a353c;
+    --ink:     #eef2f0;
+    --muted:   #8fa19c;
+    --signal:  #3ddc84;
+    --amber:   #f0a542;
+    --font-display: 'IBM Plex Sans Condensed', sans-serif;
+    --font-body:    'IBM Plex Sans', sans-serif;
+    --font-mono:    'IBM Plex Mono', monospace;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    padding:0 0 6rem;
+  }
+
+  /* faint dashboard grid texture on the canvas */
+  body{
+    background-image:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  a{ color:var(--signal); }
+  ::selection{ background:var(--signal); color:#08120d; }
+
+  :focus-visible{
+    outline: 2px solid var(--signal);
+    outline-offset: 3px;
+  }
+
+  /* ── password gate (courtesy gate, not real security — see script comment) ── */
+  #pw-gate{
+    position:fixed; inset:0; z-index:9999;
+    background:var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    padding:1.5rem;
+  }
+  #pw-gate.is-unlocked{ display:none; }
+  .pw-gate-box{
+    max-width:380px; width:100%;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:2rem 1.8rem;
+    text-align:center;
+  }
+  .pw-gate-label{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--muted); margin-bottom:.8rem;
+  }
+  .pw-gate-box h2{
+    font-family:var(--font-display); font-size:1.4rem; color:var(--ink); margin:0 0 .6rem;
+  }
+  .pw-gate-box p{ color:var(--muted); font-size:.9rem; margin:0 0 1.2rem; }
+  #pw-gate-form{ display:flex; gap:.5rem; }
+  #pw-gate-input{
+    flex:1; background:var(--panel-2); border:1px solid var(--line); border-radius:6px;
+    padding:.6rem .8rem; color:var(--ink); font-family:var(--font-body); font-size:.95rem;
+  }
+  #pw-gate-input:focus-visible{ outline:2px solid var(--signal); outline-offset:2px; }
+  #pw-gate-form button{
+    background:var(--signal); color:#08120d; border:none; border-radius:6px;
+    padding:.6rem 1.1rem; font-weight:600; cursor:pointer; font-family:var(--font-body);
+  }
+  .pw-gate-error{ color:#ff6b6b; font-size:.85rem; margin:.8rem 0 0 !important; }
+
+  /* ── back to portfolio (house style) ── */
+  #plrez-back-btn{
+    position:fixed; top:1.25rem; left:1.25rem;
+    background:#915eff; color:#fff;
+    padding:.5rem 1.25rem; border-radius:9999px;
+    font-weight:700; font-size:14px; text-decoration:none;
+    z-index:100; font-family:var(--font-body);
+    box-shadow:0 4px 18px rgba(145,94,255,.35);
+    transition:background .2s, color .2s;
+  }
+  #plrez-back-btn:hover{ background:#fff; color:#915eff; }
+
+  .wrap{ max-width:920px; margin:0 auto; padding:0 1.5rem; }
+
+  /* ── hero / console header ── */
+  .console{
+    border-bottom:1px solid var(--line);
+    padding:3rem 0 3rem;
+    position:relative;
+  }
+  .console::before{
+    content:"";
+    position:absolute; top:1.2rem; left:0; right:0; height:1px;
+    background:repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 12px);
+  }
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--muted);
+    display:flex; align-items:center; gap:.6rem; flex-wrap:wrap;
+    margin-bottom:1.1rem;
+  }
+  .console h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:clamp(2.2rem, 5vw, 3.1rem);
+    margin:0;
+    letter-spacing:-.01em;
+    text-align:center;
+    transition:color .15s;
+  }
+  .hero-card summary:hover h1{ color:var(--signal); }
+
+  /* ── collapsible hero card ── */
+  .hero-card summary{
+    list-style:none;
+    cursor:pointer;
+    position:relative;
+    padding-right:2rem;
+  }
+  .hero-card summary::-webkit-details-marker{ display:none; }
+  .hero-card .hero-toggle{
+    position:absolute; top:0; right:0;
+    font-family:var(--font-mono); font-size:1.3rem; color:var(--muted);
+    transition:transform .15s;
+  }
+  .hero-card[open] .hero-toggle{ transform:rotate(90deg); color:var(--signal); }
+  .hero-body{ padding-top:1.6rem; }
+
+  /* ── spec match strip ── */
+  .spec-match{
+    border:1px solid var(--line);
+    background:var(--panel);
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .spec-match .sm-title{
+    font-family:var(--font-mono);
+    font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--muted);
+    padding:.65rem .9rem;
+    border-bottom:1px solid var(--line);
+  }
+  .spec-match .sm-head{
+    font-family:var(--font-mono);
+    font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--muted);
+    display:grid; grid-template-columns:1fr 1fr;
+    border-bottom:1px solid var(--line);
+  }
+  .spec-match .sm-head span{ padding:.6rem .9rem; }
+  .spec-match .sm-head span:first-child{ border-right:1px solid var(--line); }
+  .sm-row{
+    display:grid; grid-template-columns:1fr 1fr;
+    border-bottom:1px solid var(--line);
+  }
+  .sm-row:last-child{ border-bottom:none; }
+  .sm-row div{ padding:.85rem .9rem; font-size:.9rem; }
+  .sm-row .req{ border-right:1px solid var(--line); color:var(--muted); }
+  .sm-row .cand{ color:var(--ink); }
+  .sm-row .cand::before{
+    content:"✓ "; color:var(--signal); font-family:var(--font-mono);
+  }
+
+  /* ── registry / accordion spine ── */
+  .registry{
+    margin:3rem 0 0;
+    padding:0;
+    list-style:none;
+  }
+  .section-lede{
+    font-family:var(--font-mono);
+    font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--muted);
+    margin:3.2rem 0 1rem;
+    padding-bottom:.6rem;
+    border-bottom:1px dashed var(--line);
+  }
+
+  .node{
+    position:relative;
+    margin-left:14px;
+    padding-left:28px;
+    border-left:2px solid var(--line);
+  }
+  .node:last-child{ border-left:2px solid transparent; }
+  .node:not(:last-child){ padding-bottom:1.4rem; }
+
+  .node summary{
+    list-style:none;
+    cursor:pointer;
+    display:flex;
+    align-items:baseline;
+    gap:.75rem;
+    padding:.4rem 0;
+    position:relative;
+  }
+  .node summary::-webkit-details-marker{ display:none; }
+
+  .node summary .dot{
+    position:absolute;
+    left:-35px; top:.85rem;
+    width:12px; height:12px;
+    border-radius:50%;
+    background:var(--bg);
+    border:2px solid var(--line);
+    transition:border-color .15s, background .15s, box-shadow .15s;
+  }
+  .node[open] summary .dot{
+    border-color:var(--signal);
+    background:var(--signal);
+    box-shadow:0 0 0 4px rgba(61,220,132,.16);
+  }
+
+  .node summary .tag{
+    font-family:var(--font-mono);
+    font-size:12px; color:var(--muted);
+    white-space:nowrap;
+  }
+  .node[open] summary .tag{ color:var(--signal); }
+
+  .node summary .title{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.2rem;
+    color:var(--ink);
+    flex:1;
+  }
+  .node summary .chevron{
+    font-family:var(--font-mono);
+    color:var(--muted);
+    transition:transform .15s;
+    transform:rotate(0deg);
+  }
+  .node[open] summary .chevron{ transform:rotate(90deg); color:var(--signal); }
+
+  .node .body{ padding:.4rem 0 1.6rem; max-width:66ch; }
+
+  .jd-block{
+    font-family:var(--font-mono);
+    font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:.6rem;
+  }
+  .jd-block ~ ul{ margin:0 0 1.5rem; padding-left:1.1rem; }
+  .jd-block ~ ul li{ margin-bottom:.5rem; color:var(--ink); font-size:.92rem; }
+
+  .fit{
+    border-left:2px solid var(--amber);
+    background:var(--panel);
+    border-radius:0 6px 6px 0;
+    padding:1rem 1.1rem;
+  }
+  .fit .fit-label{
+    font-family:var(--font-mono);
+    font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--amber);
+    margin-bottom:.5rem;
+  }
+  .fit p{ margin:0 0 .6rem; }
+  .fit p:last-child{ margin-bottom:0; }
+
+  /* ── system sub-groups (section 3) ── */
+  .sys-group{ margin-bottom:1.6rem; }
+  .sys-group:last-child{ margin-bottom:0; }
+  .sys-group h4{
+    font-family:var(--font-mono);
+    font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 .7rem;
+  }
+  /* ── section 02: workflows-in-orbit ── */
+  .wf-body{ max-width:none; }
+
+  .wf-orbit{
+    position:relative;
+    width:min(100%, 660px);
+    aspect-ratio:1/1;
+    margin:1.8rem auto 2.2rem;
+    --wf-radius:38%;
+  }
+  .wf-globe{
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:84%; aspect-ratio:1/1;
+    z-index:0;
+  }
+  .wf-globe svg{ width:100%; height:100%; }
+  .wf-globe svg circle,
+  .wf-globe svg ellipse{
+    fill:none;
+    stroke:var(--line);
+    stroke-width:1;
+    vector-effect:non-scaling-stroke;
+  }
+  .wf-globe svg circle.wf-globe-pin{
+    fill:var(--signal);
+    stroke:none;
+  }
+  .wf-globe svg{ animation:wf-spin 40s linear infinite; }
+
+  .wf-node{
+    position:absolute;
+    top:calc(50% + (var(--y) * var(--wf-radius)));
+    left:calc(50% + (var(--x) * var(--wf-radius)));
+    transform:translate(-50%,-50%);
+    width:132px;
+    display:flex;
+    flex-direction:column;
+    gap:.2rem;
+    text-align:center;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:.55rem .6rem;
+    cursor:pointer;
+    font-family:inherit;
+    z-index:1;
+    transition:border-color .15s, transform .15s, box-shadow .15s;
+  }
+  .wf-node:hover, .wf-node:focus-visible{
+    border-color:var(--signal);
+    transform:translate(-50%,-50%) scale(1.05);
+    box-shadow:0 0 0 3px rgba(61,220,132,.16);
+    outline:none;
+    z-index:2;
+  }
+  .wf-node-title{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:.82rem;
+    color:var(--ink);
+    line-height:1.2;
+  }
+  .wf-node-apps{
+    font-family:var(--font-mono);
+    font-size:.68rem;
+    color:var(--muted);
+    line-height:1.3;
+  }
+
+  @keyframes wf-spin{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+
+  @media (max-width:900px){
+    .wf-orbit{
+      width:100%; aspect-ratio:auto;
+      display:flex; flex-direction:column; gap:.6rem;
+      margin:1.2rem 0 1.8rem;
+    }
+    .wf-globe{ display:none; }
+    .wf-node{
+      position:static;
+      transform:none;
+      width:100%;
+      flex-direction:row;
+      justify-content:space-between;
+      align-items:center;
+      text-align:left;
+    }
+    .wf-node:hover, .wf-node:focus-visible{ transform:none; }
+  }
+
+  .chip{
+    display:inline-block;
+    font-family:var(--font-mono);
+    font-size:12px; font-weight:600;
+    color:var(--ink);
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:.15rem .5rem;
+    margin-bottom:.55rem;
+  }
+
+  /* ── workflow modal (JS toggled — no hash/scroll side effects on close) ── */
+  .modal-overlay{
+    display:none;
+    position:fixed; inset:0; z-index:200;
+    background:rgba(6,10,12,.72);
+    padding:1.5rem;
+    align-items:flex-start; justify-content:center;
+    overflow-y:auto;
+  }
+  .modal-overlay.is-open{ display:flex; }
+  .modal-box{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:8px;
+    max-width:720px; width:100%;
+    margin-top:2rem;
+    padding:1.9rem 2.1rem;
+    position:relative;
+  }
+  .modal-box h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.15rem;
+    margin:.7rem 0 1.1rem;
+  }
+
+  /* ── workflow diagram: each step tagged with the app it happens in ── */
+  .flow-diagram{
+    display:flex;
+    align-items:stretch;
+    gap:.4rem;
+    margin:0 0 1.4rem;
+    flex-wrap:wrap;
+  }
+  .flow-step{
+    flex:1 1 110px;
+    min-width:96px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:.6rem .65rem;
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:.3rem;
+  }
+  .flow-app{
+    font-family:var(--font-mono);
+    font-size:9px; letter-spacing:.05em; text-transform:uppercase;
+    color:var(--signal);
+  }
+  .flow-step-text{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:.78rem;
+    line-height:1.25;
+  }
+  .flow-arrow{
+    display:flex; align-items:center; justify-content:center;
+    flex:0 0 auto;
+    width:1.1rem;
+    color:var(--muted);
+    font-family:var(--font-mono);
+    font-size:1rem;
+  }
+
+  .key-points{
+    list-style:none;
+    margin:0 0 1.3rem;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:.5rem;
+  }
+  .key-points li{
+    font-size:.88rem;
+    padding:.55rem .75rem .55rem 1.6rem;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:6px;
+    position:relative;
+  }
+  .key-points li::before{
+    content:"›";
+    position:absolute; left:.65rem; top:.5rem;
+    color:var(--signal);
+    font-family:var(--font-mono);
+    font-weight:700;
+  }
+
+  .modal-close{
+    position:absolute; top:1rem; right:1rem;
+    width:1.8rem; height:1.8rem;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-size:1rem;
+    color:var(--muted);
+    background:none;
+    border:1px solid var(--line); border-radius:4px;
+    cursor:pointer;
+  }
+  .modal-close:hover{ color:var(--ink); border-color:var(--muted); }
+
+  .wf-steps{
+    counter-reset:step;
+    list-style:none;
+    margin:0 0 1.3rem;
+    padding:0;
+  }
+  .wf-steps li{
+    counter-increment:step;
+    position:relative;
+    padding:0 0 .9rem 2.3rem;
+    font-size:.92rem;
+    min-height:1.5rem;
+  }
+  .wf-steps li:last-child{ padding-bottom:0; }
+  .wf-steps li::before{
+    content:counter(step);
+    position:absolute; left:0; top:0;
+    width:1.5rem; height:1.5rem;
+    border:1px solid var(--signal); color:var(--signal);
+    border-radius:50%;
+    font-family:var(--font-mono); font-size:.75rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* ── closing ── */
+  .node .body.closing-body{ max-width:none; }
+  .closing-body p{
+    max-width:none;
+    font-size:1.08rem;
+    line-height:1.7;
+    margin-bottom:1.2rem;
+  }
+  .closing-body p:last-child{ margin-bottom:0; }
+  .closing-body strong{ color:var(--amber); font-weight:700; }
+  .closing-body .memo p{ max-width:none; }
+
+  footer.eof{
+    text-align:center;
+    font-family:var(--font-mono);
+    font-size:11px; letter-spacing:.15em; text-transform:uppercase;
+    color:var(--line);
+    margin-top:4rem;
+  }
+
+  @media (max-width:640px){
+    .console{ padding:2.5rem 0 2.5rem; }
+    .console::before{ top:1rem; }
+    .spec-match .sm-head, .sm-row{ grid-template-columns:1fr; }
+    .spec-match .sm-head span:first-child, .sm-row .req{ border-right:none; border-bottom:1px solid var(--line); }
+    .node{ margin-left:8px; padding-left:22px; }
+    .node summary .dot{ left:-29px; }
+    .node summary{ flex-wrap:wrap; }
+    .node summary .title{ flex-basis:100%; order:1; }
+    .modal-overlay{ padding:.75rem; }
+    .modal-box{ margin-top:1.5rem; padding:1.3rem 1.3rem; }
+    .flow-diagram{ flex-direction:column; }
+    .flow-arrow{ width:auto; height:1rem; transform:rotate(90deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *{ transition-duration:0.01ms !important; animation:none !important; }
+  }
+
+  /* ── intro memo, addressed note above the hero ── */
+  .memo-intro{ padding:4rem 0 0; }
+  .memo{
+    border-left:2px solid var(--amber);
+    background:var(--panel);
+    border-radius:0 6px 6px 0;
+    padding:1.1rem 1.3rem;
+  }
+  .memo-fields{
+    font-family:var(--font-mono);
+    font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--muted);
+    display:flex; flex-wrap:wrap; gap:.3rem 1.4rem;
+    margin-bottom:.9rem;
+    padding-bottom:.7rem;
+    border-bottom:1px dashed var(--line);
+  }
+  .memo-fields .k{ color:var(--amber); }
+  .memo p{ margin:0 0 .7rem; max-width:64ch; }
+  .memo p:last-child{ margin-bottom:0; }
+
+  @media (max-width:640px){
+    .memo-intro{ padding-top:3.75rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Courtesy password gate — not real security on a static site, just keeps this
+     from being stumbled on via a shared link or crawler. See script below. -->
+<div id="pw-gate">
+  <div class="pw-gate-box">
+    <div class="pw-gate-label">Private page</div>
+    <h2>This one's just for you, Jay</h2>
+    <p>Enter the password to continue.</p>
+    <form id="pw-gate-form" autocomplete="off">
+      <input type="password" id="pw-gate-input" placeholder="Password" autocomplete="off" aria-label="Password">
+      <button type="submit">Unlock</button>
+    </form>
+    <p class="pw-gate-error" id="pw-gate-error" hidden>Wrong password — try again.</p>
+  </div>
+</div>
+<script>
+  (function () {
+    var PW = 'HirePeter2026!';
+    var gate = document.getElementById('pw-gate');
+    var form = document.getElementById('pw-gate-form');
+    var input = document.getElementById('pw-gate-input');
+    var errorEl = document.getElementById('pw-gate-error');
+
+    function unlock() {
+      gate.classList.add('is-unlocked');
+      document.body.style.overflow = '';
+      try { sessionStorage.setItem('pt-unlocked', '1'); } catch (e) {}
+    }
+
+    var alreadyUnlocked = false;
+    try { alreadyUnlocked = sessionStorage.getItem('pt-unlocked') === '1'; } catch (e) {}
+
+    if (alreadyUnlocked) {
+      gate.classList.add('is-unlocked');
+    } else {
+      document.body.style.overflow = 'hidden';
+      input.focus();
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (input.value === PW) {
+        unlock();
+      } else {
+        errorEl.hidden = false;
+        input.value = '';
+        input.focus();
+      }
+    });
+  })();
+</script>
+
+<a id="plrez-back-btn" href="/">← Back to Portfolio</a>
+
+<div class="wrap">
+
+  <!-- ══ INTRO MEMO ══ -->
+  <section class="memo-intro">
+    <div class="memo">
+      <div class="memo-fields">
+        <span><span class="k">To</span> Jay</span>
+        <span><span class="k">From</span> Peter Lee</span>
+        <span><span class="k">Re</span> Enterprise Applications Engineer — why this page exists</span>
+      </div>
+      <p>
+        Hi Jay — this is a temporary page I put together to help with your decision-making on
+        hiring me as your Enterprise Applications Engineer. It's built from my own reading of the
+        job description on LinkedIn, so if I've gotten something wrong about how the role actually
+        works day to day, feel free to correct me — or if hired, I'm confident I can correct myself
+        and fill in the blanks by reading the given documentation and shadowing someone for a few days.
+      </p>
+      <p>
+        My motivation to land this role is high. Part of what draws me to Presidio Trust
+        specifically: it's a federal agency, which means real federal benefits — a pension through
+        FERS on top of a Thrift Savings Plan with agency match. That combination is rare outside
+        government work, and it matters to me for the long term. I'm fully capable of immersing
+        myself in the daily routine after some initial training — holding myself to a high standard,
+        staying in my lane day to day, following your lead, and offering opinions or ideas for
+        improvement only when asked or when I genuinely think it'd help.
+      </p>
+    </div>
+  </section>
+
+  <!-- ══ HERO ══ -->
+  <header class="console">
+    <details class="hero-card" open>
+      <summary>
+        <span class="hero-toggle">›</span>
+        <div class="eyebrow">
+          <span>Candidate profile // Enterprise Applications Engineer</span>
+        </div>
+        <h1>Peter Lee</h1>
+      </summary>
+      <div class="hero-body">
+        <div class="spec-match">
+          <div class="sm-title">Enterprise Applications Engineer, Candidate — Presidio Trust · Data Applications Team · IT Department</div>
+          <div class="sm-head"><span>Required</span><span>Candidate</span></div>
+          <div class="sm-row">
+            <div class="req">8+ years, enterprise application administration &amp; integration</div>
+            <div class="cand">13 years administering and integrating enterprise applications at Signant Health — systems administration, integrations, troubleshooting, vendor coordination, and user access management across a regulated portfolio</div>
+          </div>
+          <div class="sm-row">
+            <div class="req">SQL proficiency for extraction, validation, troubleshooting</div>
+            <div class="cand">Wrote and deployed T-SQL directly against SQL Server: stored procedures, triggers, views, schema migrations</div>
+          </div>
+          <div class="sm-row">
+            <div class="req">API-based integrations (REST/SOAP) &amp; automated data workflows</div>
+            <div class="cand">Built API-based data exchanges between systems, plus automation in C# and Python that pulled and synced data across systems like JIRA, HAL, and email</div>
+          </div>
+          <div class="sm-row">
+            <div class="req">Experience in a regulated, compliance-heavy environment</div>
+            <div class="cand">13 years under clinical-trial data regulatory scrutiny — wrote SOPs and work instructions as part of that audit &amp; security discipline; not federal, but comparably strict</div>
+          </div>
+        </div>
+      </div>
+    </details>
+  </header>
+
+  <!-- ══ REGISTRY / ACCORDION ══ -->
+  <main>
+    <div class="registry">
+
+      <!-- 01 — ORGANIZATION & ROLE -->
+      <details class="node">
+        <summary>
+          <span class="dot"></span>
+          <span class="tag">01 · ORG</span>
+          <span class="title">The Organization And Role's Core Purpose</span>
+          <span class="chevron">›</span>
+        </summary>
+        <div class="body">
+          <div class="jd-block">The organization</div>
+          <p>Presidio Trust is a federal agency that stewards the Presidio — one of the most visited national park sites in the country, and also a place where people live and businesses operate — under a triple bottom line: loved and accessible to the public, a model of environmental stewardship, and excellent in its own operations.</p>
+          <div class="fit">
+            <div class="fit-label">Where I'd fit in</div>
+            <p>
+              Signant Health, where I spent 13 years, isn't a federal agency — but it builds the systems
+              behind clinical trial data, which runs under its own strict regulatory scrutiny. That gave me
+              a compliance-first instinct: assume every configuration change will be audited, document
+              accordingly, and treat multiple, sometimes competing stakeholder needs (research teams,
+              sponsors, regulators) as the normal operating condition, not the exception.
+            </p>
+            <p>That's the same posture a triple-bottom-line federal agency needs from whoever is configuring its systems.</p>
+          </div>
+          <div class="jd-block">The role's core purpose</div>
+          <ul>
+            <li>Technical lead for a 160+ system portfolio spanning procurement, facilities, analytics, automation, GIS, cloud, and AI-enabled tools.</li>
+            <li>Sits on the Data Applications team, reporting to the Principal Data Architect.</li>
+            <li>Fundamentally a bridge role — between business stakeholders, vendors, project teams, and IT.</li>
+          </ul>
+          <div class="fit">
+            <div class="fit-label">Where I'd fit in</div>
+            <p>
+              At Signant I built and ran an internal tool my team used daily to triage tickets across
+              JIRA, HAL, and email — everything from 15-minute fixes to two-hour releases — plus batch
+              automation for other departments. That tool only existed because I'd sat in the middle of
+              stakeholders, vendors, and IT long enough to see the actual gap.
+            </p>
+            <p>This role's "technical lead who bridges the room" description is the job I was already doing, just without the title.</p>
+          </div>
+        </div>
+      </details>
+
+      <!-- 02 — KEY WORKFLOWS -->
+      <details class="node">
+        <summary>
+          <span class="dot"></span>
+          <span class="tag">02 · FLOW</span>
+          <span class="title">Key Workflows</span>
+          <span class="chevron">›</span>
+        </summary>
+        <div class="body wf-body">
+          <div class="jd-block" style="text-align:center;">Instead of listing systems and responsibilities as two separate things, here's my best guess at how the actual work flows — which apps come into play at each step, what governance matters along the way, and how it connects with me. Nine workflows, spanning one property.</div>
+
+          <div class="wf-orbit">
+            <div class="wf-globe" aria-hidden="true">
+              <svg viewBox="0 0 200 200">
+                <circle cx="100" cy="100" r="98"/>
+                <ellipse cx="100" cy="100" rx="98" ry="34"/>
+                <ellipse cx="100" cy="100" rx="98" ry="66"/>
+                <ellipse cx="100" cy="100" rx="34" ry="98"/>
+                <ellipse cx="100" cy="100" rx="66" ry="98"/>
+                <circle cx="100" cy="100" r="2.5" class="wf-globe-pin"/>
+              </svg>
+            </div>
+
+            <button type="button" class="wf-node" id="tc-wf-procurement" data-open="wf-flow-procurement" style="--x:0;--y:-1">
+              <span class="wf-node-title">Procurement</span>
+              <span class="wf-node-apps">Coupa, ERP, Power BI</span>
+            </button>
+
+            <button type="button" class="wf-node" id="tc-wf-facility" data-open="wf-flow-facility" style="--x:0.643;--y:-0.766">
+              <span class="wf-node-title">Facility Assets</span>
+              <span class="wf-node-apps">VFA</span>
+            </button>
+
+            <button type="button" class="wf-node" id="tc-wf-access" data-open="wf-flow-access" style="--x:0.985;--y:-0.174">
+              <span class="wf-node-title">Access Provisioning</span>
+              <span class="wf-node-apps">M365, Azure AD, SharePoint</span>
+            </button>
+
+            <button type="button" class="wf-node" id="tc-wf-automation" data-open="wf-flow-automation" style="--x:0.866;--y:0.5">
+              <span class="wf-node-title">Work Automation</span>
+              <span class="wf-node-apps">Smartsheet</span>
+            </button>
+
+            <button type="button" class="wf-node" id="tc-wf-project" data-open="wf-flow-project" style="--x:0.342;--y:0.940">
+              <span class="wf-node-title">Project Delivery</span>
+              <span class="wf-node-apps">Asana, Power BI</span>
+            </button>
+
+            <button type="button" class="wf-node" id="tc-wf-reporting" data-open="wf-flow-reporting" style="--x:-0.342;--y:0.940">
+              <span class="wf-node-title">Reporting</span>
+              <span class="wf-node-apps">Power BI, SQL, Coupa</span>
+            </button>
+
+            <button type="button" class="wf-node" id="tc-wf-ai" data-open="wf-flow-ai" style="--x:-0.866;--y:0.5">
+              <span class="wf-node-title">AI Pilot</span>
+              <span class="wf-node-apps">M365 Copilot</span>
+            </button>
+
+            <button type="button" class="wf-node" id="tc-wf-cloud" data-open="wf-flow-cloud" style="--x:-0.985;--y:-0.174">
+              <span class="wf-node-title">Cloud SSO</span>
+              <span class="wf-node-apps">Azure</span>
+            </button>
+
+            <button type="button" class="wf-node" id="tc-wf-gis" data-open="wf-flow-gis" style="--x:-0.643;--y:-0.766">
+              <span class="wf-node-title">GIS / Spatial</span>
+              <span class="wf-node-apps">ArcGIS</span>
+            </button>
+          </div>
+
+          <div class="modal-overlay" id="wf-flow-procurement">
+            <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="wf-flow-procurement-title">
+              <button type="button" class="modal-close" data-close aria-label="Close">✕</button>
+              <span class="chip">Procurement</span>
+              <h3 id="wf-flow-procurement-title">My best guess: how this workflow actually works</h3>
+              <div class="jd-block">Based on the JD, not insider knowledge</div>
+              <div class="flow-diagram">
+                <div class="flow-step"><span class="flow-app">Coupa</span><span class="flow-step-text">Request submitted</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Coupa</span><span class="flow-step-text">Approval matrix routes it automatically</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">ERP</span><span class="flow-step-text">PO syncs; receipt &amp; invoice flow back</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Coupa</span><span class="flow-step-text">Three-way match runs before payment</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Power BI</span><span class="flow-step-text">Spend rolls into leadership dashboard</span></div>
+              </div>
+              <div class="jd-block">Governance — what I'd pay attention to</div>
+              <ul class="key-points">
+                <li>Approval thresholds and routing rules need periodic review as budgets and departments change.</li>
+                <li>Three-way match is the control that stops an incorrect or unauthorized payment before it goes out.</li>
+                <li>Coupa's own license/contract compliance sits alongside this workflow, not separate from it.</li>
+              </ul>
+              <div class="jd-block">Apps in play, and how I'd be responsible for them</div>
+              <p>Apps in play: Coupa for the request and approval chain, the ERP it syncs POs and invoices with, Power BI for the spend rollup. I'd own configuring Coupa's approval matrix and its integration into the ERP — responsible for how the system is set up, not just using it day to day. My guess: the EA Engineer would configure and maintain Coupa's approval routing rules, and be responsible for making sure a purchase doesn't clear for payment until the three-way match actually checks out.</p>
+              <div class="fit" style="margin:0;">
+                <div class="fit-label">How this connects to me</div>
+                <p>I haven't administered Coupa directly, but I spent 13 years doing this same category of work at Signant Health — configuring rule-based routing and validating data integrity in systems other people depended on.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-overlay" id="wf-flow-facility">
+            <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="wf-flow-facility-title">
+              <button type="button" class="modal-close" data-close aria-label="Close">✕</button>
+              <span class="chip">Facility Asset Lifecycle</span>
+              <h3 id="wf-flow-facility-title">My best guess: how this workflow actually works</h3>
+              <div class="jd-block">Based on the JD, not insider knowledge</div>
+              <div class="flow-diagram">
+                <div class="flow-step"><span class="flow-app">VFA</span><span class="flow-step-text">Asset registered — one canonical record</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">VFA</span><span class="flow-step-text">Work order raised against it</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">VFA</span><span class="flow-step-text">Closing it updates service history</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">VFA</span><span class="flow-step-text">Recurring check flags assets gone quiet</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Facilities</span><span class="flow-step-text">Repair-vs-replace decision made</span></div>
+              </div>
+              <div class="jd-block">Governance — what I'd pay attention to</div>
+              <ul class="key-points">
+                <li>Access to facility data split by who can edit versus who can only view.</li>
+                <li>The lifecycle rules need to live in a runbook, not one person's memory.</li>
+              </ul>
+              <div class="jd-block">Apps in play, and how I'd be responsible for them</div>
+              <p>Would own VFA's asset structure and work-order rules — the same discipline as keeping a database of service accounts clean, applied to physical assets instead. My guess: the EA Engineer would maintain VFA's asset and work-order structure, and be responsible for keeping the asset record accurate enough that a repair-vs-replace call can actually be trusted.</p>
+              <div class="fit" style="margin:0;">
+                <div class="fit-label">How this connects to me</div>
+                <p>Same caveat as Coupa — VFA itself is new to me, but asset-to-record integrity is the same discipline as keeping a database of service accounts and permissions clean, which I did for 13 years at Signant.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-overlay" id="wf-flow-access">
+            <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="wf-flow-access-title">
+              <button type="button" class="modal-close" data-close aria-label="Close">✕</button>
+              <span class="chip">New Hire / Role Change → System Access</span>
+              <h3 id="wf-flow-access-title">My best guess: how this workflow actually works</h3>
+              <div class="jd-block">Based on the JD, not insider knowledge</div>
+              <div class="flow-diagram">
+                <div class="flow-step"><span class="flow-app">HR system</span><span class="flow-step-text">Employment event triggers</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Azure AD</span><span class="flow-step-text">Account provisioned via security groups</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">SharePoint / M365</span><span class="flow-step-text">Group membership grants access</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Azure AD</span><span class="flow-step-text">Same-day revocation on offboarding</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Azure AD</span><span class="flow-step-text">Periodic access review</span></div>
+              </div>
+              <div class="jd-block">Governance — what I'd pay attention to</div>
+              <ul class="key-points">
+                <li>Access tied to current role, not to what someone accumulated over time.</li>
+                <li>Same-day revocation on offboarding — not "at the next scheduled review."</li>
+                <li>Every grant or change should be auditable after the fact.</li>
+              </ul>
+              <div class="jd-block">Apps in play, and how I'd be responsible for them</div>
+              <p>Apps in play: Azure AD for provisioning and group membership, SharePoint and the rest of M365 for what that access actually grants. Azure AD administration is a required qualification in the JD, not a nice-to-have. My guess: the EA Engineer would configure the Azure AD provisioning rules, and be responsible for making sure access is granted — and revoked — the same day the HR event happens, not days later.</p>
+              <div class="fit" style="margin:0;">
+                <div class="fit-label">How this connects to me</div>
+                <p>User access administration and RBAC were core to my 13 years at Signant — provisioning, auditing, and revoking access on systems people depended on daily, in a regulated environment.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-overlay" id="wf-flow-automation">
+            <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="wf-flow-automation-title">
+              <button type="button" class="modal-close" data-close aria-label="Close">✕</button>
+              <span class="chip">Work-Request Automation</span>
+              <h3 id="wf-flow-automation-title">My best guess: how this workflow actually works</h3>
+              <div class="jd-block">Based on the JD, not insider knowledge</div>
+              <div class="flow-diagram">
+                <div class="flow-step"><span class="flow-app">Process</span><span class="flow-step-text">Repetitive manual step identified</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Smartsheet</span><span class="flow-step-text">Workspace structure standardized</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Smartsheet</span><span class="flow-step-text">Automation rule built &amp; tested</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Smartsheet</span><span class="flow-step-text">Deployed</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Smartsheet</span><span class="flow-step-text">Monitored, escalation added if needed</span></div>
+              </div>
+              <div class="jd-block">Governance — what I'd pay attention to</div>
+              <ul class="key-points">
+                <li>Automate the repeatable, well-understood step. Keep a human in the loop for anything judgment-based.</li>
+                <li>Every automation needs an owner, or it becomes the thing nobody remembers how to fix.</li>
+                <li>Workspace access (edit versus view) still needs governing, same as any other system.</li>
+              </ul>
+              <div class="jd-block">Apps in play, and how I'd be responsible for them</div>
+              <p>Would build and own Smartsheet automation rules directly — workspace governance and automation is named as a desired qualification in the JD. My guess: the EA Engineer would build and maintain the Smartsheet automation rules directly, and be responsible for making sure an automated step still has a human owner if it breaks.</p>
+              <div class="fit" style="margin:0;">
+                <div class="fit-label">How this connects to me</div>
+                <p>Same instinct behind the internal tools I built at Signant, and the Python automation behind the YouTube channel I scaled to 42,000+ subscribers — find the repetitive step, remove the bottleneck.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-overlay" id="wf-flow-project">
+            <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="wf-flow-project-title">
+              <button type="button" class="modal-close" data-close aria-label="Close">✕</button>
+              <span class="chip">Project Intake → Delivery</span>
+              <h3 id="wf-flow-project-title">My best guess: how this workflow actually works</h3>
+              <div class="jd-block">Based on the JD, not insider knowledge</div>
+              <div class="flow-diagram">
+                <div class="flow-step"><span class="flow-app">Asana</span><span class="flow-step-text">Request via standard intake template</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Asana</span><span class="flow-step-text">Routed to the right team</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">e.g. Power BI</span><span class="flow-step-text">Solution configured</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Business users</span><span class="flow-step-text">UAT before go-live</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Project</span><span class="flow-step-text">Deployment + closeout docs</span></div>
+              </div>
+              <div class="jd-block">Governance — what I'd pay attention to</div>
+              <ul class="key-points">
+                <li>UAT means actual end users test it — not IT testing its own work.</li>
+                <li>Intake fields should map to what's actually delivered, so there's a record if scope drifted.</li>
+                <li>Closeout documentation isn't optional — it's what the next person inherits.</li>
+              </ul>
+              <div class="jd-block">Apps in play, and how I'd be responsible for them</div>
+              <p>Apps in play: Asana for intake and routing, plus whatever system the request is actually about — Power BI, for example, if the request is a new dashboard. My guess: the EA Engineer would administer the Asana intake templates, and be responsible for making sure a request doesn't go live without real UAT from the actual end users.</p>
+              <div class="fit" style="margin:0;">
+                <div class="fit-label">How this connects to me</div>
+                <p>I ran structured requirements-gathering sessions with clinical leads and stakeholders at Signant, then facilitated UAT before rollout.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-overlay" id="wf-flow-reporting">
+            <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="wf-flow-reporting-title">
+              <button type="button" class="modal-close" data-close aria-label="Close">✕</button>
+              <span class="chip">Reporting Pipeline</span>
+              <h3 id="wf-flow-reporting-title">My best guess: how this workflow actually works</h3>
+              <div class="jd-block">Based on the JD, not insider knowledge</div>
+              <div class="flow-diagram">
+                <div class="flow-step"><span class="flow-app">Coupa</span><span class="flow-step-text">Data source identified</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">SQL</span><span class="flow-step-text">Extracted, validated, modeled</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Power BI</span><span class="flow-step-text">Connected directly, no manual export</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Power BI</span><span class="flow-step-text">Row-level security applied</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Power BI</span><span class="flow-step-text">Scheduled refresh keeps it current</span></div>
+              </div>
+              <div class="jd-block">Governance — what I'd pay attention to</div>
+              <ul class="key-points">
+                <li>Row-level security is the access-control layer for reporting — same RBAC principle, applied to data visibility.</li>
+                <li>Data lineage matters: know where a number in a report actually came from.</li>
+                <li>A manual export step is a governance risk (stale data, no audit trail), not just an inconvenience.</li>
+              </ul>
+              <div class="jd-block">Apps in play, and how I'd be responsible for them</div>
+              <p>Apps in play: SQL for extraction and modeling, Power BI for the dashboard, and whatever system feeds it — Coupa, for example, if the report is tracking spend. My guess: the EA Engineer would build and maintain the SQL-to-Power-BI pipeline, and be responsible for making sure the numbers in a report can be traced back to where they actually came from.</p>
+              <div class="fit" style="margin:0;">
+                <div class="fit-label">How this connects to me</div>
+                <p>I wrote production T-SQL against SQL Server for 13 years; this workflow is just the reporting layer on top of that.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-overlay" id="wf-flow-ai">
+            <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="wf-flow-ai-title">
+              <button type="button" class="modal-close" data-close aria-label="Close">✕</button>
+              <span class="chip">AI Feature Pilot</span>
+              <h3 id="wf-flow-ai-title">My best guess: how this workflow actually works</h3>
+              <div class="jd-block">Based on the JD, not insider knowledge</div>
+              <div class="flow-diagram">
+                <div class="flow-step"><span class="flow-app">Use case</span><span class="flow-step-text">Candidate use case identified</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">M365</span><span class="flow-step-text">Piloted with a small group</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">M365</span><span class="flow-step-text">Measured for real time/quality impact</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Decision</span><span class="flow-step-text">Scaled, adjusted, or dropped</span></div>
+              </div>
+              <div class="jd-block">Governance — what I'd pay attention to</div>
+              <ul class="key-points">
+                <li>Pilot before rollout — an AI feature earns its place, it isn't assumed useful.</li>
+                <li>Proportional: the JD frames this as "evaluate and support," one responsibility among many, not the core of the role.</li>
+                <li>Whatever data the AI touches still needs the same privacy/governance review as anything else.</li>
+              </ul>
+              <div class="jd-block">Apps in play, and how I'd be responsible for them</div>
+              <p>Would evaluate AI features inside M365 in partnership with IT and the vendor — assessing whether it earns a place in the workflow, not engineering the AI itself. My guess: the EA Engineer would help evaluate a feature like Copilot inside M365, and be responsible for measuring whether it's actually saving time before it gets rolled out further — not for engineering the AI itself.</p>
+              <div class="fit" style="margin:0;">
+                <div class="fit-label">How this connects to me</div>
+                <p>Directly grounded in recent hands-on work — I've used AI tools like Claude daily to script, investigate logs, and build production automation, not just experimented with them. Same instinct behind scaling a YouTube channel to 42,000+ subscribers using Python-based automation and AI-driven production tooling.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-overlay" id="wf-flow-cloud">
+            <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="wf-flow-cloud-title">
+              <button type="button" class="modal-close" data-close aria-label="Close">✕</button>
+              <span class="chip">Cloud Identity &amp; SSO Integration</span>
+              <h3 id="wf-flow-cloud-title">My best guess: how this workflow actually works</h3>
+              <div class="jd-block">Based on the JD, not insider knowledge</div>
+              <div class="flow-diagram">
+                <div class="flow-step"><span class="flow-app">New app</span><span class="flow-step-text">Departmental app needs a login</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Azure AD</span><span class="flow-step-text">Registered for SSO</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Azure</span><span class="flow-step-text">Inherits conditional-access &amp; MFA policy</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Azure</span><span class="flow-step-text">Access assigned via security groups</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Azure</span><span class="flow-step-text">Integration documented for the next app</span></div>
+              </div>
+              <div class="jd-block">Governance — what I'd pay attention to</div>
+              <ul class="key-points">
+                <li>A new app inheriting existing MFA / conditional-access policy beats it running its own island.</li>
+                <li>Documented so the pattern repeats consistently instead of being reinvented each time.</li>
+              </ul>
+              <div class="jd-block">Apps in play, and how I'd be responsible for them</div>
+              <p>Would own the Azure-side SSO integration work — Azure is both a required and desired qualification in the JD. My guess: the EA Engineer would configure the Azure-side SSO registration, and be responsible for making sure a new app inherits existing MFA and conditional-access policy instead of running its own login.</p>
+              <div class="fit" style="margin:0;">
+                <div class="fit-label">How this connects to me</div>
+                <p>My hands-on cloud experience is lighter than my on-prem SQL Server background, but identity and access administration is the same discipline regardless of platform — which is where most of my 13 years were spent.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-overlay" id="wf-flow-gis">
+            <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="wf-flow-gis-title">
+              <button type="button" class="modal-close" data-close aria-label="Close">✕</button>
+              <span class="chip">GIS / Spatial Data</span>
+              <h3 id="wf-flow-gis-title">My best guess: how this workflow actually works</h3>
+              <div class="jd-block">Based on the JD, not insider knowledge</div>
+              <div class="flow-diagram">
+                <div class="flow-step"><span class="flow-app">ArcGIS</span><span class="flow-step-text">Learn what layers exist, who maintains them</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">ArcGIS</span><span class="flow-step-text">Apply access-governance habits</span></div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step"><span class="flow-app">Facilities / Planning</span><span class="flow-step-text">Support location-based questions</span></div>
+              </div>
+              <div class="jd-block">Governance — what I'd pay attention to</div>
+              <ul class="key-points">
+                <li>Access control still applies even without deep GIS expertise — edit versus view is a real governance line.</li>
+                <li>Loop in the current owner early rather than guessing at conventions I don't have direct experience with.</li>
+              </ul>
+              <div class="jd-block">Apps in play, and how I'd be responsible for them</div>
+              <p>Would own the ArcGIS application-management layer — administration, integration with the rest of the stack, access control — same as every other app in this portfolio. The spatial/mapping analysis stays with the actual GIS users; ArcGIS falls under Data &amp; Analytics in the JD, not the required-qualification list the way SQL is, so I'm reading platform depth as something to build on the job. My guess: the EA Engineer would administer ArcGIS's access and integration layer, and be responsible for keeping edit-versus-view permissions straight — not for the mapping work itself.</p>
+              <div class="fit" style="margin:0;">
+                <div class="fit-label">How this connects to me</div>
+                <p>I haven't administered ArcGIS specifically, but an ArcGIS geodatabase is a relational database with an application layer on top — schema, permissions, data validation, integration with everything around it. That's the same application-management work as the rest of my 13 years at Signant, just on a new platform.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- 03 — CLOSING -->
+      <details class="node">
+        <summary>
+          <span class="dot"></span>
+          <span class="tag">03 · CLOSE</span>
+          <span class="title">Closing</span>
+          <span class="chevron">›</span>
+        </summary>
+        <div class="body closing-body">
+          <p>A portfolio of 160+ systems — procurement, facilities, GIS, analytics, cloud, AI-enabled tools — isn't really 160 separate problems. It comes down to <strong>two things done well, continuously</strong>: knowing exactly <strong>who can touch what</strong> across every system, and making sure the workflows connecting those systems are actually doing what they're supposed to do. Most of the work isn't building something new. It's keeping what's already running <strong>configured correctly, connected correctly, and inside its access and compliance lines</strong> — then having the judgment to know when a vendor upgrade, a new integration, or a new AI tool is worth bringing into that portfolio versus adding risk to it.</p>
+          <p>That's the environment I've operated in for <strong>13+ years</strong>. At Signant Health, I owned the data infrastructure behind <strong>50+ concurrent clinical trial programs</strong> — a heavily regulated space where access control, audit integrity, and data accuracy weren't nice-to-haves, they were the job. <strong>Zero critical data-integrity failures</strong> across that entire tenure wasn't luck; it came from treating every system change, every integration, and every permission as something to get right the first time, because stakeholders were making real decisions on that data.</p>
+          <p>My approach to problem-solving is <strong>root-cause diagnosis</strong>: sit with the person (physically or virtually) actually affected, walk through their real workflow, and find the actual issue instead of the reported one. If it's an internal issue that isn't documented — no user to sit with, no ticket describing it — I investigate the same way: trace the workflow end to end, system by system and log by log, and diagnose where it's actually breaking down instead of guessing at a fix. That's the pattern behind a real-time monitoring and alerting system I built that caught errors before they became incidents, a query re-engineering pass that cut execution time <strong>35%</strong>, and a database release pipeline I automated that cut backend workload <strong>60%</strong> — in every case, fixing the root cause and documenting it so the fix holds up without me in the room.</p>
+          <p>An organization like Presidio Trust has to answer to the public, to environmental stewardship, and to its own operational integrity at the same time. That means being <strong>precise about who has access to what</strong>, and disciplined about making sure every system in the portfolio is actually doing its job. That's the work I've done for over a decade, and it's the work I want to keep doing.</p>
+
+          <p>I'm based in Daly City, right next to San Francisco and the Presidio — no relocation, no delay. This is posted as a remote role, and I've done that before: in-office at Signant Health until 2017, then fully remote from there until the layoff.</p>
+
+          <div class="memo" style="margin-top:1.2rem;">
+            <p>I'm a firm believer that the best way to know if someone will actually do a job well is to put them in the fire — a probation period — and see if they meet or exceed what's asked of them. I hope reading through this made it clear I'm <strong>capable, sharp, a quick learner, experienced, and educated</strong> enough to be worth that shot.</p>
+            <p>— Peter</p>
+          </div>
+        </div>
+      </details>
+
+    </div>
+  </main>
+
+  <footer class="eof">— hire peter —</footer>
+
+</div>
+
+<script>
+  // Workflow modals: plain open/close, no URL hash, no scroll side effects.
+  (function () {
+    var active = null;
+    var lastTrigger = null;
+
+    function close() {
+      if (!active) return;
+      active.classList.remove('is-open');
+      if (lastTrigger) lastTrigger.focus({ preventScroll: true });
+      active = null;
+      lastTrigger = null;
+    }
+
+    document.querySelectorAll('[data-open]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var el = document.getElementById(btn.getAttribute('data-open'));
+        if (!el) return;
+        el.classList.add('is-open');
+        active = el;
+        lastTrigger = btn;
+        var closeBtn = el.querySelector('[data-close]');
+        if (closeBtn) closeBtn.focus({ preventScroll: true });
+      });
+    });
+
+    document.querySelectorAll('[data-close]').forEach(function (btn) {
+      btn.addEventListener('click', close);
+    });
+
+    document.querySelectorAll('.modal-overlay').forEach(function (overlay) {
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) close();
+      });
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') close();
+    });
+  })();
+</script>
+
+</body>
+</html>
